@@ -6,7 +6,9 @@ This document is written in English only. The Russian guide is `Инструкц
 
 ## What the file is
 
-`СтатПрактикум.html` is a single self-contained file, about 36 MB. Open it in any modern browser by double-clicking it. **No internet connection is required**: the fonts, the maths renderer, the PDF viewer, all 10 source PDFs (179 pages) and the whole task bank are embedded in the file.
+**Live site (nothing to download):** <https://projectaaj2025-sys.github.io/matstat/> — the course opens straight in the browser.
+
+For offline work, download the app file — **`index.html`** in the repository root — and open it in any modern browser by double-clicking it. **No internet connection is required**: the fonts, the maths renderer, the PDF viewer, all 10 source PDFs (179 pages) and the whole task bank are embedded in the file.
 
 Results, notes and settings are stored in the browser of the device you work on. Nothing is sent anywhere, there is no account and no class register. A different browser or device starts with empty progress.
 
