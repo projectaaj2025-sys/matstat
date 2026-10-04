@@ -1,6 +1,6 @@
 # StatPracticum — guide
 
-Version 3.7 · interactive course on statistics and random variables · grade 10 (plus one supplementary grade 11 topic).
+Version 4.0 · interactive course on statistics and random variables · grade 10 (plus one supplementary grade 11 topic).
 
 This document is written in English only. The Russian guide is `Инструкция к СтатПрактикуму.md`; the Kazakh one is `СтатПрактикум — нұсқаулық (KK).md`.
 
@@ -10,7 +10,7 @@ This document is written in English only. The Russian guide is `Инструкц
 
 For offline work, download the app file — **`index.html`** in the repository root — and open it in any modern browser by double-clicking it. **No internet connection is required**: the fonts, the maths renderer, the PDF viewer, all 10 source PDFs (179 pages) and the whole task bank are embedded in the file.
 
-Results, notes and settings are stored in the browser of the device you work on, and nothing is sent anywhere automatically: there is no account and no server. A student hands the work to the teacher as a file or a code, and the teacher collects the class in the **class journal**. A different browser or device starts with empty progress.
+Results, notes and settings are stored in the browser of the device you work on, and nothing is sent anywhere automatically: there is no account and no server. **Open answers are graded on the spot** against the criteria of the task; no work is handed over, and a different browser or device starts with empty progress.
 
 ## Course contents
 
@@ -26,7 +26,7 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
-- the whole shell, navigation, tabs, bank, progress, library, teacher panel, class journal and reflection pages — **1296 phrases in English and 1297 in Kazakh** (version 3.6 adds 139 phrases: the class journal, sending results and the review assistant; version 3.7 adds **35 more**: the teacher profile, the solution mode and auto-credit);
+- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1373 phrases in English and 1374 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries);
 - **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
@@ -83,58 +83,58 @@ Two modes: the **encouragement wheel** (12 supportive prompts) and **European ro
 
 The class tally counts **one click as one vote**; repeated clicks add further votes. It cannot recognise individual students and does not merge votes from other devices — it is a counter inside one browser. “Reset votes” clears the three counters only; the personal note and academic progress are kept. Spinning the wheel offers a question for reflection and never casts a vote.
 
-## Class journal and sending results
+## Answer checking
 
-Student results still live in the browser, but they can now be **handed to the teacher without the internet and without signing up** — as a file or a code.
+Numeric input accepts `0,25`, `0.25`, `1/4` and `25%`. Keep the units and the scale of the question; empty input and division by zero are rejected. **487 tasks** are checked automatically: number, single choice, multiple choice, matching, ordering, table and chart reading.
 
-**The student** opens **“My progress”** and uses the card **“Send the results to the teacher”**:
+**93 open answers are graded automatically** — nothing is sent to the teacher. Each open task carries **check metadata**: the criteria with their key words and the numbers from the model solution. When a student saves an answer, the check
 
-- **“Download the results file”** — a small JSON file with every answer, open response and progress figure;
-- **“Show the transfer code”** / **“Copy the code”** — the same report as text for a messenger or e-mail (browsers that support compression produce a code two to three times shorter);
-- **“Upload the review file”** / **“Paste the review code”** — to accept the teacher's review.
+- looks for the words of every criterion and for the numbers from the model answer;
+- compares the coverage of the answer with the model solution (at least 70 % of its terms);
+- shows the **percentage of checkable points met** and **what is missing** — the criteria whose words were not found and the numbers that are absent;
+- **credits** the answer once the threshold share of points is met (100 % by default).
 
-**The teacher** opens **“For teachers” → “Class journal”**:
+The check **never marks an answer wrong**: it shows what is missing and credits only a complete answer. The percentage is the share of checkable points, not a grade in a register.
 
-- accepts one or several files at once, drags them onto the upload area or pastes a transfer code;
-- sees each student's progress and percentage, open answers and the number of works waiting for review;
-- ticks the criteria, writes a comment and accepts an answer in one click, while **“Review for the student”** downloads a review file (and copies its code) for the student to load;
-- exports **“Journal to CSV”**, a **“Topic matrix”** (checked/all for every section), a **“Detailed CSV”** covering every task and a **“Printable report”** with the class table and the answers awaiting review;
-- answers credited automatically are marked **“Auto-credit”**: the **“Auto-credit by rule”** button applies the same rule to one work or to the whole class at once, and the **“Auto-credit first”** sort starts with them;
-- the exports carry an **“Auto-credit”** column (the number of such answers in the journal, a per-task mark in the detailed CSV), and the printable report has the same column;
-- re-importing the same student's work updates the record and keeps the reviews already given; when the answer text changes, the entry is marked **“The work was updated — review it again.”**
+The **credit threshold** is set in the teacher profile with a 50–100 % slider, **100 %** by default. At 80 % an answer with one or two missing points is credited. Changing the threshold re-scores every saved open answer at once.
 
-The journal is stored in the teacher's browser (IndexedDB) and is **not** included in the downloadable course copy: that copy still carries materials only. Export a CSV or print the report before clearing browser data.
+How strict is it? Measured across all 93 open tasks: at the 100 % threshold the course sample texts are credited in **78 %** of tasks and at 80 % in **91 %**; answers cut to 40 % pass in 4 % of tasks; unrelated text never passes. The check compares words and numbers, not meaning, so criteria marked as judged by meaning are never auto-credited — they stay visible in the task for the student to read.
 
-## Teacher profile: solutions, attempts and auto-credit
+## Teacher profile: solutions, attempts and credit threshold
 
-The **For teachers** page now carries a **Teacher profile** card above the panel. The settings apply in this browser and are not carried over with a copy of the course.
+The **For teachers** page carries a **Teacher profile** card above the panel. The settings apply in this browser and are not carried over with a copy of the course.
 
-**“Show solutions under the tasks”** (slider):
+**“Show solutions under the tasks”** (switch): on — every worked solution and example is open under the tasks; off (default) — solutions stay hidden, and in an automatically checked task the solution opens **after several attempts**, with a counter: “The worked solution opens after several attempts: 2 / 3”.
 
-- on — every worked solution and example is open under the tasks, which is handy for going through a solution with the class;
-- off (default) — solutions stay hidden, and in an automatically checked task the worked solution opens **after several attempts**. A closed solution shows a counter: “The worked solution opens after several attempts: 2 / 3”.
+**“Attempts before the solution opens”** (slider 1–6, three by default).
 
-**“Attempts before the solution opens”** (slider 1–6, three by default) — how many times a student must answer in an automatically checked task before the solution appears. In open tasks the example stays available on click: it explains how to build the reasoning.
+**“Automatic grading of open answers”** (switch, on by default): when it is on, a saved answer is checked at once; when it is off, the answer is saved without credit and the student checks it against the criteria.
 
-**“Automatic checking of open answers”** (slider, on by default):
+**“Credit threshold”** (slider 50–100 %, **100 %** by default): the share of checkable points required for credit. Changing the threshold re-scores all saved open answers immediately.
 
-- when an open answer is saved, the check looks for **criterion words** and the **numbers from the sample solution** and compares the length of the answer with the sample;
-- if every criterion and every sample number is found, the answer is **credited at once** and marked “auto-credit”;
-- the other answers stay with the teacher, while the student sees how many criteria were found and which words are missing;
-- automatic checking **never marks an answer wrong** — it only credits a complete answer;
-- the teacher **can change** any automatic decision in the class journal, and the auto-credit mark is then removed.
+The profile also shows how many open answers were credited, how many of them automatically, and how many tests were completed. **There is no class journal any more** — student work is never collected or transferred.
 
-How strict is the rule? Measured across all 93 open tasks: on the course's sample texts it fires in roughly **one case out of five**, on answers cut in half in 1 %, and on unrelated text never. The check compares words and numbers, not meaning, so a retelling “in one's own words” without the criterion terms will not be auto-credited, and complex reasoning is still read by a human. Auto-credit speeds up marking; it does not replace the teacher.
+## Trainer, test paper and search
 
-The student sees the result at once: **“Credited automatically (preliminary)”**, the number of criteria found, or a note that no criterion words were found. Editing the answer withdraws the auto-credit and runs the check again.
+**Mistake trainer** shows **only unsolved tasks**: the whole course, a single topic, or the personal **hard tasks** map built from extra attempts and incomplete answers. Counters show what is left and what was solved in this session.
+
+**Test paper** draws a random sample from a topic or the whole course: 3–30 tasks, a 5–90 minute timer, open answers included or excluded. Solutions, hints and checking stay **locked** during the test; when the time is up the paper is submitted automatically. The result — percentage, tasks solved and a task-by-task review — is computed automatically, kept in this browser, exported to CSV and listed in the test history.
+
+**Search tasks** looks through questions, criteria, solutions and topics, with filters by **format**, **level** and **status**; a found task can be answered on the spot.
+
+**My progress** brings it together: the progress ring, percentages by topic, the **hard tasks** card, test results and the lesson summaries.
+
+## Lesson summaries
+
+Every lesson and slide deck now has a **one-page summary**: key ideas, formulas, lesson flow and questions for the class. The six summaries are available in **Russian, English and Kazakh** and open in the language chosen in the switcher, in the library, in “My progress” and in the **Lesson summaries** tab of the teacher panel. Each one can be downloaded as text — this closes the gap while the slide PDFs remain Russian-only.
 
 ## For teachers
 
-The **For teachers** page holds a 45-minute lesson plan per topic, source tables, the theory text, answers, the **class journal** with the works handed in by students, and the ability to add your own materials and export the course with them. Worksheets can be printed or saved as PDF through the browser print dialog.
+The **For teachers** page holds a 45-minute lesson plan per topic, source tables, the theory text, answers, lesson summaries, and the ability to add your own materials and export the course with them. The journal, review import and file transfer have been **removed**: the panel prepares the lesson, while students are graded automatically on their own devices. Worksheets can be printed or saved as PDF through the browser print dialog.
 
 ## Limits to keep in mind
 
-- Progress is local to one browser; the class journal is assembled from files and codes and is not a cloud grade book.
-- Auto-credit is a formal signal (criterion words and sample numbers), not an assessment of meaning: it never marks an answer wrong, and the teacher can change every decision.
+- Progress is local to one browser; there is no server, no accounts and no transfer of student work.
+- Automatic grading is a formal check (criterion words, sample numbers and coverage), not an assessment of meaning: it never marks an answer wrong, and the threshold can be lowered in the teacher profile.
 - Published data snapshots are dated and are not forecasts.
 - The labs are teaching models: a simulation does not prove a real-world claim on its own.
