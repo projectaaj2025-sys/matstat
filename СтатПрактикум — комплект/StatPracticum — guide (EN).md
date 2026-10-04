@@ -1,6 +1,6 @@
 # StatPracticum — guide
 
-Version 3.6 · interactive course on statistics and random variables · grade 10 (plus one supplementary grade 11 topic).
+Version 3.7 · interactive course on statistics and random variables · grade 10 (plus one supplementary grade 11 topic).
 
 This document is written in English only. The Russian guide is `Инструкция к СтатПрактикуму.md`; the Kazakh one is `СтатПрактикум — нұсқаулық (KK).md`.
 
@@ -26,7 +26,7 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
-- the whole shell, navigation, tabs, bank, progress, library, teacher panel, class journal and reflection pages — **1261 phrases in English and 1262 in Kazakh** (version 3.6 adds **139 phrases**: the class journal, sending results and the review assistant);
+- the whole shell, navigation, tabs, bank, progress, library, teacher panel, class journal and reflection pages — **1296 phrases in English and 1297 in Kazakh** (version 3.6 adds 139 phrases: the class journal, sending results and the review assistant; version 3.7 adds **35 more**: the teacher profile, the solution mode and auto-credit);
 - **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
@@ -44,8 +44,8 @@ Numbers, units, formulas, task identifiers, the language names in the switch (�
 Each topic has four tabs: **Theory**, **Practice**, **Lab** and **Slides**.
 
 - Numerical answers accept a fraction, a decimal (comma or dot) or a percentage, and are checked against a stated tolerance.
-- Open answers are saved for the teacher and only count towards progress after the teacher has graded them substantively. An assistant shows the answer length, the numbers from the sample solution found in the text and the criterion words it can see, and prepares a draft comment — it never awards a mark.
-- “Worked solution” explains the reasoning; it is not a short answer key.
+- Open answers are saved for the teacher and only count towards progress after the teacher has graded them substantively. An assistant shows the answer length, the numbers from the sample solution found in the text and the criterion words it can see, and prepares a draft comment — it never awards a mark. Complete answers can be credited automatically when the teacher profile allows it.
+- “Worked solution” explains the reasoning; it is not a short answer key. In automatically checked tasks it is locked until several attempts have been made, and the teacher can open every solution with one slider.
 
 ## Why the casino wins — a study
 
@@ -99,9 +99,34 @@ Student results still live in the browser, but they can now be **handed to the t
 - sees each student's progress and percentage, open answers and the number of works waiting for review;
 - ticks the criteria, writes a comment and accepts an answer in one click, while **“Review for the student”** downloads a review file (and copies its code) for the student to load;
 - exports **“Journal to CSV”**, a **“Topic matrix”** (checked/all for every section), a **“Detailed CSV”** covering every task and a **“Printable report”** with the class table and the answers awaiting review;
+- answers credited automatically are marked **“Auto-credit”**: the **“Auto-credit by rule”** button applies the same rule to one work or to the whole class at once, and the **“Auto-credit first”** sort starts with them;
+- the exports carry an **“Auto-credit”** column (the number of such answers in the journal, a per-task mark in the detailed CSV), and the printable report has the same column;
 - re-importing the same student's work updates the record and keeps the reviews already given; when the answer text changes, the entry is marked **“The work was updated — review it again.”**
 
 The journal is stored in the teacher's browser (IndexedDB) and is **not** included in the downloadable course copy: that copy still carries materials only. Export a CSV or print the report before clearing browser data.
+
+## Teacher profile: solutions, attempts and auto-credit
+
+The **For teachers** page now carries a **Teacher profile** card above the panel. The settings apply in this browser and are not carried over with a copy of the course.
+
+**“Show solutions under the tasks”** (slider):
+
+- on — every worked solution and example is open under the tasks, which is handy for going through a solution with the class;
+- off (default) — solutions stay hidden, and in an automatically checked task the worked solution opens **after several attempts**. A closed solution shows a counter: “The worked solution opens after several attempts: 2 / 3”.
+
+**“Attempts before the solution opens”** (slider 1–6, three by default) — how many times a student must answer in an automatically checked task before the solution appears. In open tasks the example stays available on click: it explains how to build the reasoning.
+
+**“Automatic checking of open answers”** (slider, on by default):
+
+- when an open answer is saved, the check looks for **criterion words** and the **numbers from the sample solution** and compares the length of the answer with the sample;
+- if every criterion and every sample number is found, the answer is **credited at once** and marked “auto-credit”;
+- the other answers stay with the teacher, while the student sees how many criteria were found and which words are missing;
+- automatic checking **never marks an answer wrong** — it only credits a complete answer;
+- the teacher **can change** any automatic decision in the class journal, and the auto-credit mark is then removed.
+
+How strict is the rule? Measured across all 93 open tasks: on the course's sample texts it fires in roughly **one case out of five**, on answers cut in half in 1 %, and on unrelated text never. The check compares words and numbers, not meaning, so a retelling “in one's own words” without the criterion terms will not be auto-credited, and complex reasoning is still read by a human. Auto-credit speeds up marking; it does not replace the teacher.
+
+The student sees the result at once: **“Credited automatically (preliminary)”**, the number of criteria found, or a note that no criterion words were found. Editing the answer withdraws the auto-credit and runs the check again.
 
 ## For teachers
 
@@ -110,5 +135,6 @@ The **For teachers** page holds a 45-minute lesson plan per topic, source tables
 ## Limits to keep in mind
 
 - Progress is local to one browser; the class journal is assembled from files and codes and is not a cloud grade book.
+- Auto-credit is a formal signal (criterion words and sample numbers), not an assessment of meaning: it never marks an answer wrong, and the teacher can change every decision.
 - Published data snapshots are dated and are not forecasts.
 - The labs are teaching models: a simulation does not prove a real-world claim on its own.
