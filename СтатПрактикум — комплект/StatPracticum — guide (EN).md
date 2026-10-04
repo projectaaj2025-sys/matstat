@@ -15,10 +15,10 @@ Results, notes and settings are stored in the browser of the device you work on,
 ## Course contents
 
 - **19 topics** — 18 core grade 10 topics plus one supplementary grade 11 topic on discrete and interval frequency series.
-- **580 graded sub-tasks**: 434 in the topics and 146 in the problem bank. 8 answer formats: number, single choice, multiple choice, matching, ordering, table completion, chart reading and open response.
+- **595 graded sub-tasks**: 449 in the topics and 146 in the problem bank. 8 answer formats: number, single choice, multiple choice, matching, ordering, table completion, chart reading and open response.
 - **75 bank problems** with full statements, source data and solutions.
 - **18 interactive labs**, 13 distribution models, 6 presentations (140 slides) and 10 embedded PDFs.
-- **PISA-style section**: 60 questions in 9 situations, 6 of them built on real published data from Kazakhstan and the world.
+- **PISA-style section**: 75 questions in 12 situations, 9 of them built on real published data from Kazakhstan (and three more on world data). The three new Kazakh situations use published World Bank series: the urban population share (2019–2024), total population and annual growth (2016–2024) and consumer price inflation (2019–2024).
 
 ## Interface language
 
@@ -85,9 +85,9 @@ The class tally counts **one click as one vote**; repeated clicks add further vo
 
 ## Answer checking
 
-Numeric input accepts `0,25`, `0.25`, `1/4` and `25%`. Keep the units and the scale of the question; empty input and division by zero are rejected. **487 tasks** are checked automatically: number, single choice, multiple choice, matching, ordering, table and chart reading.
+Numeric input accepts `0,25`, `0.25`, `1/4` and `25%`. Keep the units and the scale of the question; empty input and division by zero are rejected. **499 tasks** are checked automatically: number, single choice, multiple choice, matching, ordering, table and chart reading.
 
-**93 open answers are graded automatically** — nothing is sent to the teacher. Each open task carries **check metadata**: the criteria with their key words and the numbers from the model solution. When a student saves an answer, the check
+**96 open answers are graded automatically** — nothing is sent to the teacher. Each open task carries **check metadata**: the criteria with their key words and the numbers from the model solution. When a student saves an answer, the check
 
 - looks for the words of every criterion and for the numbers from the model answer;
 - compares the coverage of the answer with the model solution (at least 70 % of its terms);
@@ -98,7 +98,7 @@ The check **never marks an answer wrong**: it shows what is missing and credits 
 
 The **credit threshold** is set in the teacher profile with a 50–100 % slider, **100 %** by default. At 80 % an answer with one or two missing points is credited. Changing the threshold re-scores every saved open answer at once.
 
-How strict is it? Measured across all 93 open tasks: at the 100 % threshold the course sample texts are credited in **78 %** of tasks and at 80 % in **91 %**; answers cut to 40 % pass in 4 % of tasks; unrelated text never passes. The check compares words and numbers, not meaning, so criteria marked as judged by meaning are never auto-credited — they stay visible in the task for the student to read.
+How strict is it? Measured on the build itself across all **96 open tasks**: at the 100 % threshold the course sample texts are credited in **76 %** of tasks and at 80 % in **91 %**; answers cut to 40 % never pass at the 100 % threshold and pass in 9 % of tasks at 80 %; unrelated text never passes. The check compares words and numbers, not meaning, so criteria marked as judged by meaning are never auto-credited — they stay visible in the task for the student to read.
 
 ## Teacher profile: solutions, attempts and credit threshold
 
