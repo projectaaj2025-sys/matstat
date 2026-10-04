@@ -26,7 +26,7 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
-- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1373 phrases in English and 1374 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries);
+- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1334 phrases in English and 1335 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries; 43 lines of the old work-transfer flow were removed at the same time);
 - **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
@@ -44,7 +44,7 @@ Numbers, units, formulas, task identifiers, the language names in the switch (�
 Each topic has four tabs: **Theory**, **Practice**, **Lab** and **Slides**.
 
 - Numerical answers accept a fraction, a decimal (comma or dot) or a percentage, and are checked against a stated tolerance.
-- Open answers are saved for the teacher and only count towards progress after the teacher has graded them substantively. An assistant shows the answer length, the numbers from the sample solution found in the text and the criterion words it can see, and prepares a draft comment — it never awards a mark. Complete answers can be credited automatically when the teacher profile allows it.
+- Open answers are checked **as soon as they are saved, on the student's own device**: nothing is handed over. The check shows the answer length, the criterion words, the numbers from the sample solution and the percentage of checkable points, and the credit threshold from the profile decides whether the answer is credited; criteria marked as judged by meaning are never auto-credited — they stay visible in the task.
 - “Worked solution” explains the reasoning; it is not a short answer key. In automatically checked tasks it is locked until several attempts have been made, and the teacher can open every solution with one slider.
 
 ## Why the casino wins — a study
