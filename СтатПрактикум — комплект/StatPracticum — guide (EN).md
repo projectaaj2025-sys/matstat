@@ -15,10 +15,10 @@ Results, notes and settings are stored in the browser of the device you work on,
 ## Course contents
 
 - **19 topics** — 18 core grade 10 topics plus one supplementary grade 11 topic on discrete and interval frequency series.
-- **595 graded sub-tasks**: 449 in the topics and 146 in the problem bank. 8 answer formats: number, single choice, multiple choice, matching, ordering, table completion, chart reading and open response.
+- **610 graded sub-tasks**: 464 in the topics and 146 in the problem bank. 8 answer formats: number, single choice, multiple choice, matching, ordering, table completion, chart reading and open response.
 - **75 bank problems** with full statements, source data and solutions.
 - **18 interactive labs**, 13 distribution models, 6 presentations (140 slides) and 10 embedded PDFs.
-- **PISA-style section**: 75 questions in 12 situations, 9 of them built on real published data from Kazakhstan (and three more on world data). The three new Kazakh situations use published World Bank series: the urban population share (2019–2024), total population and annual growth (2016–2024) and consumer price inflation (2019–2024).
+- **PISA-style section**: 90 questions in 15 situations, 12 of them built on real published data (10 from Kazakhstan). Six new situations use published World Bank series: the urban population share (2019–2024), total population and annual growth (2016–2024) and consumer price inflation (2019–2024); and three calculation sets with five questions each — the internet in every home (2016–2024), pupils per teacher (2015–2019) and work and unemployment (2019–2024). The calculation sets are multi-step: the share is first turned into a head count (share × population or share × labour force) and only then are years compared, averages taken, or a staffing decision checked.
 
 ## Interface language
 
@@ -85,7 +85,7 @@ The class tally counts **one click as one vote**; repeated clicks add further vo
 
 ## Answer checking
 
-Numeric input accepts `0,25`, `0.25`, `1/4` and `25%`. Keep the units and the scale of the question; empty input and division by zero are rejected. **499 tasks** are checked automatically: number, single choice, multiple choice, matching, ordering, table and chart reading.
+Numeric input accepts `0,25`, `0.25`, `1/4` and `25%`. Keep the units and the scale of the question; empty input and division by zero are rejected. **514 tasks** are checked automatically: number, single choice, multiple choice, matching, ordering, table and chart reading.
 
 **96 open answers are graded automatically** — nothing is sent to the teacher. Each open task carries **check metadata**: the criteria with their key words and the numbers from the model solution. When a student saves an answer, the check
 
