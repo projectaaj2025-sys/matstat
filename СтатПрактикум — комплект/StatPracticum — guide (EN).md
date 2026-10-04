@@ -1,6 +1,6 @@
 # StatPracticum — guide
 
-Version 3.5 · interactive course on statistics and random variables · grade 10 (plus one supplementary grade 11 topic).
+Version 3.6 · interactive course on statistics and random variables · grade 10 (plus one supplementary grade 11 topic).
 
 This document is written in English only. The Russian guide is `Инструкция к СтатПрактикуму.md`; the Kazakh one is `СтатПрактикум — нұсқаулық (KK).md`.
 
@@ -10,7 +10,7 @@ This document is written in English only. The Russian guide is `Инструкц
 
 For offline work, download the app file — **`index.html`** in the repository root — and open it in any modern browser by double-clicking it. **No internet connection is required**: the fonts, the maths renderer, the PDF viewer, all 10 source PDFs (179 pages) and the whole task bank are embedded in the file.
 
-Results, notes and settings are stored in the browser of the device you work on. Nothing is sent anywhere, there is no account and no class register. A different browser or device starts with empty progress.
+Results, notes and settings are stored in the browser of the device you work on, and nothing is sent anywhere automatically: there is no account and no server. A student hands the work to the teacher as a file or a code, and the teacher collects the class in the **class journal**. A different browser or device starts with empty progress.
 
 ## Course contents
 
@@ -26,7 +26,7 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
-- the whole shell, navigation, tabs, bank, progress, library, teacher panel and reflection pages — **966 phrases in English and 967 in Kazakh**;
+- the whole shell, navigation, tabs, bank, progress, library, teacher panel, class journal and reflection pages — **1261 phrases in English and 1262 in Kazakh** (version 3.6 adds **139 phrases**: the class journal, sending results and the review assistant);
 - **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
@@ -44,7 +44,7 @@ Numbers, units, formulas, task identifiers, the language names in the switch (�
 Each topic has four tabs: **Theory**, **Practice**, **Lab** and **Slides**.
 
 - Numerical answers accept a fraction, a decimal (comma or dot) or a percentage, and are checked against a stated tolerance.
-- Open answers are saved for the teacher and only count towards progress after the teacher has graded them substantively.
+- Open answers are saved for the teacher and only count towards progress after the teacher has graded them substantively. An assistant shows the answer length, the numbers from the sample solution found in the text and the criterion words it can see, and prepares a draft comment — it never awards a mark.
 - “Worked solution” explains the reasoning; it is not a short answer key.
 
 ## Why the casino wins — a study
@@ -83,12 +83,32 @@ Two modes: the **encouragement wheel** (12 supportive prompts) and **European ro
 
 The class tally counts **one click as one vote**; repeated clicks add further votes. It cannot recognise individual students and does not merge votes from other devices — it is a counter inside one browser. “Reset votes” clears the three counters only; the personal note and academic progress are kept. Spinning the wheel offers a question for reflection and never casts a vote.
 
+## Class journal and sending results
+
+Student results still live in the browser, but they can now be **handed to the teacher without the internet and without signing up** — as a file or a code.
+
+**The student** opens **“My progress”** and uses the card **“Send the results to the teacher”**:
+
+- **“Download the results file”** — a small JSON file with every answer, open response and progress figure;
+- **“Show the transfer code”** / **“Copy the code”** — the same report as text for a messenger or e-mail (browsers that support compression produce a code two to three times shorter);
+- **“Upload the review file”** / **“Paste the review code”** — to accept the teacher's review.
+
+**The teacher** opens **“For teachers” → “Class journal”**:
+
+- accepts one or several files at once, drags them onto the upload area or pastes a transfer code;
+- sees each student's progress and percentage, open answers and the number of works waiting for review;
+- ticks the criteria, writes a comment and accepts an answer in one click, while **“Review for the student”** downloads a review file (and copies its code) for the student to load;
+- exports **“Journal to CSV”**, a **“Topic matrix”** (checked/all for every section), a **“Detailed CSV”** covering every task and a **“Printable report”** with the class table and the answers awaiting review;
+- re-importing the same student's work updates the record and keeps the reviews already given; when the answer text changes, the entry is marked **“The work was updated — review it again.”**
+
+The journal is stored in the teacher's browser (IndexedDB) and is **not** included in the downloadable course copy: that copy still carries materials only. Export a CSV or print the report before clearing browser data.
+
 ## For teachers
 
-The **For teachers** page holds a 45-minute lesson plan per topic, source tables, the theory text, answers, student results and the ability to add your own materials and export the course with them. Worksheets can be printed or saved as PDF through the browser print dialog.
+The **For teachers** page holds a 45-minute lesson plan per topic, source tables, the theory text, answers, the **class journal** with the works handed in by students, and the ability to add your own materials and export the course with them. Worksheets can be printed or saved as PDF through the browser print dialog.
 
 ## Limits to keep in mind
 
-- Progress is local to one browser; it is not a cloud grade book.
+- Progress is local to one browser; the class journal is assembled from files and codes and is not a cloud grade book.
 - Published data snapshots are dated and are not forecasts.
 - The labs are teaching models: a simulation does not prove a real-world claim on its own.
