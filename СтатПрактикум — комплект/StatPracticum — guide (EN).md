@@ -26,7 +26,7 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
-- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1334 phrases in English and 1335 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries; 43 lines of the old work-transfer flow were removed at the same time);
+- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1342 phrases in English and 1343 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries; 43 lines of the old work-transfer flow were removed at the same time);
 - **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
@@ -45,7 +45,7 @@ Each topic has four tabs: **Theory**, **Practice**, **Lab** and **Slides**.
 
 - Numerical answers accept a fraction, a decimal (comma or dot) or a percentage, and are checked against a stated tolerance.
 - Open answers are checked **as soon as they are saved, on the student's own device**: nothing is handed over. The check shows the answer length, the criterion words, the numbers from the sample solution and the percentage of checkable points, and the credit threshold from the profile decides whether the answer is credited; criteria marked as judged by meaning are never auto-credited — they stay visible in the task.
-- “Worked solution” explains the reasoning; it is not a short answer key. In automatically checked tasks it is locked until several attempts have been made, and the teacher can open every solution with one slider.
+- “Worked solution” explains the reasoning; it is not a short answer key. By default it is locked and opens after a **correct answer** (the task is credited), after the set number of attempts, or when the teacher opens every solution with one slider.
 
 ## Why the casino wins — a study
 
@@ -104,9 +104,9 @@ How strict is it? Measured on the build itself across all **96 open tasks**: at 
 
 The **For teachers** page carries a **Teacher profile** card above the panel. The settings apply in this browser and are not carried over with a copy of the course.
 
-**“Show solutions under the tasks”** (switch): on — every worked solution and example is open under the tasks; off (default) — solutions stay hidden, and in an automatically checked task the solution opens **after several attempts**, with a counter: “The worked solution opens after several attempts: 2 / 3”.
+**“Show solutions under the tasks”** (switch): on — every worked solution and example is open under the tasks; off (default) — solutions stay hidden, and the solution opens **after a correct answer or several attempts**, with a counter: “The worked solution opens after a correct answer or several attempts: 2 / 3”.
 
-**“Attempts before the solution opens”** (slider 1–6, three by default).
+**“Attempts before the solution opens”** (slider 1–6, three by default) — how many attempts are needed while the answer is not credited yet. **A correct answer opens the solution at once**, so a student who solves the task on the first try sees the reasoning immediately; the counter stays as a hint for those who have not solved it yet. In open tasks the block is called “Example and explanation” and follows the same rule.
 
 **“Automatic grading of open answers”** (switch, on by default): when it is on, a saved answer is checked at once; when it is off, the answer is saved without credit and the student checks it against the criteria.
 
@@ -118,7 +118,7 @@ The profile also shows how many open answers were credited, how many of them aut
 
 **Mistake trainer** shows **only unsolved tasks**: the whole course, a single topic, or the personal **hard tasks** map built from extra attempts and incomplete answers. Counters show what is left and what was solved in this session.
 
-**Test paper** draws a random sample from a topic or the whole course: 3–30 tasks, a 5–90 minute timer, open answers included or excluded. Solutions, hints and checking stay **locked** during the test; when the time is up the paper is submitted automatically. The result — percentage, tasks solved and a task-by-task review — is computed automatically, kept in this browser, exported to CSV and listed in the test history.
+**Test paper** draws a random sample from a topic or the whole course: 3–30 tasks, a 5–90 minute timer, open answers included or excluded. Solutions, hints and checking stay **locked** during the test; when the time is up the paper is submitted automatically. The result — percentage, tasks solved and a task-by-task review — is computed automatically, and the **last column of the result table opens the solution of every task**; the result is kept in this browser, exported to CSV and listed in the test history.
 
 **Search tasks** looks through questions, criteria, solutions and topics, with filters by **format**, **level** and **status**; a found task can be answered on the spot.
 
