@@ -1,0 +1,16 @@
+{
+  "name": "statpracticum-maintenance",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build and regression-test the standalone StatPracticum release",
+  "scripts": {
+    "build:site": "python3 tools/build_site.py",
+    "check:release": "python3 tools/build_site.py --check && python3 tools/validate_release.py index.html",
+    "test": "node tools/test-solution-gate.mjs index.html",
+    "test:kit": "python3 tools/validate_kit.py --test",
+    "test:all": "npm run check:release && npm test && npm run test:kit"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.2"
+  }
+}

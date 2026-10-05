@@ -13,9 +13,9 @@ permissions:
 
 jobs:
   validate:
-    name: Check HTML, embedded data, and JavaScript
+    name: Build and test offline release
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.1
@@ -30,5 +30,26 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Validate published HTML artifact
+      - name: Install pinned release-tool dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          npm ci
+
+      - name: Check standalone HTML is built from sources
+        run: python tools/build_site.py --check
+
+      - name: Validate HTML, embedded data, and JavaScript
         run: python tools/validate_release.py index.html
+
+      - name: Run browser-behavior regression suite
+        run: npm test
+
+      - name: Verify the committed offline kit matches its sources
+        run: python tools/validate_kit.py
+
+      - name: Build and test a fresh offline kit
+        run: |
+          python tools/build_kit.py --output "$RUNNER_TEMP/statpracticum-kit.7z"
+          python tools/validate_kit.py \
+            --archive "$RUNNER_TEMP/statpracticum-kit.7z" \
+            --test
