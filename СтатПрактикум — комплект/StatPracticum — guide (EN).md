@@ -45,7 +45,7 @@ Each topic has four tabs: **Theory**, **Practice**, **Lab** and **Slides**.
 
 - Numerical answers accept a fraction, a decimal (comma or dot) or a percentage, and are checked against a stated tolerance.
 - Open answers are checked **as soon as they are saved, on the student's own device**: nothing is handed over. The check shows the answer length, the criterion words, the numbers from the sample solution and the percentage of checkable points, and the credit threshold from the profile decides whether the answer is credited; criteria marked as judged by meaning are never auto-credited — they stay visible in the task.
-- “Worked solution” explains the reasoning; it is not a short answer key. In automatically checked tasks it is locked until several attempts have been made, and the teacher can open every solution with one slider.
+- “Worked solution” explains the reasoning; it is not a short answer key. By default it is locked and opens after a **correct answer** (the task is credited), after the set number of attempts, or when the teacher opens every solution with one slider.
 
 ## Why the casino wins — a study
 
@@ -104,9 +104,9 @@ How strict is it? Measured on the build itself across all **96 open tasks**: at 
 
 The **For teachers** page carries a **Teacher profile** card above the panel. The settings apply in this browser and are not carried over with a copy of the course.
 
-**“Show solutions under the tasks”** (switch): on — every worked solution and example is open under the tasks; off (default) — solutions stay hidden, and in an automatically checked task the solution opens **after several attempts**, with a counter: “The worked solution opens after several attempts: 2 / 3”.
+**“Show solutions under the tasks”** (switch): on — every worked solution and example is open under the tasks; off (default) — solutions stay hidden, and the solution opens **after a correct answer or several attempts**, with a counter: “The worked solution opens after a correct answer or several attempts: 2 / 3”.
 
-**“Attempts before the solution opens”** (slider 1–6, three by default).
+**“Attempts before the solution opens”** (slider 1–6, three by default) — how many attempts are needed while the answer is not credited yet. **A correct answer opens the solution at once**, so a student who solves the task on the first try sees the reasoning immediately; the counter stays as a hint for those who have not solved it yet. In open tasks the block is called “Example and explanation” and follows the same rule.
 
 **“Automatic grading of open answers”** (switch, on by default): when it is on, a saved answer is checked at once; when it is off, the answer is saved without credit and the student checks it against the criteria.
 
