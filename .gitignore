@@ -1,0 +1,8 @@
+# Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Optional local JavaScript test dependencies
+node_modules/
