@@ -26,7 +26,7 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
-- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1334 phrases in English and 1335 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries; 43 lines of the old work-transfer flow were removed at the same time);
+- the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1342 phrases in English and 1343 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries; 43 lines of the old work-transfer flow were removed at the same time);
 - **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
@@ -118,7 +118,7 @@ The profile also shows how many open answers were credited, how many of them aut
 
 **Mistake trainer** shows **only unsolved tasks**: the whole course, a single topic, or the personal **hard tasks** map built from extra attempts and incomplete answers. Counters show what is left and what was solved in this session.
 
-**Test paper** draws a random sample from a topic or the whole course: 3–30 tasks, a 5–90 minute timer, open answers included or excluded. Solutions, hints and checking stay **locked** during the test; when the time is up the paper is submitted automatically. The result — percentage, tasks solved and a task-by-task review — is computed automatically, kept in this browser, exported to CSV and listed in the test history.
+**Test paper** draws a random sample from a topic or the whole course: 3–30 tasks, a 5–90 minute timer, open answers included or excluded. Solutions, hints and checking stay **locked** during the test; when the time is up the paper is submitted automatically. The result — percentage, tasks solved and a task-by-task review — is computed automatically, and the **last column of the result table opens the solution of every task**; the result is kept in this browser, exported to CSV and listed in the test history.
 
 **Search tasks** looks through questions, criteria, solutions and topics, with filters by **format**, **level** and **status**; a found task can be answered on the spot.
 

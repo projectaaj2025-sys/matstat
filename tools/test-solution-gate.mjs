@@ -192,5 +192,97 @@ for (const [id, tab] of routes) {
 check('дымовой проход: без исключений', smokeErrors.length === 0, smokeErrors.slice(0, 2).join(' | '));
 dom3.window.close();
 
+// --- 15. Все форматы ответа: верный ответ открывает разбор ----------------
+const setAnswer = (task, cid) => {
+    const card = w.document.getElementById('card-' + cid);
+    if (!card) return 'нет карточки';
+    const all = sel => [...card.querySelectorAll(sel)];
+    if (task.type === 'number' || task.type === 'graph') {
+        card.querySelector('[data-answer]').value = String(task.answer); return null;
+    }
+    if (task.type === 'single') {
+        const el = all('[data-answer]').find(x => Number(x.value) === task.answer);
+        return el ? (el.checked = true, null) : 'нет варианта ' + task.answer;
+    }
+    if (task.type === 'multi') {
+        all('[data-answer]').forEach(x => { x.checked = task.answer.includes(Number(x.value)) }); return null;
+    }
+    if (task.type === 'table') {
+        const expected = (task.acceptedAnswers || [task.answer])[0];
+        all('[data-answer]').forEach((x, i) => { x.value = String(expected[i]) }); return null;
+    }
+    if (task.type === 'match') {
+        all('[data-answer]').forEach((x, i) => { x.value = String(task.answer[i]) }); return null;
+    }
+    if (task.type === 'order') {
+        all('[data-order]').forEach((x, i) => { x.dataset.order = String(task.answer[i]) }); return null;
+    }
+    if (task.type === 'open') { card.querySelector('[data-answer]').value = task.solution; return null }
+    return 'неизвестный тип ' + task.type;
+};
+
+for (const type of ev('[...new Set(allTasks.map(t=>t.type))]')) {
+    const task = ev(`allTasks.find(t=>t.type===${JSON.stringify(type)}&&t.solution)`);
+    ev('Object.assign(progress,EMPTY_PROGRESS(),{attempts:{},solved:{},answers:{},openReplies:{}})');
+    ev(type === 'open' ? 'spSetPassThreshold(50)' : 'spSetPassThreshold(100)');
+    ev('go')(task.sectionId, 'practice');
+    await wait(250);
+    const cid = 'q-' + task.id;
+    const err = setAnswer(task, cid);
+    if (err) { check(`формат ${type}: ответ выставляется`, false, err); continue }
+    ev('checkTask')(cid);
+    await wait(150);
+    check(`формат ${type}: верный ответ зачтён`, ev(`!!progress.solved[${JSON.stringify(task.id)}]`));
+    const slot = w.document.getElementById('solution-' + cid);
+    check(`формат ${type}: разбор открыт с первой попытки`, !!slot && isOpen(slot.innerHTML),
+        slot ? slot.innerHTML.slice(0, 90) : 'нет слота');
+}
+
+// --- 16. Контрольная: разборы скрыты до сдачи и открыты в итоге ----------
+ev('Object.assign(progress,EMPTY_PROGRESS(),{attempts:{},solved:{},answers:{},openReplies:{},tests:[]})');
+ev('spExamStart({section:"all",count:5,minutes:10,open:false})');
+await wait(350);
+check('контрольная: страница прохождения отрисована', /Сдать работу/.test(w.document.getElementById('main-content').innerHTML));
+check('контрольная: разборы скрыты до сдачи', !w.document.querySelector('[data-solution-for]'));
+const examIds = ev('spExam.ids');
+for (const id of examIds) {
+    const err = setAnswer(ev(`taskMap[${JSON.stringify(id)}]`), 'ex-' + id);
+    if (err) check(`контрольная: задание ${id}`, false, err);
+    ev('spExamAnswer')('ex-' + id);
+}
+ev('spExamSubmit(true)');
+await wait(450);
+check('контрольная: итог сохранён в историю', ev('(progress.tests||[]).length') > 0);
+const examTable = w.document.querySelector('.exam-result table');
+check('контрольная: колонка «Разбор задания» в итоге', !!examTable && /Разбор задания/.test(examTable.textContent));
+check('контрольная: разбор под каждым заданием',
+    !!examTable && examTable.querySelectorAll('details.task-detail').length === examIds.length,
+    examTable ? String(examTable.querySelectorAll('details.task-detail').length) : 'нет таблицы');
+const examDetails = examTable ? [...examTable.querySelectorAll('details.task-detail')] : [];
+const examSolutions = examIds.map(id => String(ev(`taskMap[${JSON.stringify(id)}].solution`) || '').trim());
+// Формулы в тексте решения KaTeX превращает в разметку, поэтому дословно совпадают не все.
+const examExact = examDetails.filter((d, i) => {
+    const body = d.querySelector('p');
+    return !!body && body.textContent.trim() === examSolutions[i];
+}).length;
+check('контрольная: в разборе текст решения задания',
+    examDetails.length > 0 && examDetails.every(d => d.textContent.trim().length > 0)
+    && examExact >= Math.ceil(examDetails.length / 2),
+    `дословно ${examExact} из ${examDetails.length}, остальные с формулами`);
+ev('spExam=null');
+
+// --- 17. Сброс прогресса возвращает замок --------------------------------
+const firstTask = ev('allTasks[0]');
+ev(`progress.solved[${JSON.stringify(firstTask.id)}]=true`);
+ev('go')(firstTask.sectionId, 'practice');
+await wait(250);
+const solvedSlot = w.document.getElementById('solution-q-' + firstTask.id);
+check('сброс: зачтённое задание показывало разбор', !!solvedSlot && isOpen(solvedSlot.innerHTML));
+ev('Object.assign(progress,EMPTY_PROGRESS());persist();renderRoute()');
+await wait(250);
+const freshSlot = w.document.getElementById('solution-q-' + firstTask.id);
+check('сброс: после очистки прогресса разбор закрыт', !!freshSlot && isLocked(freshSlot.innerHTML),
+    freshSlot ? freshSlot.innerHTML.slice(0, 80) : 'нет слота');
+
 console.log(`\nИтог с регрессиями: ${pass} пройдено, ${fail} провалено`);
 process.exit(fail ? 1 : 0);
