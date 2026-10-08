@@ -137,6 +137,60 @@ for (const lang of ['en', 'kk']) {
 ev('LANG="ru"');
 check('русский: строка остаётся русской', ev('ui')('откроется после верного ответа') === 'откроется после верного ответа');
 
+// --- 10б. Переводы данных курса: вопрос, варианты и разбор не сдвигаются ---
+// Регресс: в заданиях про дисперсию переводы стояли со сдвигом на одну строку,
+// из-за чего верный вариант «см²» отображался как «cm».
+const courseCases = [
+    {
+        id: 'v3_variance_std_12',
+        en: {
+            question: 'The mean is measured in centimetres. In what units is the variance measured?',
+            options: ['cm', 'cm²', 'Without units'],
+            answer: 'cm²',
+            solution: 'The squared deviations have the square of the source unit.',
+        },
+        kk: {
+            question: 'Орташа сантиметрмен өлшенген. Дисперсия қандай бірліктермен өлшенеді?',
+            options: ['см', 'см²', 'Бірліксіз'],
+            answer: 'см²',
+            solution: 'Ауытқу квадраттары бастапқы бірліктің квадратына ие.',
+        },
+    },
+    {
+        id: 'v3_variance_std_13',
+        en: { solution: 'The variance is non-negative, a shift does not change it, and σ is not the maximum deviation.' },
+        kk: { solution: 'Дисперсия теріс емес, ығысу оны өзгертпейді, σ ауытқудың максимумы емес.' },
+    },
+];
+for (const lang of ['en', 'kk']) {
+    ev(`applyContentLanguage(${JSON.stringify(lang)})`);
+    // Подсказка переведена, если для её русского текста в этом языке есть перевод.
+    // Казахский тоже пишется кириллицей, поэтому для kk проверяем сам перевод, а не алфавит.
+    const untranslatedHints = ev(`(() => {
+        const ok = h => typeof CONTENT[h] === 'string' && CONTENT[h] !== '' && CONTENT[h] !== h;
+        const tasks = [...COURSE_BASE.sections.flatMap(s => s.tasks || []), ...(COURSE_BASE.bankProblems || []).flatMap(p => p.tasks || [])];
+        return tasks.filter(t => /[\\u0400-\\u04FF]/.test(t.hint || '') && !ok(t.hint)).map(t => t.id);
+    })()`);
+    check(`${lang}: все подсказки к заданиям переведены`, untranslatedHints.length === 0, untranslatedHints.slice(0, 5).join(', '));
+    if (lang === 'en') {
+        const cyrillicHints = ev('allTasks.filter(t => /[\\u0400-\\u04FF]/.test(t.hint || "")).map(t => t.id)');
+        check('en: в английских подсказках нет кириллицы', cyrillicHints.length === 0, cyrillicHints.slice(0, 5).join(', '));
+    }
+    for (const c of courseCases) {
+        const t = ev(`taskMap[${JSON.stringify(c.id)}]`);
+        const want = c[lang];
+        if (want.question) check(`${lang}: ${c.id}: вопрос переведён верно`, t.question === want.question, t.question);
+        if (want.options) check(`${lang}: ${c.id}: варианты переведены верно`, JSON.stringify(t.options) === JSON.stringify(want.options), JSON.stringify(t.options));
+        if (want.answer) check(`${lang}: ${c.id}: верный вариант читается как «${want.answer}»`, t.options[t.answer] === want.answer, String(t.options[t.answer]));
+        check(`${lang}: ${c.id}: разбор переведён верно`, t.solution === want.solution, t.solution);
+    }
+}
+ev("applyContentLanguage('ru')");
+ev("LANG='en'");
+check('en: «Вариационный ряд» — Variation series', ev("ui('Вариационный ряд')") === 'Variation series', ev("ui('Вариационный ряд')"));
+check('en: «Дискретные и интервальные вариационные ряды» — variation series', ev("ui('Дискретные и интервальные вариационные ряды')") === 'Discrete and interval variation series', ev("ui('Дискретные и интервальные вариационные ряды')"));
+ev("LANG='ru'");
+
 
 // --- 11. Старые записи проверок (журнал 3.6–3.7) не ломают карточку -----
 const openId = JSON.stringify(openTask.id);
