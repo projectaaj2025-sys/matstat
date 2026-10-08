@@ -14,7 +14,10 @@ import py7zr
 
 from build_kit import APP, APP_NAME, ARC_ROOT, ARCHIVE, DOCS, KIT_DIR
 
-TEST_SCRIPT = Path(__file__).with_name("test-solution-gate.mjs")
+TEST_SCRIPTS = (
+    Path(__file__).with_name("test-solution-gate.mjs"),
+    Path(__file__).with_name("test-open-answer-languages.mjs"),
+)
 
 
 def expected_files() -> dict[str, Path]:
@@ -62,13 +65,16 @@ def validate(archive_path: Path, run_tests: bool) -> int:
             raise ValueError("The archived application entry is missing")
         node = shutil.which("node")
         if not node:
-            raise RuntimeError("Node.js is required to run the archived app test")
-        result = subprocess.run(
-            [node, str(TEST_SCRIPT), str(extracted_app)],
-            cwd=APP.parent,
-            check=False,
-        )
-        return result.returncode
+            raise RuntimeError("Node.js is required to run the archived app tests")
+        for script in TEST_SCRIPTS:
+            result = subprocess.run(
+                [node, str(script), str(extracted_app)],
+                cwd=APP.parent,
+                check=False,
+            )
+            if result.returncode:
+                return result.returncode
+        return 0
 
 
 def main() -> int:
