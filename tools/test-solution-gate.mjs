@@ -137,6 +137,23 @@ for (const lang of ['en', 'kk']) {
 ev('LANG="ru"');
 check('русский: строка остаётся русской', ev('ui')('откроется после верного ответа') === 'откроется после верного ответа');
 
+// Dynamic roulette output combines labels with changing amounts, so translate each label
+// before interpolating the values instead of relying on a whole-string dictionary lookup.
+const rouletteOutcome = w.document.createElement('div');
+rouletteOutcome.id = 'roulette-outcome';
+w.document.body.append(rouletteOutcome);
+for (const [lang, expected] of [
+    ['en', { color: 'Black', score: 'Player: -100 · House: 100' }],
+    ['kk', { color: 'Қара', score: 'Ойыншы: -100 · Ұйымдастырушы: 100' }],
+]) {
+    ev(`LANG=${JSON.stringify(lang)}`);
+    ev('rouletteShowLast({number:2,color:"black",result:-100})');
+    check(`${lang}: рулетка — перевод цвета`, rouletteOutcome.querySelector('strong')?.textContent === expected.color, rouletteOutcome.textContent);
+    check(`${lang}: рулетка — игрок и организатор переведены`, rouletteOutcome.querySelector('small')?.textContent === expected.score, rouletteOutcome.textContent);
+}
+rouletteOutcome.remove();
+ev('LANG="ru"');
+
 // --- 10б. Переводы данных курса: вопрос, варианты и разбор не сдвигаются ---
 // Регресс: в заданиях про дисперсию переводы стояли со сдвигом на одну строку,
 // из-за чего верный вариант «см²» отображался как «cm».
