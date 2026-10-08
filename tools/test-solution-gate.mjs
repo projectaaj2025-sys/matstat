@@ -164,6 +164,18 @@ const courseCases = [
 ];
 for (const lang of ['en', 'kk']) {
     ev(`applyContentLanguage(${JSON.stringify(lang)})`);
+    // Подсказка переведена, если для её русского текста в этом языке есть перевод.
+    // Казахский тоже пишется кириллицей, поэтому для kk проверяем сам перевод, а не алфавит.
+    const untranslatedHints = ev(`(() => {
+        const ok = h => typeof CONTENT[h] === 'string' && CONTENT[h] !== '' && CONTENT[h] !== h;
+        const tasks = [...COURSE_BASE.sections.flatMap(s => s.tasks || []), ...(COURSE_BASE.bankProblems || []).flatMap(p => p.tasks || [])];
+        return tasks.filter(t => /[\\u0400-\\u04FF]/.test(t.hint || '') && !ok(t.hint)).map(t => t.id);
+    })()`);
+    check(`${lang}: все подсказки к заданиям переведены`, untranslatedHints.length === 0, untranslatedHints.slice(0, 5).join(', '));
+    if (lang === 'en') {
+        const cyrillicHints = ev('allTasks.filter(t => /[\\u0400-\\u04FF]/.test(t.hint || "")).map(t => t.id)');
+        check('en: в английских подсказках нет кириллицы', cyrillicHints.length === 0, cyrillicHints.slice(0, 5).join(', '));
+    }
     for (const c of courseCases) {
         const t = ev(`taskMap[${JSON.stringify(c.id)}]`);
         const want = c[lang];
