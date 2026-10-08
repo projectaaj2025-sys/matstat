@@ -1,8 +1,82 @@
 /* ---- 4. Проверка развёрнутого ответа по метаданным --------------------- */
 
+/* Ключи критериев заданы для каждого языка (check.criteria / criteriaEn /
+   criteriaKk): ученик может отвечать на русском, английском или казахском,
+   поэтому пункт считается найденным, если совпал хотя бы с одним набором. */
+function spSpecSets(meta, i) {
+    return [meta.criteria, meta.criteriaEn, meta.criteriaKk]
+        .map(list => Array.isArray(list) ? list[i] : null)
+        .filter(spec => !!spec)
+}
+
+function spSpecFoundAny(specs, folded, signs) {
+    return specs.some(spec => spSpecFound(spec, folded, signs))
+}
+
+/* Русские оригиналы заданий: нужны, когда ответ написан не на языке интерфейса. */
+let SP_BASE_TASKS = null;
+
+function spBaseTask(id) {
+    if (!SP_BASE_TASKS) {
+        SP_BASE_TASKS = {};
+        const put = list => (list || []).forEach(t => {
+            if (t && t.id) SP_BASE_TASKS[t.id] = t
+        });
+        (COURSE_BASE.sections || []).forEach(s => put(s.tasks));
+        (COURSE_BASE.bankProblems || []).forEach(p => put(p.tasks))
+    }
+    return SP_BASE_TASKS[id] || null
+}
+
+/* Разбор задания во всех доступных языках. */
+function spTaskVariants(t) {
+    const out = [t.solution || ''],
+        base = spBaseTask(t.id);
+    if (base && base.solution) {
+        out.push(base.solution);
+        const dicts = (COURSE_BASE.i18n && COURSE_BASE.i18n.content) || {};
+        for (const lang in dicts) {
+            const s = dicts[lang][base.solution];
+            if (typeof s === 'string' && s) out.push(s)
+        }
+    }
+    return [...new Set(out.filter(Boolean))]
+}
+
+/* Охват считаем по лучшему языковому варианту разбора: ответ на русском в
+   английском интерфейсе не должен терять пункт «ответ заметно короче разбора». */
+function spCoverage(t, signs) {
+    let best = 0, any = false;
+    for (const text of spTaskVariants(t)) {
+        const terms = new Set(assistTerms(text || '').map(x => x.sign));
+        if (!terms.size) continue;
+        any = true;
+        best = Math.max(best, [...terms].filter(x => signs.includes(x)).length / terms.size)
+    }
+    return any ? best : 1
+}
+
+function spSpecEsc(w) {
+    return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/* Короткое слово-ключ или токен ищем как отдельное слово, длинное — по первым
+   четырём буквам, как и раньше. */
+function spSpecToken(tok, folded, signs) {
+    if (tok.length >= 4) return signs.includes(tok.slice(0, 4));
+    return new RegExp('(^|\\s)' + spSpecEsc(tok) + '(?=\\s|$)').test(folded)
+}
+
+/* Ключи сравниваются с ответом без учёта регистра и «ё»: «чётн» находит
+   «чётное», «A», «M(», «0,1» — это токены, а не обрезки слов. */
 function spSpecHasWord(w, folded, signs) {
-    if (w.length >= 4) return signs.includes(w.slice(0, 4));
-    return new RegExp('(^|\\s)' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(folded)
+    const raw = String(w || ''),
+        foldedW = assistFold(raw);
+    if (!foldedW) return true;
+    if (foldedW.includes(' ')) return foldedW.split(' ').every(t => spSpecToken(t, folded, signs));
+    if (/[^0-9a-zа-яәғқңөұүһіα-ω]/.test(raw) || /[A-ZА-ЯӘҒҚҢӨҰҮҺІ]/.test(raw)) return spSpecToken(foldedW, folded, signs);
+    if (foldedW.length >= 4) return signs.includes(foldedW.slice(0, 4));
+    return new RegExp('(^|\\s)' + spSpecEsc(foldedW)).test(folded)
 }
 
 function spAltOk(alt, folded, signs) {
@@ -24,11 +98,16 @@ function spScoreOpen(t, text) {
         folded = assistFold(text),
         signs = assistTerms(text).map(x => x.sign),
         criteria = (t.rubric || []).map((c, i) => {
-            const spec = i < meta.criteria.length ? meta.criteria[i] : null;
-            return {index: i, text: c, soft: spec === null, spec, found: spec === null ? false : spSpecFound(spec, folded, signs)}
+            const specs = spSpecSets(meta, i);
+            return {
+                index: i,
+                text: c,
+                soft: !specs.length,
+                specs,
+                found: specs.length ? spSpecFoundAny(specs, folded, signs) : false
+            }
         }),
-        solTerms = new Set(assistTerms(t.solution || '').map(x => x.sign)),
-        coverage = solTerms.size ? [...solTerms].filter(x => signs.includes(x)).length / solTerms.size : 1,
+        coverage = spCoverage(t, signs),
         req = meta.numbers || [],
         ansNums = [...spCollectNumbers(text)],
         foundNums = req.filter(v => ansNums.some(x => spSameNumber(x, v))),
@@ -80,10 +159,7 @@ function spScoreHtml(t, text) {
 /* Критерии проверки: до ответа — только замок и число пунктов. */
 function spCriteriaItems(t) {
     const meta = t.check || {criteria: []};
-    return (t.rubric || []).map((c, i) => {
-        const spec = i < meta.criteria.length ? meta.criteria[i] : null;
-        return {text: c, soft: spec === null}
-    })
+    return (t.rubric || []).map((c, i) => ({text: c, soft: !spSpecSets(meta, i).length}))
 }
 
 function spCriteriaHtml(t) {
