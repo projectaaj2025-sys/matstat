@@ -31,3 +31,15 @@
 .profile-range input[type=range]{flex:1}
 .profile-range output{min-width:52px;font-weight:700}
 @media (max-width:720px){.exam-clock-box{width:100%;justify-content:space-between}}
+
+/* --- ИИ-наставник --- */
+.ai-chat-log{max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.ai-msg{padding:8px 10px;border-radius:10px;background:var(--bg, #f7f7f7)}
+.ai-msg-user{background:var(--accent-soft, #eef4ff)}
+.ai-msg-assistant{background:var(--surface)}
+.ai-rec-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.ai-rec-list li{border:1px solid var(--line);border-radius:10px;padding:10px}
+.ai-rec-list li p{margin:4px 0 0}
+.ai-gen-result .card{padding:12px}
+.ai-hit{border-bottom:1px solid var(--line);padding:6px 0}
+.ai-hit:last-child{border-bottom:none}
