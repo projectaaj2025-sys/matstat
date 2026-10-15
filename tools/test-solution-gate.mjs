@@ -607,5 +607,237 @@ ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.set
 ev("setLanguage('ru')");
 await wait(250);
 
+// --- 24. Локальный генератор меняет числа в задачах курса ----------------
+// Регресс: без ключа генератор просто копировал задание курса, поэтому
+// «новая» задача совпадала с исходной и её ответ можно было подсмотреть.
+const poolOf = () => ev(`(() => {
+    const out = [];
+    for (const s of SECTIONS) for (const t of (s.tasks || [])) {
+        if (t && t.solution && ['number','graph','table','single'].includes(t.type) && !t.context) out.push({id: t.id, sectionId: s.id});
+    }
+    return out;
+})()`);
+const variantOf = item => ev(`aiTaskNumberVariant(
+    SECTIONS.find(s => s.id === ${JSON.stringify(item.sectionId)}).tasks.find(t => t.id === ${JSON.stringify(item.id)}),
+    {sectionId: ${JSON.stringify(item.sectionId)}})`);
+
+check('переключатель новых чисел включён по умолчанию', ev('aiNumberSwapEnabled()') === true);
+ev("go('ai')");
+await wait(350);
+const swapBox = w.document.getElementById('ai-swap-numbers');
+check('в генераторе есть флажок «менять числа»', !!swapBox);
+check('флажок соответствует настройке', !!swapBox && swapBox.checked === ev('aiSettings().aiSwapNumbers'));
+check('подсказка генератора объясняет пересчёт чисел',
+    /пересчитывается с другими числами/.test(w.document.getElementById('main-content').textContent));
+ev('aiToggleNumberSwap(false)');
+check('выключение флажка сохраняется в настройках', ev('aiSettings().aiSwapNumbers') === false && ev('aiNumberSwapEnabled()') === false);
+const plainWhenOff = ev("aiGenerateTask('intro-stats', {})");
+check('выключенный пересчёт не создаёт вариант',
+    !!plainWhenOff && !plainWhenOff.numbersChanged && !/^ainum-/.test(plainWhenOff.id),
+    JSON.stringify(plainWhenOff && plainWhenOff.id));
+ev('aiToggleNumberSwap(true)');
+check('включение флажка возвращает пересчёт', ev('aiNumberSwapEnabled()') === true);
+
+let mutated = 0, inconsistent = [];
+const themeHits = new Set();
+for (const item of poolOf()) {
+    let variant = null;
+    for (let attempt = 0; attempt < 6 && !variant; attempt++) variant = variantOf(item);
+    if (!variant) continue;
+    mutated++;
+    themeHits.add(item.sectionId);
+    const base = ev(`taskMap[${JSON.stringify(item.id)}]`);
+    const problems = [];
+    if (!variant.numbersChanged || !variant.numbersPreview) problems.push('нет пометки о новых числах');
+    const sameQuestion = variant.question === base.question;
+    const sameTables = JSON.stringify(variant.inputTables || null) === JSON.stringify(base.inputTables || null);
+    if (sameQuestion && sameTables) problems.push('условие и таблицы не изменились');
+    if (variant.id === base.id) problems.push('id не изменился');
+    if (ev(`aiNumSame(${JSON.stringify(variant.answer)}, ${JSON.stringify(base.answer)})`)) problems.push('ответ не изменился');
+    // Ответ должен быть согласован с числами нового условия: тот же пересчёт
+    // повторяется на новых числах и даёт опубликованный ответ.
+    const answerNumbers = (Array.isArray(variant.answer) ? variant.answer : [variant.answer]).map(Number);
+    const solutionNumbers = (String(variant.solution).match(/[−-]?\d+(?:[.,]\d+)?/g) || [])
+        .map(text => Number(text.replace('−', '-').replace(',', '.')));
+    if (!answerNumbers.every(value => solutionNumbers.some(other => Math.abs(other - value) <= 1e-4 * Math.max(1, Math.abs(value))))) {
+        problems.push('ответ не сходится с разбором')
+    }
+    if (problems.length) inconsistent.push(item.id + ' (' + problems.join('; ') + ')');
+}
+check('пересчёт охватывает большую часть числовых заданий', mutated >= 80, `пересчитано ${mutated}`);
+check('пересчёт покрывает почти все темы курса', themeHits.size >= 15, `тем: ${themeHits.size}`);
+check('пересчитанные задачи согласованы', inconsistent.length === 0, inconsistent.slice(0, 4).join(' | '));
+// Задание без чисел (выбор ответа по теории) пересчитать нельзя: вариант не создаётся.
+const choiceTask = ev("SECTIONS.find(s => s.id === 'intro-stats').tasks.filter(t => t.id === 'intro_choice')");
+check('генератор не берёт задание, для которого нет пересчёта', variantOf({id: 'intro_choice', sectionId: 'intro-stats'}) === null);
+check('такое задание всё равно годится как задание курса', choiceTask.length === 1);
+
+// Пересчёт отвечает на числа задания: размах, частота, биномиальное и
+// геометрическое распределение считаются заново.
+const cases = [
+    {id: 't1_1', sectionId: 'intro-stats', expect: 'range'},
+    {id: 'v3_frequency_01', sectionId: 'frequency', expect: 'share'},
+    {id: 'v3_binomial_distribution_04', sectionId: 'binomial-distribution', expect: 'probability'},
+    {id: 'v3_geometric_distribution_02', sectionId: 'geometric-distribution', expect: 'expectation'},
+    {id: 'v3_variance_std_04', sectionId: 'variance-std', expect: 'sd'},
+    {id: 'v3_continuous_rv_01', sectionId: 'continuous-rv', expect: 'density'},
+];
+let caseFails = [];
+for (const item of cases) {
+    let variant = null;
+    for (let attempt = 0; attempt < 8 && !variant; attempt++) variant = variantOf(item);
+    if (!variant) { caseFails.push(item.id + ': нет варианта'); continue }
+    if (!/^ainum-/.test(variant.id) || variant.origin !== item.id) caseFails.push(item.id + ': нет связи с заданием курса');
+    if (!variant.solution || !String(variant.solution).length) caseFails.push(item.id + ': пустой разбор');
+}
+check('пересчёт работает в разных темах', caseFails.length === 0, caseFails.slice(0, 3).join(' | '));
+
+// Карточка пересчитанной задачи: пометка, «было → стало» и верный ответ.
+let variety = null;
+for (let attempt = 0; attempt < 8 && !variety; attempt++) variety = variantOf({id: 't1_1', sectionId: 'intro-stats'});
+check('вариант задания с новыми числами собирается', !!variety);
+const varietyCard = variety ? ev(`aiTaskCardHtml(${JSON.stringify(variety)}, {key: 'swap-probe'})`) : '';
+check('в карточке есть пометка «новые числа»', /новые числа/.test(varietyCard));
+check('в карточке видно «было → стало»', varietyCard.includes('→') && /Новые числа/.test(varietyCard));
+check('карточка пересчитанной задачи содержит условие, ответ и разбор',
+    /ai-question/.test(varietyCard) && /ai-in-swap-probe/.test(varietyCard) && /open-solution/.test(varietyCard));
+ev(`aiToggleNumberSwap(true); go('ai')`);
+await wait(400);
+ev("document.getElementById('ai-gen-topic').value='variance-std'");
+await ev('aiGenerate()');
+await wait(300);
+const swapped = ev("progress.settings.aiTasks[0]");
+const swappedTask = ev(`aiStudioTasks[${JSON.stringify(swapped.id)}]`);
+check('генератор сохранил задачу с новыми числами', !!swapped && !!swapped.task && swapped.task.numbersChanged === true,
+    JSON.stringify(swapped).slice(0, 120));
+check('в «Моих задачах» видны новые числа, а не задание курса',
+    !!swappedTask && swappedTask.numbersChanged === true && ev(`aiStoredCardHtml(progress.settings.aiTasks[0])`).includes('→'));
+const storedNumbers = String(swapped.task.question);
+check('сохранённое условие отличается от условия курса',
+    ev(`!taskMap[${JSON.stringify(swapped.task.origin)}] || taskMap[${JSON.stringify(swapped.task.origin)}].question !== ${JSON.stringify(storedNumbers)}`));
+// Локальная проверка ответа: подставленный ответ пересчитанной задачи верен.
+ev(`document.getElementById('ai-in-${swapped.id}') && (document.getElementById('ai-in-${swapped.id}').value = ${JSON.stringify(String(swappedTask.answer))})`);
+ev(`aiStudioCheck(${JSON.stringify(swapped.id)})`);
+check('ответ пересчитанной задачи проверяется локально',
+    /Верно/.test(ev(`(document.getElementById('ai-fb-${swapped.id}') || {}).textContent || ''`)),
+    ev(`(document.getElementById('ai-fb-${swapped.id}') || {}).textContent || ''`).slice(0, 80));
+
+// Перезагрузка страницы: пересчитанная задача лежит в прогрессе целиком,
+// поэтому новые числа, ответ и разбор остаются на месте.
+ev('persist()');
+const savedProgress = ev("localStorage.getItem('statpracticum-v2-progress')");
+const reloadedDom = new JSDOM(html, {
+    runScripts: 'dangerously',
+    pretendToBeVisual: true,
+    virtualConsole: jsdomConsole(initialErrors),
+    beforeParse: win => {
+        disableUnsupportedScroll(win);
+        win.localStorage.setItem('statpracticum-v2-progress', savedProgress)
+    },
+    url: 'https://projectaaj2025-sys.github.io/matstat/',
+});
+await wait(1800);
+const rv = expr => reloadedDom.window.eval(expr);
+const reloaded = rv("progress.settings.aiTasks[0]");
+check('после перезагрузки пересчитанная задача на месте',
+    !!reloaded && !!reloaded.task && reloaded.task.numbersChanged === true && !reloaded.refId,
+    JSON.stringify(reloaded).slice(0, 120));
+check('после перезагрузки сохранены те же числа и ответ',
+    !!reloaded && reloaded.task.question === String(swapped.task.question) && String(reloaded.task.answer) === String(swappedTask.answer));
+rv("go('ai')");
+await wait(400);
+const reloadKey = rv("progress.settings.aiTasks[0].id");
+const reloadedCard = rv(`aiStoredCardHtml(progress.settings.aiTasks[0])`);
+check('после перезагрузки карточка помнит новые числа',
+    /новые числа/.test(reloadedCard) && reloadedCard.includes('→'));
+rv(`document.getElementById('ai-in-${reloadKey}') && (document.getElementById('ai-in-${reloadKey}').value = ${JSON.stringify(String(swappedTask.answer))})`);
+rv(`aiStudioCheck(${JSON.stringify(reloadKey)})`);
+check('после перезагрузки ответ по-прежнему проверяется локально',
+    /Верно/.test(rv(`(document.getElementById('ai-fb-${reloadKey}') || {}).textContent || ''`)),
+    rv(`(document.getElementById('ai-fb-${reloadKey}') || {}).textContent || ''`).slice(0, 80));
+reloadedDom.window.close();
+
+// Пока решения скрыты (режим ученика), эталонный ответ в карточке не виден,
+// а пересчёт и пометка «новые числа» остаются. Учитель включает решения —
+// эталонный ответ возвращается.
+ev('progress.settings.showSolutions = false');
+check('решения скрыты: эталонный ответ не показан',
+    !varietyCard.includes(ev("ait('ai.check.reference')")) && varietyCard.includes(ev("ait('ai.check.referenceHidden')")),
+    varietyCard.slice(0, 160));
+check('решения скрыты: пометка о новых числах осталась',
+    /новые числа/.test(varietyCard) && /→/.test(varietyCard));
+check('решения скрыты: пересчёт продолжает работать', variantOf({id: 't1_1', sectionId: 'intro-stats'}) !== null);
+ev('progress.settings.showSolutions = true');
+const teacherCard = ev(`aiTaskCardHtml(${JSON.stringify(variety)}, {key: 'swap-teacher'})`);
+check('решения показаны: эталонный ответ вернулся',
+    teacherCard.includes(ev("ait('ai.check.reference')")) && !teacherCard.includes(ev("ait('ai.check.referenceHidden')")));
+ev('progress.settings.showSolutions = false');
+
+// Табличный закон распределения: меняются вероятности в таблице, а ответ
+// считается заново по той же формулировке задания.
+for (const law of [{id: 't5_1', sectionId: 'distribution-law'}, {id: 'law_graph', sectionId: 'distribution-law'},
+    {id: 'v3_distribution_law_04', sectionId: 'distribution-law'}, {id: 'v3_distribution_law_07', sectionId: 'distribution-law'}]) {
+    let variant = null;
+    for (let attempt = 0; attempt < 8 && !variant; attempt++) variant = variantOf(law);
+    if (!variant) { caseFails.push(law.id + ': нет варианта с таблицей'); continue }
+    const base = ev(`taskMap[${JSON.stringify(law.id)}]`);
+    if (JSON.stringify(variant.inputTables) === JSON.stringify(base.inputTables)) caseFails.push(law.id + ': таблица не изменилась');
+    if (ev(`aiNumSame(${JSON.stringify(variant.answer)}, ${JSON.stringify(base.answer)})`)) caseFails.push(law.id + ': ответ не изменился');
+    if (variant.question !== base.question) caseFails.push(law.id + ': условие переписано без надобности');
+}
+check('табличный закон распределения пересчитывается', caseFails.length === 0, caseFails.slice(0, 3).join(' | '));
+
+// Ответ такой задачи проверяется независимым расчётом: P(X≤1) — сумма новых
+// вероятностей значений, которые не больше единицы.
+const lawVariant = (() => {
+    let variant = null;
+    for (let attempt = 0; attempt < 8 && !variant; attempt++) variant = variantOf({id: 'v3_distribution_law_04', sectionId: 'distribution-law'});
+    return variant;
+})();
+const lawNumbers = lawVariant ? (lawVariant.inputTables[0].rows[0].slice(1).map(cell => Number(String(cell).replace(',', '.')))) : [];
+const lawXs = lawVariant ? lawVariant.inputTables[0].head.slice(1).map(Number) : [];
+const lawExpected = lawNumbers.reduce((acc, p, i) => (lawXs[i] <= 1 ? acc + p : acc), 0);
+check('ответ табличного закона сходится с новыми вероятностями',
+    !!lawVariant && Math.abs(lawExpected - Number(lawVariant.answer)) < 1e-9,
+    `${lawExpected} против ${lawVariant && lawVariant.answer}`);
+check('сумма вероятностей остаётся единицей',
+    !!lawVariant && Math.abs(lawNumbers.reduce((acc, p) => acc + p, 0) - 1) < 1e-9,
+    String(lawNumbers.reduce((acc, p) => acc + p, 0)));
+
+// Флажок выключен: генератор берёт задание курса без изменений.
+ev('aiToggleNumberSwap(false)');
+ev("go('ai')");
+await wait(400);
+ev("document.getElementById('ai-gen-topic').value='intro-stats'");
+await ev('aiGenerate()');
+await wait(250);
+const plain = ev("progress.settings.aiTasks[0]");
+check('с выключенным флажком задача берётся из курса',
+    !!plain && !!plain.refId && ev(`!!taskMap[${JSON.stringify(plain.refId)}]`),
+    JSON.stringify(plain).slice(0, 120));
+check('без пересчёта задача ссылается на курс без inline-копии', !!plain && !!plain.refId && !plain.task);
+ev('aiToggleNumberSwap(true)');
+check('включённый флажок возвращает пометку в карточке',
+    !!variety && /новые числа/.test(ev(`aiTaskCardHtml(${JSON.stringify(variety)}, {key: 'swap-probe-2'})`)));
+
+// Переводы: строки о новых числах есть на всех языках, английская карточка без кириллицы.
+for (const lang of ['en', 'kk']) {
+    ev(`setLanguage(${JSON.stringify(lang)})`);
+    await wait(250);
+    const texts = ev("[ait('ai.num.swap'), ait('ai.num.changed'), ait('ai.num.kept'), ait('ai.num.swapHint'), ait('ai.num.preview', {list: '4 → 5'})]");
+    check(`${lang}: строки о новых числах переведены`, texts.every(text => !/[\u0400-\u04FF]/.test(text) || lang === 'kk'),
+        texts.join(' | ').slice(0, 120));
+}
+ev("setLanguage('en')");
+await wait(250);
+const enVariant = variantOf({id: 't1_1', sectionId: 'intro-stats'});
+const enCard = enVariant ? ev(`aiTaskCardHtml(${JSON.stringify(enVariant)}, {key: 'swap-en'})`) : '';
+check('en: карточка пересчитанной задачи переведена',
+    !!enVariant && enCard.length > 0 && !/[\u0400-\u04FF]/.test(enCard),
+    (enCard.match(/[\u0400-\u04FF][^ <]*/g) || []).slice(0, 4).join(' '));
+ev("setLanguage('ru')");
+await wait(250);
+ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.settings.aiChat=[];progress.settings.aiTasks=[];progress.settings.aiSwapNumbers=true;persist()");
+
 console.log(`\nИтог с регрессиями: ${pass} пройдено, ${fail} провалено`);
 process.exit(fail ? 1 : 0);

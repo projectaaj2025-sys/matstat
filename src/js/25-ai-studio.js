@@ -23,7 +23,9 @@ function aiPlainTask(task) {
         id: task.id, type: task.type, question: task.question, options: task.options,
         inputTables: task.inputTables, chart: task.chart, answer: task.answer,
         acceptedAnswers: task.acceptedAnswers, tolerance: task.tolerance,
-        hint: task.hint, solution: task.solution, sectionId: task.sectionId, sectionTitle: task.sectionTitle
+        hint: task.hint, solution: task.solution, sectionId: task.sectionId, sectionTitle: task.sectionTitle,
+        /* Задача с новыми числами хранится целиком: перерисовка из курса её потеряет. */
+        source: task.source, origin: task.origin, numbersChanged: task.numbersChanged, numbersPreview: task.numbersPreview
     };
     for (const key of Object.keys(out)) if (out[key] === undefined) delete out[key];
     return out
@@ -37,7 +39,7 @@ function aiTaskStoreAdd(task, section) {
         topicId: (section && section.id) || task.sectionId || '',
         source: task.source === 'model' ? 'model' : 'course'
     };
-    if (item.source === 'course' && task.id) item.refId = task.id;
+    if (item.source === 'course' && task.id && !task.numbersChanged) item.refId = task.id;
     else item.task = aiPlainTask(task);
     store.unshift(item);
     while (store.length > 12) store.pop();
@@ -69,6 +71,35 @@ function aiTaskIsLocalized(task) {
     return !/[\u0400-\u04FF]/.test(blob)
 }
 
+/* Тасуем кандидатов, чтобы подбор подходящей формулировки не повторялся. */
+function aiShuffle(list) {
+    const out = list.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const swap = out[i];
+        out[i] = out[j];
+        out[j] = swap
+    }
+    return out
+}
+
+/* Первая формулировка, для которой нашёлся безопасный пересчёт чисел. Задания с
+   таблицами и графиком идут первыми: в них видно данные. */
+function aiTaskWithNewNumbers(section, candidates, opts) {
+    if (opts.swap === false || typeof aiTaskNumberVariant !== 'function' || !aiNumberSwapEnabled()) return null;
+    const source = candidates.filter(aiTaskIsLocalized);
+    const ordered = aiShuffle(source.length ? source : candidates);
+    const groups = [ordered.filter(aiTaskHasData), ordered.filter(t => !aiTaskHasData(t))];
+    for (const group of groups) {
+        for (const task of group) {
+            if (opts.exclude && task.id === opts.exclude) continue;
+            const variant = aiTaskNumberVariant(task, {sectionId: section.id, sectionTitle: section.title});
+            if (variant) return variant
+        }
+    }
+    return null
+}
+
 function aiGenerateTask(topicId, options) {
     const opts = options || {};
     const section = SECTIONS.find(x => x.id === topicId) || SECTIONS[0] || {id: '', title: '', tasks: []};
@@ -79,6 +110,9 @@ function aiGenerateTask(topicId, options) {
     const withData = candidates.filter(aiTaskHasData).filter(aiTaskIsLocalized);
     const translated = candidates.filter(aiTaskIsLocalized);
     const base = pick(withData) || pick(translated) || pick(candidates) || (section.tasks || [])[0] || null;
+    /* Без ключа генератор не копирует задание курса, а пересчитывает его. */
+    const variant = aiTaskWithNewNumbers(section, candidates, opts);
+    if (variant) return variant;
     const answer = base ? (base.answer !== undefined ? base.answer : '') : '';
     return {
         id: base ? base.id : 'ai-empty',
@@ -169,6 +203,12 @@ function aiFormatAnswer(answer, ctx) {
 
 /* ---- Рендер карточки задачи ------------------------------------------ */
 
+/* Эталонный ответ показывается, когда в профиле учителя включён показ решений. */
+function aiReferenceVisible() {
+    if (typeof spSettings !== 'function') return true;
+    return spSettings().showSolutions === true
+}
+
 function aiTaskCardHtml(task, opts) {
     const o = opts || {};
     const key = o.key || 'preview';
@@ -176,6 +216,7 @@ function aiTaskCardHtml(task, opts) {
     const typeLabel = FORMAT[task.type] ? ui(FORMAT[task.type]) : ui('Числовой ответ');
     const source = o.source || task.source || 'course';
     const sourceLabel = source === 'model' ? ait('ai.studio.fromModel') : ait('ai.studio.fromCourse');
+    const changedPill = task.numbersChanged ? `<span class="pill warm">${esc(ait('ai.num.changed'))}</span>` : '';
     if (o.register !== false) aiStudioRegister(key, task);
     const tables = (task.inputTables || []).map(renderDataTable).join('');
     const chart = task.chart && task.chart.xs && task.chart.ys
@@ -194,9 +235,13 @@ function aiTaskCardHtml(task, opts) {
         </div>
         <div class="feedback hidden" id="ai-fb-${esc(key)}" aria-live="polite"></div>
       </div>`;
-    const reference = task.answer !== undefined && task.answer !== null && String(task.answer).trim() !== ''
-        ? `<p class="small muted">${esc(ait('ai.check.reference'))} <strong>${esc(String(task.answer))}</strong></p>`
-        : '';
+    /* Пока решения скрыты (режим ученика), эталонный ответ в карточке не
+       показываем: пересчитанную задачу иначе можно запомнить вместе с ответом. */
+    const reference = !aiReferenceVisible()
+        ? `<p class="small muted">${esc(ait('ai.check.referenceHidden'))}</p>`
+        : (task.answer !== undefined && task.answer !== null && String(task.answer).trim() !== ''
+            ? `<p class="small muted">${esc(ait('ai.check.reference'))} <strong>${esc(String(task.answer))}</strong></p>`
+            : '');
     const solution = task.solution
         ? `<details class="open-solution"><summary>${esc(ait('ai.studio.solutionHidden'))}</summary>${aiRichHtml(aiLocalize(task.solution))}${reference}</details>`
         : reference;
@@ -204,9 +249,11 @@ function aiTaskCardHtml(task, opts) {
     return `<article class="card ai-task-card" id="ai-card-${esc(key)}" data-ai-card="${esc(key)}">
         <div class="ai-task-head">
           <strong>${esc(title)}</strong>
-          <span class="row wrap" style="gap:6px"><span class="pill">${esc(typeLabel)}</span><span class="pill ${source === 'model' ? 'warm' : 'green'}">${esc(sourceLabel)}</span></span>
+          <span class="row wrap" style="gap:6px">${changedPill}<span class="pill">${esc(typeLabel)}</span><span class="pill ${source === 'model' ? 'warm' : 'green'}">${esc(sourceLabel)}</span></span>
         </div>
         <div class="ai-task-meta small muted">${esc(task.sectionTitle || ((SECTIONS.find(s => s.id === task.sectionId) || {}).title) || '')}${o.meta ? ' · ' + esc(o.meta) : ''}</div>
+        ${task.numbersChanged && task.numbersPreview ? `<div class="ai-task-meta small muted">${esc(ait('ai.num.preview', {list: task.numbersPreview}))}</div>` : ''}
+        ${o.note ? `<div class="ai-task-meta small muted">${esc(o.note)}</div>` : ''}
         <div class="ai-question">${aiRichHtml(aiLocalize(task.question))}</div>
         ${tables}${chart}${options}${answerBlock}${hint}${solution}
       </article>`
@@ -283,7 +330,7 @@ function aiTaskLocalReply(ctx, question) {
         aiStudioRegister(key, generated);
         aiRenderStudio();
         toast(ait('ai.studio.added'));
-        return `<p>${esc(ait('ai.studio.local'))}</p>${aiTaskCardHtml(generated, {key: key, source: 'course', title: ui('Сгенерированная задача') + (topic.title ? ' · ' + topic.title : '')})}`
+        return `<p>${esc(ait('ai.studio.local'))}</p>${aiTaskCardHtml(generated, {key: key, source: 'course', title: ui('Сгенерированная задача') + (topic.title ? ' · ' + topic.title : ''), note: aiNumberSwapNote(generated)})}`
     }
     /* Вопрос о теме: сначала теория этой темы, потом общий поиск по курсу. */
     if (ctx.kind === 'topic' && section && !task) {
@@ -429,9 +476,10 @@ async function aiGenerate() {
         const used = [];
         for (let i = 0; i < count; i++) {
             const local = aiGenerateTask(section ? section.id : topicId, {exclude: used[used.length - 1]});
-            if (used.includes(local.id) && used.length) continue;
+            const key = local.origin || local.id;
+            if (used.includes(key) && used.length) continue;
             local.source = 'course';
-            used.push(local.id);
+            used.push(key);
             tasks.push(local)
         }
         if (!tasks.length) {
@@ -443,7 +491,7 @@ async function aiGenerate() {
     for (const task of tasks) aiTaskStoreAdd(task, section);
     if (res) {
         const title = ui('Сгенерированная задача') + (section ? ' · ' + section.title : '');
-        res.innerHTML = aiTaskCardHtml(tasks[0], {key: 'preview', title: title, source: tasks[0].source})
+        res.innerHTML = aiTaskCardHtml(tasks[0], {key: 'preview', title: title, source: tasks[0].source, note: aiNumberSwapNote(tasks[0])})
             + (failure ? `<p class="small muted">${esc(ait('ai.fallback', {reason: failure}))}</p>` : '');
         math(res)
     }
@@ -460,7 +508,8 @@ function aiStoredCardHtml(item) {
         const merged = Object.assign({}, task, {source: 'course'});
         return aiTaskCardHtml(merged, {key: key, title: title, source: 'course', remove: true, meta: date})
     }
-    return aiTaskCardHtml(Object.assign({source: 'model'}, item.task || {}), {key: key, title: title, source: 'model', remove: true, meta: date})
+    const stored = Object.assign({}, item.task || {});
+    return aiTaskCardHtml(stored, {key: key, title: title, source: stored.source || 'model', remove: true, meta: date})
 }
 
 function aiRenderStudio() {
