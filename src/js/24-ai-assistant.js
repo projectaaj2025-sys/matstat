@@ -20,6 +20,26 @@ function aiSaveSettings() {
     toast(ui('Настройки ИИ сохранены.'))
 }
 
+/* ---- Язык ответов внешней модели --------------------------------------- */
+// Внешняя модель отвечает на языке интерфейса: иначе сгенерированная задача
+// и ответ чата остаются на русском и не переводятся вместе со страницей.
+const AI_CHAT_PROMPTS={
+    ru:'Ты помощник по курсу математической статистики для школьников. Отвечай по-русски, кратко и понятно, с формулами при необходимости.',
+    en:'You are a tutor for a school course in mathematical statistics. Answer in English, briefly and clearly, with formulas where needed.',
+    kk:'Сыз математикалық статистика курсы бойынша мұғалімсіз. Жауапты қазақ тілінде, қысқа әрі түсінікті беріңіз, қажет болса формулалармен.'
+};
+const AI_GENERATE_PROMPTS={
+    ru:'Ты помощник по курсу математической статистики. Придумай одну задачу по указанной теме для школьника и реши её. Ответь строго JSON-объектом без markdown: {"question":"условие задачи","answer":"решение и ответ"}. Вопрос и ответ на русском языке.',
+    en:'You are a tutor for a school course in mathematical statistics. Make up one problem on the given topic for a school student and solve it. Reply with a strict JSON object without markdown: {"question":"problem statement","answer":"solution and answer"}. The question and the answer must be in English.',
+    kk:'Сыз математикалық статистика курсы бойынша көмекшісіз. Көрсетілген тақырып бойынша мектеп оқушысына арналған бір есеп құрастырып, оны шешіңіз. Markdown жоқ, тек JSON объектісімен жауап беріңіз: {"question":"есеп шарты","answer":"шешім және жауап"}. Сұрақ пен жауап қазақ тілінде болуы керек.'
+};
+const AI_TOPIC_LABELS={ru:'Тема',en:'Topic',kk:'Тақырып'};
+function aiPrompt(kind){const table=kind==='generate'?AI_GENERATE_PROMPTS:AI_CHAT_PROMPTS;return table[LANG]||table.ru}
+function aiTopicLabel(){return AI_TOPIC_LABELS[LANG]||AI_TOPIC_LABELS.en}
+// Ответ внешней модели прогоняется через словарь курса: если модель вернула
+// условие или разбор из курса, они переводятся вместе с остальным содержимым.
+function aiLocalize(text){const raw=String(text??'');if(LANG==='ru')return raw;const done=translatePhrase(raw);return done===null?raw:done}
+
 /* ---- База знаний: поиск по теории курса ------------------------------- */
 
 function aiKnowledgeBase() {
@@ -87,7 +107,7 @@ function aiRecommendations() {
         return {s, done, total, ratio: done / total}
     }).filter(x => x.ratio < 1).sort((a, b) => a.ratio - b.ratio).slice(0, 5);
     for (const w of weak) {
-        recs.push({title: w.s.title, text: ui('Решено ') + w.done + ui(' из ') + w.total + ui('. Повторите теорию и задания.'), link: '#' + w.s.id + '/practice'})
+        recs.push({title: w.s.title, text: ui('Решено ' + w.done + ' из ' + w.total + '. Повторите теорию и задания.'), link: '#' + w.s.id + '/practice'})
     }
     // открытые ответы с низким процентом
     const openLow = Object.entries(progress.openReplies || {}).filter(([id, r]) => r && (r.percent || 0) < 80).map(([id]) => taskMap[id]).filter(Boolean).slice(0, 4);
@@ -114,7 +134,7 @@ function aiGenerateTask(topicId) {
         ? base.solution
         : (base ? (ui('Ответ: ') + String(base.answer) + '.') : ui('Решение не найдено.'));
     return {
-        title: ui('Сгенерированная задача · ') + s.title,
+        title: ui('Сгенерированная задача') + ' · ' + s.title,
         question: base && base.question ? base.question : (ui('Составьте и решите задачу по теме «') + s.title + ui('».')),
         answer: answer,
         sectionId: s.id
@@ -146,9 +166,9 @@ function renderAI() {
     const recs = aiRecommendations();
     const gen = aiGenerateTask((SECTIONS[0] || {}).id);
     $('main-content').innerHTML = `<div class="page ai-page">
-      ${pageTop('ИИ-наставник')}
-      <p class="eyebrow">ИНТЕЛЛЕКТУАЛЬНЫЙ ПОМОЩНИК</p>
-      <h1>ИИ-наставник по статистике</h1>
+      ${pageTop(ui('ИИ-наставник'))}
+      <p class="eyebrow">${ui('ИНТЕЛЛЕКТУАЛЬНЫЙ ПОМОЩНИК')}</p>
+      <h1>${ui('ИИ-наставник по статистике')}</h1>
       <p class="page-description">${ui('Задавайте вопросы, получайте подсказки и рекомендации. По умолчанию работает локально, без интернета. При желании подключите внешнюю модель (OpenAI-совместимый API) — ключ хранится только в этом браузере.')}</p>
 
       <div class="card" style="margin-top:18px">
@@ -240,12 +260,12 @@ async function aiAsk() {
         const placeholder = $('ai-chat-log').lastChild;
         try {
             const messages = [
-                {role: 'system', content: 'Ты помощник по курсу математической статистики для школьников. Отвечай по-русски, кратко и понятно, с формулами при необходимости.'},
+                {role: 'system', content: aiPrompt('chat')},
                 {role: 'user', content: q}
             ];
             const answer = await aiExternalChat(messages);
             if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
-            aiAppendChat('assistant', esc(answer).replace(/\n/g, '<br>'));
+            aiAppendChat('assistant', esc(aiLocalize(answer)).replace(/\n/g, '<br>'));
         } catch (e) {
             if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
             aiAppendChat('assistant', ui('Внешняя модель недоступна (') + esc(String(e.message || e)) + ui('). Использую локальный ответ: ') + aiLocalAnswer(q));
@@ -266,14 +286,14 @@ async function aiGenerate() {
     if (settings.aiEnabled && settings.aiApiKey) {
         try {
             const messages = [
-                {role: 'system', content: 'Ты помощник по курсу математической статистики. Придумай одну задачу по указанной теме для школьника и реши её. Ответь строго JSON-объектом без markdown: {"question":"условие задачи","answer":"решение и ответ"}. Вопрос и ответ на русском.'},
-                {role: 'user', content: 'Тема: ' + (section ? section.title : topicId)}
+                {role: 'system', content: aiPrompt('generate')},
+                {role: 'user', content: aiTopicLabel() + ': ' + (section ? section.title : topicId)}
             ];
             const content = await aiExternalChat(messages);
             const cleaned = String(content || '').replace(/```json/gi, '').replace(/```/g, '').trim();
             const parsed = JSON.parse(cleaned);
             if (parsed && parsed.question && parsed.answer) {
-                g = {title: ui('Сгенерированная задача · ') + (section ? section.title : topicId), question: String(parsed.question), answer: String(parsed.answer), sectionId: topicId};
+                g = {title: ui('Сгенерированная задача') + ' · ' + (section ? section.title : topicId), question: aiLocalize(String(parsed.question)), answer: aiLocalize(String(parsed.answer)), sectionId: topicId};
             }
         } catch (e) {
             g = aiGenerateTask(topicId);

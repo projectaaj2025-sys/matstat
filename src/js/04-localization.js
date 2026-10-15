@@ -15,9 +15,13 @@ function dataDict(){return ((COURSE_BASE.i18n&&COURSE_BASE.i18n.content)||{})[LA
 function normalise(text){return text.replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim()}
 function translatePhrase(text){
  const d=dict();if(!text)return null;
+ // A phrase that keeps its trailing space («Решено », «Ответ: ») is looked up as it is:
+ // the dictionary stores such fragments with the space, and the trimmed form belongs to another word.
+ if(Object.prototype.hasOwnProperty.call(d,text))return d[text];
  const key=normalise(text);
  if(Object.prototype.hasOwnProperty.call(d,key))return d[key];
  const c=dataDict();
+ if(Object.prototype.hasOwnProperty.call(c,text))return c[text];
  if(Object.prototype.hasOwnProperty.call(c,key))return c[key];
  // Labels that contain a number keep the number and translate the words around it.
  for(const pattern of PATTERNS){
@@ -25,7 +29,7 @@ function translatePhrase(text){
   if(!match)continue;
   const template=pattern[LANG];
   if(!template)continue;
-  return template.replace(/\{(\d+)\}/g,(_,i)=>{const captured=match[Number(i)+1];if(captured===undefined)return '';const key=normalise(captured);return Object.prototype.hasOwnProperty.call(d,key)?d[key]:captured});
+  return template.replace(/\{(\d+)\}/g,(_,i)=>{const captured=match[Number(i)+1];if(captured===undefined)return '';const key=normalise(captured);if(Object.prototype.hasOwnProperty.call(d,captured))return d[captured];return Object.prototype.hasOwnProperty.call(d,key)?d[key]:captured});
  }
  return null;
 }
