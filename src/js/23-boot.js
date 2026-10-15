@@ -2,6 +2,7 @@
 
 function spBoot() {
     progress.tests = progress.tests || [];
+    if (typeof aiSettings === "function") aiSettings();
     progress.auto = progress.auto || {};
     spSettings();
     spExamRestore();
