@@ -101,21 +101,26 @@ function aiRecommendations() {
 
 /* ---- Генерация задач (простые числовые варианты) ----------------------- */
 
+const aiLastGenerated = {};
+
 function aiGenerateTask(topicId) {
     const s = SECTIONS.find(x => x.id === topicId) || SECTIONS[0];
-    const r = () => Math.floor(Math.random() * 9) + 1;
-    const a = r(), b = r(), n = 5 + Math.floor(Math.random() * 6);
-    const vals = Array.from({length: n}, () => r());
-    const mean = vals.reduce((x, y) => x + y, 0) / n;
-    const variance = vals.reduce((x, y) => x + (y - mean) ** 2, 0) / n;
-    const sd = Math.sqrt(variance);
+    const pool = (s.tasks || []).filter(t => t && t.type === 'number' && t.answer !== undefined && t.answer !== null);
+    let candidates = pool.filter(t => !aiLastGenerated[s.id] || t.id !== aiLastGenerated[s.id]);
+    if (!candidates.length) candidates = pool;
+    const base = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : ((s.tasks || [])[0] || null);
+    if (base) aiLastGenerated[s.id] = base.id;
+    const answer = base && base.solution
+        ? base.solution
+        : (base ? (ui('Ответ: ') + String(base.answer) + '.') : ui('Решение не найдено.'));
     return {
         title: ui('Сгенерированная задача · ') + s.title,
-        question: ui('Даны наблюдения: ') + vals.join(', ') + ui('. Найдите среднее арифметическое, дисперсию и среднее квадратическое отклонение.'),
-        answer: ui('Среднее = ') + mean.toFixed(3) + ui(', дисперсия = ') + variance.toFixed(3) + ui(', СКО = ') + sd.toFixed(3) + '.',
+        question: base && base.question ? base.question : (ui('Составьте и решите задачу по теме «') + s.title + ui('».')),
+        answer: answer,
         sectionId: s.id
     }
 }
+
 
 /* ---- Внешняя модель ---------------------------------------------------- */
 
@@ -181,6 +186,19 @@ function renderAI() {
         <button class="btn primary" style="margin-top:10px" onclick="aiSaveSettings()">${ui('Сохранить настройки')}</button>
         <p class="small muted" style="margin-top:8px">${ui('Ключ хранится только в localStorage этого браузера. При офлайн-работе внешняя модель недоступна, используется локальный помощник.')}</p>
       </div>
+      <div class="card" style="margin-top:18px">
+        <h3 style="margin-top:0">${ui('Как подключить ИИ')}</h3>
+        <ol class="ai-instructions">
+          <li>${ui('Получите API-ключ у провайдера с OpenAI-совместимым API (OpenAI, Groq, Together, локальный Ollama и др.).')}</li>
+          <li>${ui('Откройте этот раздел и поставьте галочку «Использовать внешнюю модель».')}</li>
+          <li>${ui('Проверьте Endpoint: по умолчанию https://api.openai.com/v1/chat/completions. Для другого провайдера укажите его адрес.')}</li>
+          <li>${ui('Введите название модели, например gpt-4o-mini.')}</li>
+          <li>${ui('Вставьте API-ключ в поле «API-ключ».')}</li>
+          <li>${ui('Нажмите «Сохранить настройки».')}</li>
+          <li>${ui('После этого вопросы в чате будут отправляться во внешнюю модель. Без ключа работает локальный помощник по теории курса.')}</li>
+        </ol>
+        <p class="small muted" style="margin-top:8px">${ui('Ключ хранится только в localStorage этого браузера и отправляется только на выбранный Endpoint. Если модель не отвечает, проверьте ключ, адрес и разрешение CORS у провайдера.')}</p>
+      </div>
       ${footer()}
     </div>`;
     // показать первую сгенерированную задачу
@@ -237,12 +255,33 @@ async function aiAsk() {
     }
 }
 
-function aiGenerate() {
+async function aiGenerate() {
     const sel = $('ai-gen-topic');
     const topicId = sel ? sel.value : (SECTIONS[0] || {}).id;
-    const g = aiGenerateTask(topicId);
+    const section = SECTIONS.find(x => x.id === topicId) || SECTIONS[0];
     const res = $('ai-gen-result');
-    if (res) res.innerHTML = aiRenderGenerated(g)
+    if (res) res.innerHTML = '<em>' + ui('Генерирую задачу…') + '</em>';
+    const settings = aiSettings();
+    let g = null;
+    if (settings.aiEnabled && settings.aiApiKey) {
+        try {
+            const messages = [
+                {role: 'system', content: 'Ты помощник по курсу математической статистики. Придумай одну задачу по указанной теме для школьника и реши её. Ответь строго JSON-объектом без markdown: {"question":"условие задачи","answer":"решение и ответ"}. Вопрос и ответ на русском.'},
+                {role: 'user', content: 'Тема: ' + (section ? section.title : topicId)}
+            ];
+            const content = await aiExternalChat(messages);
+            const cleaned = String(content || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleaned);
+            if (parsed && parsed.question && parsed.answer) {
+                g = {title: ui('Сгенерированная задача · ') + (section ? section.title : topicId), question: String(parsed.question), answer: String(parsed.answer), sectionId: topicId};
+            }
+        } catch (e) {
+            g = aiGenerateTask(topicId);
+        }
+    }
+    if (!g) g = aiGenerateTask(topicId);
+    if (res) res.innerHTML = aiRenderGenerated(g);
+    if (res) math(res)
 }
 
 /* экспорт для навигации */
