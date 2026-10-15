@@ -101,12 +101,15 @@ function aiRecommendations() {
 
 /* ---- Генерация задач (простые числовые варианты) ----------------------- */
 
+const aiLastGenerated = {};
+
 function aiGenerateTask(topicId) {
     const s = SECTIONS.find(x => x.id === topicId) || SECTIONS[0];
-    // Подбираем случайную числовую задачу именно из выбранной темы, чтобы
-    // генератор работал по всем темам курса, а не выдавал одну и ту же задачу.
     const pool = (s.tasks || []).filter(t => t && t.type === 'number' && t.answer !== undefined && t.answer !== null);
-    const base = pool.length ? pool[Math.floor(Math.random() * pool.length)] : ((s.tasks || [])[0] || null);
+    let candidates = pool.filter(t => !aiLastGenerated[s.id] || t.id !== aiLastGenerated[s.id]);
+    if (!candidates.length) candidates = pool;
+    const base = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : ((s.tasks || [])[0] || null);
+    if (base) aiLastGenerated[s.id] = base.id;
     const answer = base && base.solution
         ? base.solution
         : (base ? (ui('Ответ: ') + String(base.answer) + '.') : ui('Решение не найдено.'));
@@ -117,6 +120,7 @@ function aiGenerateTask(topicId) {
         sectionId: s.id
     }
 }
+
 
 /* ---- Внешняя модель ---------------------------------------------------- */
 
@@ -251,12 +255,33 @@ async function aiAsk() {
     }
 }
 
-function aiGenerate() {
+async function aiGenerate() {
     const sel = $('ai-gen-topic');
     const topicId = sel ? sel.value : (SECTIONS[0] || {}).id;
-    const g = aiGenerateTask(topicId);
+    const section = SECTIONS.find(x => x.id === topicId) || SECTIONS[0];
     const res = $('ai-gen-result');
-    if (res) res.innerHTML = aiRenderGenerated(g)
+    if (res) res.innerHTML = '<em>' + ui('Генерирую задачу…') + '</em>';
+    const settings = aiSettings();
+    let g = null;
+    if (settings.aiEnabled && settings.aiApiKey) {
+        try {
+            const messages = [
+                {role: 'system', content: 'Ты помощник по курсу математической статистики. Придумай одну задачу по указанной теме для школьника и реши её. Ответь строго JSON-объектом без markdown: {"question":"условие задачи","answer":"решение и ответ"}. Вопрос и ответ на русском.'},
+                {role: 'user', content: 'Тема: ' + (section ? section.title : topicId)}
+            ];
+            const content = await aiExternalChat(messages);
+            const cleaned = String(content || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleaned);
+            if (parsed && parsed.question && parsed.answer) {
+                g = {title: ui('Сгенерированная задача · ') + (section ? section.title : topicId), question: String(parsed.question), answer: String(parsed.answer), sectionId: topicId};
+            }
+        } catch (e) {
+            g = aiGenerateTask(topicId);
+        }
+    }
+    if (!g) g = aiGenerateTask(topicId);
+    if (res) res.innerHTML = aiRenderGenerated(g);
+    if (res) math(res)
 }
 
 /* экспорт для навигации */
