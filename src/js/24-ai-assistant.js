@@ -103,16 +103,17 @@ function aiRecommendations() {
 
 function aiGenerateTask(topicId) {
     const s = SECTIONS.find(x => x.id === topicId) || SECTIONS[0];
-    const r = () => Math.floor(Math.random() * 9) + 1;
-    const a = r(), b = r(), n = 5 + Math.floor(Math.random() * 6);
-    const vals = Array.from({length: n}, () => r());
-    const mean = vals.reduce((x, y) => x + y, 0) / n;
-    const variance = vals.reduce((x, y) => x + (y - mean) ** 2, 0) / n;
-    const sd = Math.sqrt(variance);
+    // Подбираем случайную числовую задачу именно из выбранной темы, чтобы
+    // генератор работал по всем темам курса, а не выдавал одну и ту же задачу.
+    const pool = (s.tasks || []).filter(t => t && t.type === 'number' && t.answer !== undefined && t.answer !== null);
+    const base = pool.length ? pool[Math.floor(Math.random() * pool.length)] : ((s.tasks || [])[0] || null);
+    const answer = base && base.solution
+        ? base.solution
+        : (base ? (ui('Ответ: ') + String(base.answer) + '.') : ui('Решение не найдено.'));
     return {
         title: ui('Сгенерированная задача · ') + s.title,
-        question: ui('Даны наблюдения: ') + vals.join(', ') + ui('. Найдите среднее арифметическое, дисперсию и среднее квадратическое отклонение.'),
-        answer: ui('Среднее = ') + mean.toFixed(3) + ui(', дисперсия = ') + variance.toFixed(3) + ui(', СКО = ') + sd.toFixed(3) + '.',
+        question: base && base.question ? base.question : (ui('Составьте и решите задачу по теме «') + s.title + ui('».')),
+        answer: answer,
         sectionId: s.id
     }
 }
@@ -180,6 +181,19 @@ function renderAI() {
         </div>
         <button class="btn primary" style="margin-top:10px" onclick="aiSaveSettings()">${ui('Сохранить настройки')}</button>
         <p class="small muted" style="margin-top:8px">${ui('Ключ хранится только в localStorage этого браузера. При офлайн-работе внешняя модель недоступна, используется локальный помощник.')}</p>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3 style="margin-top:0">${ui('Как подключить ИИ')}</h3>
+        <ol class="ai-instructions">
+          <li>${ui('Получите API-ключ у провайдера с OpenAI-совместимым API (OpenAI, Groq, Together, локальный Ollama и др.).')}</li>
+          <li>${ui('Откройте этот раздел и поставьте галочку «Использовать внешнюю модель».')}</li>
+          <li>${ui('Проверьте Endpoint: по умолчанию https://api.openai.com/v1/chat/completions. Для другого провайдера укажите его адрес.')}</li>
+          <li>${ui('Введите название модели, например gpt-4o-mini.')}</li>
+          <li>${ui('Вставьте API-ключ в поле «API-ключ».')}</li>
+          <li>${ui('Нажмите «Сохранить настройки».')}</li>
+          <li>${ui('После этого вопросы в чате будут отправляться во внешнюю модель. Без ключа работает локальный помощник по теории курса.')}</li>
+        </ol>
+        <p class="small muted" style="margin-top:8px">${ui('Ключ хранится только в localStorage этого браузера и отправляется только на выбранный Endpoint. Если модель не отвечает, проверьте ключ, адрес и разрешение CORS у провайдера.')}</p>
       </div>
       ${footer()}
     </div>`;
