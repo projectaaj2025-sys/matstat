@@ -441,5 +441,171 @@ check('ru: страница ИИ остаётся на русском',
     (aiMain().querySelector('h1')?.textContent.trim() || '') === 'ИИ-наставник по статистике',
     aiMain().querySelector('h1')?.textContent.trim() || '');
 
+// --- 19. ИИ-помощник: провайдеры, где взять ключ и разметка ответа -------
+// Регресс: сгенерированные задачи показывались обрезанными, таблицы данных и
+// таблицы из ответа модели не отрисовывались, а подключить DeepSeek было негде.
+ev("Object.assign(progress,EMPTY_PROGRESS());persist()");
+ev("progress.settings.aiProvider='deepseek';progress.settings.aiBaseUrl='https://api.deepseek.com';progress.settings.aiEnabled=false;progress.settings.aiApiKey=''");
+ev("setLanguage('ru')");
+await wait(250);
+ev("go('ai')");
+await wait(400);
+const aiPage = aiMain();
+check('провайдер по умолчанию — DeepSeek', ev("aiSettings().aiProvider") === 'deepseek' && ev("aiSettings().aiBaseUrl") === 'https://api.deepseek.com',
+    ev("aiSettings().aiProvider") + ' / ' + ev("aiSettings().aiBaseUrl"));
+const providerOptions = ev("[...document.querySelectorAll('#ai-provider option')].map(o=>o.value)");
+check('в списке есть DeepSeek, локальные модели и свой адрес',
+    ['deepseek', 'openrouter', 'ollama', 'lmstudio', 'custom'].every(id => providerOptions.includes(id)),
+    providerOptions.join(','));
+const deepseekGuide = ev("document.getElementById('ai-provider-help').innerHTML");
+check('подсказка ведёт на страницу ключей DeepSeek', /platform\.deepseek\.com\/api_keys/.test(deepseekGuide));
+check('шаги получения ключа расписаны подробно',
+    ev("document.querySelectorAll('#ai-provider-help .ai-instructions li').length") >= 5,
+    String(ev("document.querySelectorAll('#ai-provider-help .ai-instructions li').length")));
+check('в подсказке есть ссылка на цены и лимиты', /api-docs\.deepseek\.com/.test(deepseekGuide));
+check('на странице есть таблица частых ошибок с 402',
+    /402/.test(ev("document.querySelector('#ai-provider-help').closest('.card').parentElement.textContent")));
+ev("document.getElementById('ai-provider').value='openrouter';aiProviderChanged()");
+check('смена провайдера подставляет базовый адрес OpenRouter',
+    ev("document.getElementById('ai-base').value") === 'https://openrouter.ai/api/v1'
+    && /openrouter\.ai\/keys/.test(ev("document.getElementById('ai-provider-help').innerHTML")),
+    ev("document.getElementById('ai-base').value"));
+ev("document.getElementById('ai-provider').value='ollama';aiProviderChanged()");
+check('локальная модель подставляет localhost и не требует ключа',
+    ev("document.getElementById('ai-base').value") === 'http://localhost:11434/v1'
+    && ev("document.getElementById('ai-model').value") === 'llama3.1',
+    ev("document.getElementById('ai-base').value"));
+
+// Таблицы из ответа модели: markdown превращается в настоящую таблицу курса.
+const richAnswer = ev("aiRichHtml('Итог:\\n\\n| x | P |\\n| --- | --- |\\n| 1 | 0,2 |\\n| 2 | 0,8 |\\n\\n- шаг 1\\n- шаг 2')");
+check('таблица из ответа модели отрисована', /<div class="table-scroll"><table class="data-table">/.test(richAnswer)
+    && (richAnswer.match(/<tr>/g) || []).length === 3, richAnswer.slice(0, 140));
+check('строки таблицы не потеряли данные', richAnswer.includes('0,2') && richAnswer.includes('0,8'));
+check('список из ответа модели отрисован', /<ul class="ai-list">/.test(richAnswer));
+check('формулы остаются для KaTeX', ev("aiRichHtml('$D(X)=M(X^2)-(M(X))^2$')").includes('$D(X)'));
+
+// --- 20. Карточка сгенерированной задачи собирается целиком ---------------
+const dataTask = ev("allTasks.find(t=>(t.inputTables||[]).length&&t.solution&&t.answer!==undefined)");
+check('задание с таблицей данных найдено', !!dataTask, dataTask ? dataTask.id : 'нет');
+const dataCard = ev(`aiTaskCardHtml(taskMap[${JSON.stringify(dataTask.id)}],{key:'probe'})`);
+check('карточка задачи показывает таблицу данных с подписью',
+    /<table class="data-table">/.test(dataCard) && /<caption>/.test(dataCard) && dataCard.includes('<tbody>'),
+    dataCard.slice(0, 120));
+check('в карточке есть поле ответа и разбор', dataCard.includes('ai-in-probe') && dataCard.includes('open-solution'));
+const dataSection = dataTask.sectionId;
+ev(`document.getElementById('ai-gen-topic').value=${JSON.stringify(dataSection)}`);
+await ev('aiGenerate()');
+await wait(250);
+const generatedCard = ev("document.getElementById('ai-gen-result').innerHTML");
+check('сгенерированная задача отрисована карточкой', /class="card ai-task-card"/.test(generatedCard), generatedCard.slice(0, 100));
+check('сгенерированная задача не обрезана: есть условие, ответ и разбор',
+    /ai-question/.test(generatedCard) && /ai-in-preview/.test(generatedCard) && /open-solution/.test(generatedCard));
+const generatedHasData = ev("!!(aiStudioTasks['preview'].inputTables||[]).length || !!aiStudioTasks['preview'].chart");
+check('данные сгенерированной задачи показаны, а не потеряны',
+    !generatedHasData || /<table|chart-wrap/.test(generatedCard),
+    generatedHasData ? generatedCard.slice(0, 120) : 'задача без данных');
+check('сгенерированная задача сохраняется в «Мои задачи»', ev("progress.settings.aiTasks.length") >= 1,
+    String(ev("progress.settings.aiTasks.length")));
+check('«Мои задачи» перерисованы карточками', ev("document.querySelectorAll('#ai-task-list .ai-task-card').length") >= 1);
+
+// Локальная проверка ответа в сгенерированной задаче.
+const storedKey = ev("progress.settings.aiTasks[0].id");
+const storedAnswer = ev(`(aiStudioTasks[${JSON.stringify(storedKey)}]||{}).answer`);
+ev("document.getElementById('ai-in-" + storedKey + "').value=''");
+ev(`aiStudioCheck(${JSON.stringify(storedKey)})`);
+check('пустой ответ не проверяется', /Введите ответ/.test(ev(`document.getElementById('ai-fb-${storedKey}').textContent`)),
+    ev(`document.getElementById('ai-fb-${storedKey}').textContent`).slice(0, 60));
+if (storedAnswer !== undefined && storedAnswer !== null && String(storedAnswer).trim() !== '') {
+    ev(`document.getElementById('ai-in-${storedKey}').value=${JSON.stringify(String(storedAnswer))}`);
+    ev(`aiStudioCheck(${JSON.stringify(storedKey)})`);
+    check('верный ответ подтверждается локально',
+        /Верно/.test(ev(`document.getElementById('ai-fb-${storedKey}').textContent`)),
+        ev(`document.getElementById('ai-fb-${storedKey}').textContent`).slice(0, 80));
+}
+
+// --- 21. Кнопки ИИ в карточках заданий и панель помощника -----------------
+ev("go('variance-std','practice')");
+await wait(400);
+const bars = w.document.querySelectorAll('#task-list .ai-task-bar');
+check('в карточках заданий есть кнопки ИИ', bars.length > 0, String(bars.length));
+check('кнопок три: разбор, проверка и похожая задача',
+    bars.length > 0 && bars[0].querySelectorAll('button').length === 3,
+    bars.length ? String(bars[0].querySelectorAll('button').length) : 'нет панели');
+check('панель помощника висит на странице', !!w.document.getElementById('ai-fab'));
+const hintTaskId = ev("SECTIONS.find(s=>s.id==='variance-std').tasks[0].id");
+ev(`spAiExplainTask(${JSON.stringify(hintTaskId)})`);
+await wait(300);
+check('панель открылась и знает задание',
+    !w.document.getElementById('ai-drawer').classList.contains('hidden')
+    && /Задание:/.test(w.document.getElementById('ai-drawer-context').textContent),
+    w.document.getElementById('ai-drawer-context').textContent.slice(0, 60));
+const drawerText = w.document.getElementById('ai-drawer-log').textContent.replace(/\s+/g, ' ');
+check('без ключа разбор идёт по подсказке курса', /Порядок разбора|Подсказка курса/.test(drawerText), drawerText.slice(-120));
+check('вопрос остался в истории диалога', ev("progress.settings.aiChat.length") >= 2,
+    String(ev("progress.settings.aiChat.length")));
+let chipError = '';
+try { ev(`aiTaskMode(${JSON.stringify(hintTaskId)},'explain')`) } catch (error) { chipError = String(error && error.message || error) }
+await wait(250);
+check('кнопки панели помощника отвечают без ошибок', !chipError, chipError);
+// «Похожая задача» без ключа — карточка из задания курса, а не пустой ответ.
+const storedBefore = ev("progress.settings.aiTasks.length");
+ev("spAiGenerateSimilar({section: SECTIONS[1]})");
+await wait(400);
+check('«Похожая задача» без ключа собирает карточку',
+    /ai-task-card/.test(ev("document.getElementById('ai-drawer-log').innerHTML")));
+check('похожая задача попала в «Мои задачи»',
+    ev("progress.settings.aiTasks.length") === storedBefore + 1,
+    ev("progress.settings.aiTasks.length") + ' / ' + storedBefore);
+// Вопрос о теме: локальный ответ берёт теорию именно этой темы.
+ev("progress.settings.aiChat=[];persist()");
+ev("spAiAskTopic('variance-std')");
+await wait(400);
+check('вопрос о теме отвечает теорией этой темы',
+    /ai-hit/.test(ev("document.getElementById('ai-drawer-log').innerHTML")));
+ev('aiDrawerClose()');
+ev("go('variance-std','theory')");
+await wait(350);
+check('в теории есть кнопка «Объясни тему»', /spAiAskTopic\('variance-std'\)/.test(aiMain().innerHTML));
+
+// --- 22. Контрольная: помощник не подсказывает ---------------------------
+ev("spExamStart({section:'all',count:3,minutes:10,includeOpen:false})");
+await wait(300);
+ev("go('exam','run')");
+await wait(300);
+check('во время контрольной кнопки ИИ в карточках скрыты',
+    w.document.querySelectorAll('#main-content .ai-task-bar').length === 0);
+ev('aiDrawerOpen(null)');
+check('панель помощника во время контрольной не открывается',
+    w.document.getElementById('ai-drawer').classList.contains('hidden'));
+ev("spExamSubmit(true)");
+await wait(300);
+
+// --- 23. Проверка подключения и понятные ошибки --------------------------
+w.fetch = async (url, options) => ({
+    ok: true, status: 200,
+    json: async () => ({data: [{id: 'deepseek-flash'}, {id: 'deepseek-v4-pro'}]}),
+});
+ev("progress.settings.aiEnabled=true;progress.settings.aiApiKey='test-key'");
+const connection = await ev('aiTestConnection()');
+check('проверка подключения видит список моделей',
+    !!connection && connection.ok === true && (connection.models || []).length === 2,
+    JSON.stringify(connection).slice(0, 90));
+ev("go('ai')");
+await wait(400);
+check('загруженный список моделей остаётся в подсказке поля «Модель»',
+    ev("document.querySelectorAll('#ai-model-list option').length") >= 2,
+    String(ev("document.querySelectorAll('#ai-model-list option').length")));
+w.fetch = async () => ({ok: false, status: 402, text: async () => '{"error":{"message":"Insufficient Balance"}}'});
+const failed = await ev('aiTestConnection()');
+check('ошибка 402 объясняется словами про баланс',
+    !!failed && failed.ok === false && /баланс/.test(failed.reason), failed ? failed.reason.slice(0, 90) : 'нет ответа');
+w.fetch = async () => ({ok: false, status: 401, text: async () => '{"error":{"message":"Authentication Fails"}}'});
+const denied = await ev('aiTestConnection()');
+check('ошибка 401 объясняется словами про ключ',
+    !!denied && denied.ok === false && /ключ/i.test(denied.reason), denied ? denied.reason.slice(0, 90) : 'нет ответа');
+ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.settings.aiChat=[];progress.settings.aiTasks=[];persist()");
+ev("setLanguage('ru')");
+await wait(250);
+
 console.log(`\nИтог с регрессиями: ${pass} пройдено, ${fail} провалено`);
 process.exit(fail ? 1 : 0);

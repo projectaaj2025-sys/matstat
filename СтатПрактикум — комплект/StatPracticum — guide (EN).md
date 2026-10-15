@@ -100,6 +100,59 @@ The **credit threshold** is set in the teacher profile with a 50–100 % slider,
 
 How strict is it? Measured on the build itself across all **96 open tasks**: at the 100 % threshold the course sample texts are credited in **76 %** of tasks and at 80 % in **91 %**; answers cut to 40 % never pass at the 100 % threshold and pass in 9 % of tasks at 80 %; unrelated text never passes. The check compares words and numbers, not meaning, so criteria marked as judged by meaning are never auto-credited — they stay visible in the task for the student to read.
 
+## AI mentor: connecting an external model
+
+The assistant lives in two places: the **AI mentor** page in the course programme and the **panel in the bottom-right corner**, which opens on any screen and knows which topic or task you are looking at. The buttons **Step-by-step help**, **Check my answer** and **Similar task** sit right in the task cards; the theory tab carries an **Explain the topic** button.
+
+**Without a key the assistant still works.** The local mode searches the theory and the tasks of the course: it shows the relevant paragraphs with formulas and data tables, the task hint and the order of work. The task generator takes course tasks and shows them in full — statement, data table, chart, answer field and solution.
+
+**With a key** an external model answers: free-form text, a step-by-step walkthrough, a check of a worded answer and new tasks with data tables. Answers are formatted like the course: markdown tables become real data tables, formulas become KaTeX formulas.
+
+### Where to get a DeepSeek API key
+
+1. Open the platform dashboard: `https://platform.deepseek.com` (a separate API dashboard, not the chat).
+2. Sign up with your e-mail and confirm the letter — no phone number is needed.
+3. Open **API keys** in the left menu: `https://platform.deepseek.com/api_keys`.
+4. Press **Create new API key**, give it a name (for example `statpracticum-class`) and confirm.
+5. Copy the key at once: it is shown only once and starts with `sk-`.
+6. Check the balance under **Top up**: with an empty balance the API returns error 402. Prices and models: `https://api-docs.deepseek.com/quick_start/pricing`.
+7. In the course open the **AI mentor** page, choose the **DeepSeek** provider, paste the key, press **Test the connection**, then **Save the settings**.
+
+The base URL is `https://api.deepseek.com`, the models are `deepseek-flash` (fast and cheap) and `deepseek-v4-pro`. The exact list comes from the **Load the model list** button. The DeepSeek key works right from the course page: the server sends CORS headers, so no proxy is needed.
+
+### Other OpenAI-compatible providers
+
+| Provider | Base URL | Where to get a key | Free tier |
+| --- | --- | --- | --- |
+| DeepSeek | `https://api.deepseek.com` | `platform.deepseek.com/api_keys` | no, a balance is required |
+| OpenAI | `https://api.openai.com/v1` | `platform.openai.com/api-keys` | no, billing required |
+| OpenRouter | `https://openrouter.ai/api/v1` | `openrouter.ai/keys` | yes, models marked `:free` |
+| Groq | `https://api.groq.com/openai/v1` | `console.groq.com/keys` | yes, with per-minute limits |
+| Google AI Studio | `https://generativelanguage.googleapis.com/v1beta/openai` | `aistudio.google.com/apikey` | yes |
+| Mistral | `https://api.mistral.ai/v1` | `console.mistral.ai/api-keys/` | yes, limited mode |
+| Together | `https://api.together.xyz/v1` | `api.together.ai/settings/api-keys` | no |
+| Ollama (local) | `http://localhost:11434/v1` | no key needed | yes, no internet needed |
+| LM Studio (local) | `http://localhost:1234/v1` | no key needed | yes, no internet needed |
+
+For local models the page must be allowed to reach the server: for Ollama set `OLLAMA_ORIGINS` to `*`, for LM Studio enable CORS in the server settings.
+
+### Common errors
+
+| Code | What it means | What to do |
+| --- | --- | --- |
+| 401 | the key was rejected | copy the key in full and check it is still active in the dashboard |
+| 402 | the balance is empty | top up the balance in the provider dashboard |
+| 404 | model or address not found | load the model list and pick a name from it |
+| 429 | rate limit reached | wait a minute or switch the model |
+| Failed to fetch | no network, or the provider blocks browser requests | use DeepSeek, OpenRouter or Groq, or a local model |
+
+### Safety and classroom use
+
+- The key is kept only in this browser’s `localStorage` and goes straight to the provider address: it never enters the course file or the kit archive.
+- For a class, use a separate key with a small balance and delete it in the provider dashboard after the lesson.
+- **During a test the AI buttons and the assistant panel are disabled** — that keeps the check honest.
+- Offline the external model is unavailable and the assistant keeps answering from the course materials.
+
 ## Teacher profile: solutions, attempts and credit threshold
 
 The **For teachers** page carries a **Teacher profile** card above the panel. The settings apply in this browser and are not carried over with a copy of the course.
