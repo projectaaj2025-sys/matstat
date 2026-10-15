@@ -43,3 +43,59 @@
 .ai-gen-result .card{padding:12px}
 .ai-hit{border-bottom:1px solid var(--line);padding:6px 0}
 .ai-hit:last-child{border-bottom:none}
+
+/* --- ИИ-помощник: панель, генератор задач и подсказки провайдеров --- */
+.ai-fab{position:fixed;right:22px;bottom:22px;z-index:45;display:inline-flex;align-items:center;gap:9px;padding:13px 18px;border:0;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:750;box-shadow:0 10px 24px #102c3833;transition:transform .18s,background .18s}
+.dark .ai-fab{color:#102b24}
+.ai-fab:hover{transform:translateY(-2px);background:var(--accent-dark)}
+.ai-fab .ico{width:19px;height:19px}
+.ai-backdrop{position:fixed;inset:0;background:#0d24394d;z-index:46}
+.ai-drawer{position:fixed;top:calc(var(--header) + 14px);right:16px;bottom:16px;width:min(460px,calc(100vw - 32px));z-index:47;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 44px #102c3826;display:flex;flex-direction:column;padding:16px;gap:10px;animation:arrive .18s ease-out}
+.ai-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ai-drawer-title{display:flex;align-items:center;gap:8px;font-size:14px}
+.ai-drawer-title .ico{width:19px;height:19px;color:var(--accent)}
+.ai-drawer-context{margin:0}
+.ai-chips{display:flex;flex-wrap:wrap;gap:7px}
+.ai-drawer .ai-chat-log{flex:1;max-height:none;min-height:120px}
+.ai-drawer-input textarea{width:100%;min-height:56px}
+.ai-drawer-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:10px}
+.ai-status{margin:12px 0 0;font-size:12px;font-weight:650;color:var(--muted)}
+.ai-status.ok{color:var(--accent-dark)}
+.ai-status.error{color:var(--red)}
+.ai-callout{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--tint);border-radius:14px;padding:16px 20px;margin-top:18px}
+.ai-callout .ico{width:22px;height:22px;color:var(--accent);vertical-align:-4px;margin-right:6px}
+.ai-callout p{margin:5px 0 0}
+.ai-task-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding:9px 11px;border:1px dashed var(--line);border-radius:12px;background:var(--soft)}
+.ai-task-bar-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:750;color:var(--muted)}
+.ai-task-bar .ico{width:16px;height:16px;color:var(--accent)}
+.ai-task-card .ai-task-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:15px}
+.ai-task-meta{margin:7px 0 4px}
+.ai-task-card .task-title{margin-bottom:10px}
+.ai-task-card .table-scroll{margin:12px 0}
+.ai-task-card .chart-wrap{margin:14px 0;border:0;padding:0;background:transparent}
+.ai-options{margin:10px 0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.ai-answer-row{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ai-question p:last-child{margin-bottom:0}
+.ai-gen-result .ai-task-card{margin:0}
+.ai-guide{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--soft)}
+.ai-guide-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ai-guide-links{margin-top:10px}
+.ai-guide-links .btn{text-decoration:none}
+.ai-guide-tips{margin-top:12px}
+.ai-guide-tips summary{font-weight:700;cursor:pointer}
+.ai-tips{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.ai-instructions{margin:4px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.7}
+.ai-instructions a{word-break:break-all}
+.ai-chat-log table.data-table{font-size:12px}
+.ai-chat-log .ai-hit{margin-top:8px}
+.ai-chat-log .ai-hit p{margin:4px 0 0}
+.ai-code{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:11px 13px;overflow:auto;font-size:12px}
+.ai-quote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--accent);background:var(--soft);border-radius:0 10px 10px 0}
+.ai-list{margin:8px 0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.ai-msg h2,.ai-msg h3,.ai-msg h4{margin:10px 0 6px;font-size:14px}
+.ai-msg .katex-display{margin:10px 0}
+@media (max-width:720px){
+ .ai-fab{right:14px;bottom:14px;padding:12px}
+ .ai-fab-label{display:none}
+ .ai-drawer{top:auto;left:8px;right:8px;bottom:8px;max-height:82vh}
+}

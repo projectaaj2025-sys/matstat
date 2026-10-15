@@ -52,7 +52,8 @@ JS_PARTS = (
     ("src/js/21-exam.js", "\n"),
     ("src/js/22-lesson-notes.js", "\n"),
     ("src/js/24-ai-assistant.js", "\n"),
-    ("src/js/23-boot.js", ""),
+    ("src/js/25-ai-studio.js", "\n"),
+    ("src/js/26-boot.js", ""),
 )
 
 
