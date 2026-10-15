@@ -1020,7 +1020,7 @@ const AI_NUM_RULES = [
     },
     {
         id: 'frequency-share-of-all',
-        re: /(?<m>\d+) учеников[^.]*долю среди всех (?<n>\d+)/,
+        re: /(?<m>\d+) учеников[\s\S]{0,90}?долю среди всех (?<n>\d+)/,
         order: ['m', 'n'],
         derived: {n: (args, rnd) => args.m * (2 + Math.floor(rnd() * 8))},
         check: args => args.m > 0 && args.n > args.m,
@@ -1801,6 +1801,212 @@ function aiNumFractionsVariant(task, plan, options, rnd) {
     return null
 }
 
+/* ---- Сравнение двух вариантов ---------------------------------------- */
+/* «Вариант А задан таблицей, вариант Б всегда даёт 5» и «Сравните ожидания
+   при p=0,2 и p=0,4»: ответ — пара чисел. Пересчитываем оба варианта. */
+function aiNumComparePlan(task, base, answer) {
+    if (!Array.isArray(answer) || answer.length !== 2) return null;
+    const question = String(base.question);
+    /* Вариант А — таблица закона, вариант Б — постоянная величина. */
+    const table = (base.inputTables || [])[0];
+    const head = (table && table.head) || [], row = (table && (table.rows || [])[0]) || [];
+    if (table && head.length >= 3 && row.length === head.length
+        && /^(x|значение|xi)$/i.test(String(head[0] == null ? '' : head[0]).trim())
+        && /^(p|вероятность)/i.test(String(row[0] == null ? '' : row[0]).trim())) {
+        const xs = head.slice(1).map(value => aiNumValue(value));
+        const ps = row.slice(1).map(value => aiNumValue(value));
+        if (xs.some(value => value === null) || ps.some(value => value === null)) return null;
+        if (Math.abs(ps.reduce((acc, value) => acc + value, 0) - 1) > 1e-9) return null;
+        const stat = /D\(|дисперси/i.test(question) ? 'variance' : (/M\(|средн/i.test(question) ? 'mean' : null);
+        if (!stat) return null;
+        const moment = aiNumTableMoment(stat, xs, ps);
+        if (moment === null || !aiNumSame(moment, answer[0])) return null;
+        const tokens = aiNumTokens(question);
+        const constant = tokens.find(token => aiNumSame(token.value, answer[1]));
+        const isConstantVariance = stat === 'variance' && aiNumSame(answer[1], 0) && /постоянн|всегда|констант/i.test(question);
+        if (!constant && !isConstantVariance) return null;
+        return {
+            kind: 'compare', mode: constant ? 'constant-value' : 'constant-variance', base: base, stat: stat,
+            xs: xs, values: ps, row: row, cells: row.slice(1).map((cell, index) => index), answer: answer,
+            token: constant || (tokens.length ? tokens[tokens.length - 1] : null), texts: row.slice(1).map(cell => String(cell))
+        }
+    }
+    /* Два ожидания по двум вероятностям: «Сравните ожидания при p=0,2 и p=0,4». */
+    const pair = question.match(/при p=(?<p1>\d+(?:[.,]\d+)?) и p=(?<p2>\d+(?:[.,]\d+)?)/);
+    if (!pair) return null;
+    const p1 = aiNumValue(pair.groups.p1), p2 = aiNumValue(pair.groups.p2);
+    if (!p1 || !p2) return null;
+    if (!aiNumSame(1 / p1, answer[0]) || !aiNumSame(1 / p2, answer[1])) return null;
+    const tokens = aiNumTokens(question);
+    return {kind: 'compare', mode: 'inverse', base: base, values: [p1, p2], answer: answer, tokens: tokens}
+}
+
+/* M(X) или D(X) по таблице закона. */
+function aiNumTableMoment(stat, xs, ps) {
+    const mean = xs.reduce((acc, value, index) => acc + value * ps[index], 0);
+    if (stat === 'mean') return mean;
+    const second = xs.reduce((acc, value, index) => acc + value * value * ps[index], 0);
+    const variance = second - mean * mean;
+    if (stat === 'variance') return Number(variance.toFixed(10));
+    return Math.sqrt(Math.max(variance, 0))
+}
+
+/* Запись вероятности в условие: «0,5» остаётся с одним знаком, «0,75» — с двумя,
+   иначе округление при письме разошлось бы со значением. */
+function aiNumProbText(like, value) {
+    const source = String(like == null ? '' : like);
+    const separator = source.includes(',') && !source.includes('.') ? ',' : '.';
+    const rounded = Number(value);
+    for (let places = 0; places <= 4; places++) {
+        const sample = '0' + (places ? separator + '0'.repeat(places) : '');
+        const text = aiNumFormat(sample, rounded);
+        if (aiNumSame(aiNumValue(text), rounded)) return text
+    }
+    return aiNumFormat('0' + separator + '0000', rounded)
+}
+
+function aiNumCompareVariant(task, plan, options, rnd) {
+    const opts = options || {};
+    const baseTask = plan.base || task;
+    const id = extra => 'ainum-' + (baseTask.id || 'task') + '-' + Date.now().toString(36) + '-' + Math.floor(rnd() * 46656).toString(36) + (extra || '');
+    const shape = {source: 'course', sectionId: opts.sectionId || task.sectionId || '', sectionTitle: opts.sectionTitle || task.sectionTitle || '', numbersChanged: true, acceptedAnswers: undefined};
+    if (plan.mode === 'inverse') {
+        const pool = [0.05, 0.1, 0.2, 0.25, 0.4, 0.5];
+        for (let attempt = 0; attempt < 40; attempt++) {
+            const probs = [pool[Math.floor(rnd() * pool.length)], pool[Math.floor(rnd() * pool.length)]];
+            if (aiNumSame(probs[0], probs[1])) continue;
+            const next = probs.map(value => 1 / value);
+            if (!next.every(value => aiNumNice(value))) continue;
+            if (aiNumSame(next, plan.answer)) continue;
+            /* Вероятности в условии и в подписях строк переписываем вместе. */
+            const positions = plan.tokens.slice(0, 2);
+            if (positions.length < 2) continue;
+            const texts = probs.map((value, index) => aiNumProbText(positions[index].text, value));
+            const replacements = positions.map((token, index) => ({start: token.start, end: token.end, text: texts[index]}));
+            const question = aiNumRewrite(baseTask.question, replacements);
+            if (question === baseTask.question) continue;
+            const rows = (task.rows || []).map((row, index) => row.map(cell => {
+                const tokens_ = aiNumTokens(String(cell));
+                if (!tokens_.length) return cell;
+                const token = tokens_[tokens_.length - 1];
+                return aiNumRewrite(String(cell), [{start: token.start, end: token.end, text: texts[index]}])
+            }));
+            return Object.assign({}, task, shape, {
+                id: id(), origin: baseTask.id || '',
+                numbersPreview: `${positions.map(token => token.text).join(', ')} → ${texts.join(', ')}`,
+                question: question, rows: rows, answer: next.slice(),
+                tolerance: aiNumAnswerTolerance(task, next, next),
+                solution: ait('ai.num.solution', {steps: `M(X) = 1 / p: 1 / ${texts[0]} = ${aiNumProbText(texts[0], next[0])}; 1 / ${texts[1]} = ${aiNumProbText(texts[1], next[1])}`})
+            })
+        }
+        return null
+    }
+    const texts = plan.texts || [];
+    for (let attempt = 0; attempt < 60; attempt++) {
+        const next = aiNumPickLaw(plan.values, texts, rnd, false);
+        if (!next) continue;
+        const moment = aiNumTableMoment(plan.stat, plan.xs, next);
+        if (moment === null || !Number.isFinite(moment)) continue;
+        if (!aiNumNicerThan(moment, plan.answer[0])) continue;
+        let second = 0, tokenText = null;
+        if (plan.mode === 'constant-value') {
+            const candidates = [1, 2, 3, 4, 5, 6, 8, 10, 12];
+            second = candidates[Math.floor(rnd() * candidates.length)];
+            if (aiNumSame(aiNumRound(second, 4), plan.answer[1])) continue;
+            if (plan.stat === 'variance') continue;
+            tokenText = aiNumProbText(plan.token.text, second)
+        } else if (plan.token) {
+            /* Вариант Б — постоянная величина: её значение меняем, D(Б) = 0. */
+            const candidates = [2, 3, 4, 5, 6, 8, 10, 12].filter(value => !aiNumSame(value, plan.token.value));
+            const picked = candidates[Math.floor(rnd() * candidates.length)];
+            tokenText = aiNumProbText(plan.token.text, picked)
+        }
+        const rounded = [aiNumRound(moment, 4), aiNumRound(second, 4)];
+        if (aiNumSame(rounded, plan.answer)) continue;
+        const inputTables = (task.inputTables || []).map((table, index) => {
+            if (index) return table;
+            const rows = (table.rows || []).map((cells, rowIndex) => {
+                if (rowIndex) return cells;
+                return cells.map((cell, cellIndex) => (cellIndex === 0 ? cell : aiNumFormat(String(plan.row[cellIndex]), next[cellIndex - 1])))
+            });
+            return Object.assign({}, table, {rows: rows})
+        });
+        const replacements = [];
+        if (tokenText !== null) replacements.push({start: plan.token.start, end: plan.token.end, text: tokenText});
+        const question = replacements.length ? aiNumRewrite(baseTask.question, replacements) : baseTask.question;
+        const fmt = source => aiNumFormat(String(aiNumRound(Number(source), 4)).replace('.', ','), Number(source));
+        const steps = plan.stat === 'mean'
+            ? `M(А) = ${plan.xs.map((value, index) => `${fmt(value)} · ${aiNumProbText(texts[index], next[index])}`).join(' + ')} = ${fmt(moment)}; M(Б) = ${fmt(second)}`
+            : `D(А) = M(X²) − M(X)² = ${fmt(moment)}; D(Б) = 0 (постоянная величина)`;
+        return Object.assign({}, task, shape, {
+            id: id(), origin: baseTask.id || '',
+            numbersPreview: `${texts.join(', ')} → ${next.map((value, index) => aiNumFormat(texts[index], value)).join(', ')}`,
+            question: question, inputTables: inputTables, answer: rounded,
+            tolerance: aiNumAnswerTolerance(task, rounded, rounded),
+            solution: ait('ai.num.solution', {steps: steps})
+        })
+    }
+    return null
+}
+
+/* ---- Биномиальный закон по n и p ------------------------------------- */
+function aiNumBinomialPlan(task, base, answer) {
+    if (!Array.isArray(answer) || answer.length < 3 || answer.length > 7) return null;
+    const match = String(base.question).match(/При n=(?<n>\d+), p=(?<p>\d+(?:[.,]\d+)?) заполните закон/);
+    if (!match) return null;
+    const n = Number(match.groups.n), probability = aiNumValue(match.groups.p);
+    if (!n || n + 1 !== answer.length || !probability) return null;
+    const pmf = k => aiNumChoose(n, k) * probability ** k * (1 - probability) ** (n - k);
+    if (!answer.every((value, k) => aiNumSame(value, pmf(k)))) return null;
+    return {kind: 'binomial', base: base, n: n, p: probability, answer: answer}
+}
+
+function aiNumBinomialVariant(task, plan, options, rnd) {
+    const opts = options || {};
+    const baseTask = plan.base || task;
+    const pool = [0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.75, 0.8];
+    for (let attempt = 0; attempt < 60; attempt++) {
+        const n = 2 + Math.floor(rnd() * 4);
+        const probability = pool[Math.floor(rnd() * pool.length)];
+        const pmf = k => aiNumChoose(n, k) * probability ** k * (1 - probability) ** (n - k);
+        const next = [];
+        for (let k = 0; k <= n; k++) next.push(Number(pmf(k).toFixed(4)));
+        if (!next.every(value => aiNumNice(value) && value >= 0.001)) continue;
+        if (aiNumSame(next, plan.answer)) continue;
+        const tokens = aiNumTokens(baseTask.question);
+        if (tokens.length < 2) continue;
+        const nToken = tokens[0], pToken = tokens[1];
+        const probabilityText = aiNumProbText(pToken.text, probability);
+        const question = aiNumRewrite(baseTask.question, [
+            {start: nToken.start, end: nToken.end, text: aiNumFormat(nToken.text, n)},
+            {start: pToken.start, end: pToken.end, text: probabilityText}
+        ]);
+        /* Строк столько же, сколько значений k: P(0), P(1), …, P(n). */
+        const pattern = ((task.rows || [])[0] || [])[0];
+        const rows = [];
+        for (let k = 0; k <= n; k++) {
+            const cell = String(pattern == null ? '' : pattern);
+            const tokens_ = aiNumTokens(cell);
+            if (!tokens_.length) { rows.push([String(k)]); continue }
+            const token = tokens_[tokens_.length - 1];
+            rows.push([aiNumRewrite(cell, [{start: token.start, end: token.end, text: String(k)}])])
+        }
+        return Object.assign({}, task, {
+            id: 'ainum-' + (baseTask.id || 'task') + '-' + Date.now().toString(36) + '-' + Math.floor(rnd() * 46656).toString(36),
+            origin: baseTask.id || '', source: 'course',
+            sectionId: opts.sectionId || task.sectionId || '', sectionTitle: opts.sectionTitle || task.sectionTitle || '',
+            numbersChanged: true,
+            numbersPreview: `${plan.n}, ${plan.p} → ${n}, ${probability}`,
+            question: question, rows: rows, answer: next,
+            tolerance: aiNumAnswerTolerance(task, next, next),
+            acceptedNumbers: undefined,
+            acceptedAnswers: undefined,
+            solution: ait('ai.num.solution', {steps: `P(k) = C(${n}; k) · ${probabilityText}^k · (1 − p)^(n − k): ${next.map((value, k) => `P(${k}) = ${aiNumProbText(probabilityText, value)}`).join(', ')}`})
+        })
+    }
+    return null
+}
+
 /* ---- Порядок данных: упорядоченный ряд остаётся упорядоченным ---------- */
 function aiNumOrderPlan(run, base, answer) {
     if (!Array.isArray(answer) || !run || run.length < 2) return null;
@@ -2030,6 +2236,10 @@ function aiNumPlan(task) {
     if (fractions) return fractions;
     const datalist = aiNumDataListPlan(task, base, answer);
     if (datalist) return datalist;
+    const compare = aiNumComparePlan(task, base, answer);
+    if (compare) return compare;
+    const binomial = aiNumBinomialPlan(task, base, answer);
+    if (binomial) return binomial;
     const order = aiNumOrderPlan(run, base, answer);
     if (order) return order;
     const generic = aiNumGenericPlan(task, question, run, answer);
@@ -2372,6 +2582,8 @@ function aiTaskNumberVariant(task, options) {
     if (plan.kind === 'counts') return aiNumCountsVariant(task, plan, opts, rnd);
     if (plan.kind === 'fractions') return aiNumFractionsVariant(task, plan, opts, rnd);
     if (plan.kind === 'datalist') return aiNumDataListVariant(task, plan, opts, rnd);
+    if (plan.kind === 'compare') return aiNumCompareVariant(task, plan, opts, rnd);
+    if (plan.kind === 'binomial') return aiNumBinomialVariant(task, plan, opts, rnd);
     const located = aiNumLocateSlots(baseTask.question, task.question, plan.slots);
     if (!located) return null;
     const kept = plan.rule && plan.rule.keep ? plan.rule.keep : [];

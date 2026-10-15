@@ -28,6 +28,15 @@ const w = dom.window;
 const wait = ms => new Promise(r => setTimeout(r, ms));
 await wait(1500);
 
+/* Детерминированный генератор для проверок пересчёта: иначе результат зависит
+   от удачи конкретного розыгрыша, а в jsdom Math.random между eval замирает. */
+let rndState = 20261015;
+const seededRandom = () => {
+    rndState = (rndState * 1103515245 + 12345) % 2147483648;
+    return rndState / 2147483648
+};
+w.__rndTest = seededRandom;
+
 // Объявления const/let верхнего уровня не попадают в window — читаем их через eval.
 const ev = expr => w.eval(expr);
 const esc = s => ev('esc')(s);
@@ -618,8 +627,8 @@ const poolOf = () => ev(`(() => {
     return out;
 })()`);
 const variantOf = item => ev(`aiTaskNumberVariant(
-    SECTIONS.find(s => s.id === ${JSON.stringify(item.sectionId)}).tasks.find(t => t.id === ${JSON.stringify(item.id)}),
-    {sectionId: ${JSON.stringify(item.sectionId)}})`);
+    (SECTIONS.find(s => s.id === ${JSON.stringify(item.sectionId)}) || {tasks: []}).tasks.find(t => t.id === ${JSON.stringify(item.id)}) || taskMap[${JSON.stringify(item.id)}],
+    {sectionId: ${JSON.stringify(item.sectionId)}, random: window.__rndTest})`);
 
 check('переключатель новых чисел включён по умолчанию', ev('aiNumberSwapEnabled()') === true);
 ev("go('ai')");
@@ -871,6 +880,53 @@ const sumDraws = ev(`Array.from({length: 8}, () => {
 }).filter(Boolean).map(String)`);
 check('каждый запуск даёт новый набор данных',
     sumDraws.length >= 6 && new Set(sumDraws).size >= 5, `наборов: ${new Set(sumDraws).size} из ${sumDraws.length}`);
+
+// Пересчёт берём пачкой внутри одного eval: в jsdom Math.random между вызовами замирает.
+const newFamilies = ev(`(() => {
+    const items = [
+        {id: 'v3_math_expectation_11', sectionId: 'math-expectation'},
+        {id: 'v3_variance_std_14', sectionId: 'variance-std'},
+        {id: 'v3_geometric_distribution_10', sectionId: 'geometric-distribution'},
+        {id: 'v3_binomial_distribution_09', sectionId: 'binomial-distribution'},
+        {id: 'var_table', sectionId: 'variation-series'},
+        {id: 'v3_advanced_variation_series_02', sectionId: 'advanced-variation-series'},
+        {id: 'v3_frequency_08', sectionId: 'frequency'}
+    ];
+    const out = {};
+    for (const item of items) {
+        let variant = null;
+        for (let i = 0; i < 16 && !variant; i++) variant = aiTaskNumberVariant(taskMap[item.id], {sectionId: item.sectionId});
+        out[item.id] = variant
+    }
+    return out
+})()`);
+const familyFails = [];
+for (const [id, variant] of Object.entries(newFamilies)) {
+    if (!variant) { familyFails.push(id + ': нет варианта'); continue }
+    if (!variant.numbersChanged) familyFails.push(id + ': нет пометки');
+}
+check('сравнение двух вариантов пересчитывается',
+    !familyFails.includes('v3_math_expectation_11: нет варианта') && !familyFails.includes('v3_variance_std_14: нет варианта')
+    && !familyFails.includes('v3_geometric_distribution_10: нет варианта')
+    && Array.isArray(newFamilies['v3_math_expectation_11'].answer) && newFamilies['v3_math_expectation_11'].answer.length === 2
+    && Number(newFamilies['v3_variance_std_14'].answer[1]) === 0,
+    familyFails.join(' | '));
+check('в сравнении вариантов таблица пересчитана, а разбор показывает расчёт',
+    JSON.stringify(newFamilies['v3_math_expectation_11'].inputTables) !== JSON.stringify(ev("taskMap['v3_math_expectation_11'].inputTables"))
+    && /·/.test(String(newFamilies['v3_math_expectation_11'].solution)));
+const binomialVariant = newFamilies['v3_binomial_distribution_09'];
+check('биномиальный закон пересчитывается по n и p',
+    /При n=(\d+), p=[\d,]+ заполните закон/.test(binomialVariant.question)
+    && binomialVariant.answer.length === Number(binomialVariant.question.match(/При n=(\d+)/)[1]) + 1
+    && binomialVariant.rows.length === binomialVariant.answer.length
+    && Math.abs(binomialVariant.answer.reduce((acc, value) => acc + Number(value), 0) - 1) < 1e-3,
+    binomialVariant.question + ' | ' + JSON.stringify(binomialVariant.answer));
+check('частоты, доли и списки данных пересчитываются',
+    JSON.stringify(newFamilies['var_table'].rows) !== JSON.stringify(ev("taskMap['var_table'].rows"))
+    && JSON.stringify(newFamilies['v3_advanced_variation_series_02'].inputTables) !== JSON.stringify(ev("taskMap['v3_advanced_variation_series_02'].inputTables"))
+    && JSON.stringify(newFamilies['v3_frequency_08'].chart) !== JSON.stringify(ev("taskMap['v3_frequency_08'].chart"))
+    && newFamilies['v3_frequency_08'].answer !== undefined,
+    familyFails.join(' | '));
 
 // Флажок выключен: генератор берёт задание курса без изменений.
 ev('aiToggleNumberSwap(false)');
