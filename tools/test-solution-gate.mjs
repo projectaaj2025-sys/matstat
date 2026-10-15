@@ -443,28 +443,64 @@ check('ru: страница ИИ остаётся на русском',
 
 // --- 19. ИИ-помощник: провайдеры, где взять ключ и разметка ответа -------
 // Регресс: сгенерированные задачи показывались обрезанными, таблицы данных и
-// таблицы из ответа модели не отрисовывались, а подключить DeepSeek было негде.
+// таблицы из ответа модели не отрисовывались, а подключить внешнюю модель было негде.
+// Список начинается с бесплатных провайдеров: ключ выдаётся без платёжных данных,
+// а остаток лимитов приходит в заголовках ответа и виден прямо в курсе.
 ev("Object.assign(progress,EMPTY_PROGRESS());persist()");
-ev("progress.settings.aiProvider='deepseek';progress.settings.aiBaseUrl='https://api.deepseek.com';progress.settings.aiEnabled=false;progress.settings.aiApiKey=''");
+ev("progress.settings=undefined");
+check('новая установка выбирает бесплатного провайдера — Groq',
+    ev("aiSettings().aiProvider") === 'groq' && ev("aiSettings().aiBaseUrl") === 'https://api.groq.com/openai/v1',
+    ev("aiSettings().aiProvider") + ' / ' + ev("aiSettings().aiBaseUrl"));
+check('настройки прежних версий без ключа переключаются с DeepSeek на Groq',
+    ev("progress.settings.aiProvider='deepseek';progress.settings.aiBaseUrl='https://api.deepseek.com';progress.settings.aiApiKey='';delete progress.settings.aiFreeDefaultMigrated;aiSettings().aiProvider") === 'groq',
+    ev("progress.settings.aiProvider"));
+ev("progress.settings.aiProvider='deepseek';progress.settings.aiBaseUrl='https://api.deepseek.com';progress.settings.aiApiKey='sk-test';delete progress.settings.aiFreeDefaultMigrated");
+check('заведённый ключ DeepSeek при обновлении не трогают',
+    ev("aiSettings().aiProvider") === 'deepseek' && ev("aiSettings().aiBaseUrl") === 'https://api.deepseek.com',
+    ev("aiSettings().aiProvider") + ' / ' + ev("aiSettings().aiBaseUrl"));
+ev("progress.settings.aiProvider='groq';progress.settings.aiBaseUrl='https://api.groq.com/openai/v1';progress.settings.aiModel='openai/gpt-oss-120b';progress.settings.aiApiKey='';progress.settings.aiEnabled=false");
 ev("setLanguage('ru')");
 await wait(250);
 ev("go('ai')");
 await wait(400);
 const aiPage = aiMain();
-check('провайдер по умолчанию — DeepSeek', ev("aiSettings().aiProvider") === 'deepseek' && ev("aiSettings().aiBaseUrl") === 'https://api.deepseek.com',
-    ev("aiSettings().aiProvider") + ' / ' + ev("aiSettings().aiBaseUrl"));
 const providerOptions = ev("[...document.querySelectorAll('#ai-provider option')].map(o=>o.value)");
-check('в списке есть DeepSeek, локальные модели и свой адрес',
-    ['deepseek', 'openrouter', 'ollama', 'lmstudio', 'custom'].every(id => providerOptions.includes(id)),
+check('бесплатные провайдеры идут первыми в списке',
+    providerOptions.slice(0, 3).join(',') === 'groq,gemini,openrouter',
     providerOptions.join(','));
-const deepseekGuide = ev("document.getElementById('ai-provider-help').innerHTML");
-check('подсказка ведёт на страницу ключей DeepSeek', /platform\.deepseek\.com\/api_keys/.test(deepseekGuide));
+check('в списке есть платные, локальные модели и свой адрес',
+    ['deepseek', 'openai', 'ollama', 'lmstudio', 'custom'].every(id => providerOptions.includes(id)),
+    providerOptions.join(','));
+check('провайдеры сгруппированы: без карты, платные, локальные',
+    ev("[...document.querySelectorAll('#ai-provider optgroup')].length") === 3,
+    String(ev("[...document.querySelectorAll('#ai-provider optgroup')].length")));
+const groqGuide = ev("document.getElementById('ai-provider-help').innerHTML");
+check('подсказка ведёт на страницу ключей Groq', /console\.groq\.com\/keys/.test(groqGuide));
+check('в подсказке сказано, что платёжные данные не нужны', /без карты/i.test(groqGuide));
+check('в подсказке перечислены четыре счётчика лимитов',
+    /RPM/.test(groqGuide) && /TPM/.test(groqGuide) && /RPD/.test(groqGuide) && /TPD/.test(groqGuide));
+check('в подсказке есть заголовки с остатком лимитов',
+    /x-ratelimit-remaining-requests/.test(groqGuide) && /x-ratelimit-remaining-tokens/.test(groqGuide));
+check('в подсказке есть оговорка про российский адрес', /российского адреса/.test(groqGuide));
 check('шаги получения ключа расписаны подробно',
     ev("document.querySelectorAll('#ai-provider-help .ai-instructions li').length") >= 5,
     String(ev("document.querySelectorAll('#ai-provider-help .ai-instructions li').length")));
-check('в подсказке есть ссылка на цены и лимиты', /api-docs\.deepseek\.com/.test(deepseekGuide));
+check('в подсказке есть ссылка на лимиты',
+    /console\.groq\.com\/docs\/rate-limits/.test(groqGuide) && /console\.groq\.com\/settings\/limits/.test(groqGuide));
+const guideCard = ev("document.querySelector('#ai-provider-help').closest('.card').textContent");
+check('на странице есть таблица бесплатных провайдеров', /Бесплатные провайдеры без карты/.test(guideCard));
+check('в таблице сказано, что бесплатный уровень Gemini платит данными',
+    /улучшения продуктов/.test(guideCard) && /«нет»/.test(guideCard), guideCard.slice(0, 80));
+check('в таблице сказано про хвост :free у OpenRouter', /:free/.test(guideCard));
 check('на странице есть таблица частых ошибок с 402',
     /402/.test(ev("document.querySelector('#ai-provider-help').closest('.card').parentElement.textContent")));
+ev("document.getElementById('ai-provider').value='gemini';aiProviderChanged()");
+check('смена провайдера подставляет базовый адрес Gemini',
+    ev("document.getElementById('ai-base').value") === 'https://generativelanguage.googleapis.com/v1beta/openai'
+    && /aistudio\.google\.com\/apikey/.test(ev("document.getElementById('ai-provider-help').innerHTML")),
+    ev("document.getElementById('ai-base').value"));
+check('в подсказке Gemini сказано, что лимитов в документации нет',
+    /AI Studio\./.test(ev("document.getElementById('ai-provider-help').innerHTML")));
 ev("document.getElementById('ai-provider').value='openrouter';aiProviderChanged()");
 check('смена провайдера подставляет базовый адрес OpenRouter',
     ev("document.getElementById('ai-base').value") === 'https://openrouter.ai/api/v1'
@@ -603,6 +639,47 @@ w.fetch = async () => ({ok: false, status: 401, text: async () => '{"error":{"me
 const denied = await ev('aiTestConnection()');
 check('ошибка 401 объясняется словами про ключ',
     !!denied && denied.ok === false && /ключ/i.test(denied.reason), denied ? denied.reason.slice(0, 90) : 'нет ответа');
+// --- 24. Лимиты бесплатного тарифа из заголовков ответа -------------------
+// Groq и OpenRouter присылают остаток счётчиков в x-ratelimit-…: курс показывает
+// его сам, без похода в кабинет провайдера.
+ev("progress.settings.aiProvider='groq';progress.settings.aiBaseUrl='https://api.groq.com/openai/v1';progress.settings.aiModel='openai/gpt-oss-120b';progress.settings.aiApiKey='test-key';progress.settings.aiEnabled=true;persist()");
+ev("setLanguage('ru')");
+ev("go('ai')");
+await wait(400);
+const limitHeaders = {
+    'x-ratelimit-limit-requests': '1000',
+    'x-ratelimit-remaining-requests': '998',
+    'x-ratelimit-limit-tokens': '6000',
+    'x-ratelimit-remaining-tokens': '5400',
+    'x-ratelimit-reset-requests': '2m59.56s',
+    'x-ratelimit-reset-tokens': '7.66s'
+};
+w.fetch = async () => ({
+    ok: true, status: 200,
+    headers: {get: name => limitHeaders[name] || null},
+    json: async () => ({data: [{id: 'openai/gpt-oss-120b'}, {id: 'llama-3.3-70b-versatile'}]}),
+});
+await ev('aiFetchModels()');
+const limitsLine = ev("document.getElementById('ai-limits').textContent");
+const limitsPlain = limitsLine.replace(/[\s\u00A0]/g, '');
+check('остаток лимитов из заголовков виден на странице',
+    limitsPlain.includes('998из1000') && limitsPlain.includes('5400из6000') && limitsPlain.includes('2m59.56s'), limitsLine);
+check('в строке лимитов назван провайдер', /Groq/.test(limitsLine), limitsLine);
+check('те же лимиты показывает панель помощника',
+    ev("document.getElementById('ai-drawer-mode').textContent").includes('998'),
+    ev("document.getElementById('ai-drawer-mode').textContent"));
+w.fetch = async () => ({
+    ok: false, status: 429,
+    headers: {get: name => ({'retry-after': '7', 'x-ratelimit-remaining-requests': '0'}[name] || null)},
+    text: async () => '{"error":{"message":"Rate limit reached for requests"}}',
+});
+const limited = await ev('aiTestConnection()');
+check('ошибка 429 называет время повтора из заголовка retry-after',
+    !!limited && limited.ok === false && /через 7/.test(limited.reason), limited ? limited.reason.slice(0, 120) : 'нет ответа');
+check('после ошибки 429 остаток лимитов обновляется',
+    /осталось 0/.test(ev("document.getElementById('ai-limits').textContent")),
+    ev("document.getElementById('ai-limits').textContent"));
+
 ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.settings.aiChat=[];progress.settings.aiTasks=[];persist()");
 ev("setLanguage('ru')");
 await wait(250);
