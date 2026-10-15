@@ -108,31 +108,54 @@ The assistant lives in two places: the **AI mentor** page in the course programm
 
 **With a key** an external model answers: free-form text, a step-by-step walkthrough, a check of a worded answer and new tasks with data tables. Answers are formatted like the course: markdown tables become real data tables, formulas become KaTeX formulas.
 
-### Where to get a DeepSeek API key
+### Where to get an API key: free providers without a card
 
-1. Open the platform dashboard: `https://platform.deepseek.com` (a separate API dashboard, not the chat).
-2. Sign up with your e-mail and confirm the letter — no phone number is needed.
-3. Open **API keys** in the left menu: `https://platform.deepseek.com/api_keys`.
-4. Press **Create new API key**, give it a name (for example `statpracticum-class`) and confirm.
-5. Copy the key at once: it is shown only once and starts with `sk-`.
-6. Check the balance under **Top up**: with an empty balance the API returns error 402. Prices and models: `https://api-docs.deepseek.com/quick_start/pricing`.
-7. In the course open the **AI mentor** page, choose the **DeepSeek** provider, paste the key, press **Test the connection**, then **Save the settings**.
+The course selects **Groq** by default — a free provider that never asks for payment details.
 
-The base URL is `https://api.deepseek.com`, the models are `deepseek-flash` (fast and cheap) and `deepseek-v4-pro`. The exact list comes from the **Load the model list** button. The DeepSeek key works right from the course page: the server sends CORS headers, so no proxy is needed.
+1. Open the Groq console: `https://console.groq.com` and sign in with e-mail or a Google account.
+2. Open **API Keys**: `https://console.groq.com/keys`.
+3. Press **Create API Key**, give it a name (for example `statpracticum-class`) and copy the `gsk_…` key — it is shown once.
+4. No payment details are asked for: the free tier starts right after sign-up.
+5. In the course open the **AI mentor** page, paste the key into the **API key** field, press **Load the model list** and pick a model from it.
+6. Press **Test the connection**, then **Save the settings**.
+
+The base URL is `https://api.groq.com/openai/v1`, the default models are `openai/gpt-oss-120b`, `llama-3.3-70b-versatile` and `qwen/qwen3-32b`; the exact list comes from the **Load the model list** button.
+
+**Limits.** Groq counts them on four scales at once: requests and tokens per minute (RPM, TPM) and per day (RPD, TPD). Whichever you reach first is the one that stops you. The exact values depend on the organization: they are shown on the limits page in the account settings (`https://console.groq.com/settings/limits`). The remaining counters arrive in the response headers (`x-ratelimit-remaining-requests`, `x-ratelimit-remaining-tokens`, `x-ratelimit-reset-…`), so the course shows the limits itself — under the API key field, in the assistant panel and in the 429 error message; the wait time comes from the `retry-after` header. Limits are shared by the organization: a second key in the same account adds no quota.
+
+**Region.** From a Russian address the Groq console refuses to open — no key can be issued there. If it does not open for you, take Google AI Studio or OpenRouter: both issue a key without a card as well.
+
+### Google AI Studio (Gemini): you pay with something other than money
+
+- The free tier is genuine: the key is issued without a card and input and output tokens cost nothing.
+- The price is different and it is written in the price list itself: the tables carry a row about whether the content of your requests is used to improve the company products. On the free tier it says “yes”, on the paid one “no”. Do not send students’ personal data to the free tier.
+- The documentation no longer gives exact limit values: it answers that limits depend on several factors and should be read in AI Studio itself. Round numbers from third-party round-ups are worth re-checking in your own account.
+- Moving to the first paid tier requires a linked billing account and a spending cap. The switch from the free tier takes effect almost at once, later tiers within ten minutes.
+- Key: `https://aistudio.google.com/apikey`. The base URL `https://generativelanguage.googleapis.com/v1beta/openai` is pre-filled in the course; change it only for another region or a proxy.
+
+### OpenRouter: models marked free
+
+An aggregator: one key without a card opens dozens of models from different vendors. Free ones are recognised by the `:free` tail in their identifier — for example `deepseek/deepseek-chat-v3:free`; without that tail a model is billed per token.
+
+- Key: `https://openrouter.ai/keys`, base URL `https://openrouter.ai/api/v1`.
+- Limits: 20 requests per minute and 50 per day; a one-time $10 top-up raises the daily cap to 1,000 requests. Failed attempts count too.
+- If you would rather not pick a specific model, type `openrouter/free`: the router sends the request to a suitable free model itself.
 
 ### Other OpenAI-compatible providers
 
-| Provider | Base URL | Where to get a key | Free tier |
-| --- | --- | --- | --- |
-| DeepSeek | `https://api.deepseek.com` | `platform.deepseek.com/api_keys` | no, a balance is required |
-| OpenAI | `https://api.openai.com/v1` | `platform.openai.com/api-keys` | no, billing required |
-| OpenRouter | `https://openrouter.ai/api/v1` | `openrouter.ai/keys` | yes, models marked `:free` |
-| Groq | `https://api.groq.com/openai/v1` | `console.groq.com/keys` | yes, with per-minute limits |
-| Google AI Studio | `https://generativelanguage.googleapis.com/v1beta/openai` | `aistudio.google.com/apikey` | yes |
-| Mistral | `https://api.mistral.ai/v1` | `console.mistral.ai/api-keys/` | yes, limited mode |
-| Together | `https://api.together.xyz/v1` | `api.together.ai/settings/api-keys` | no |
-| Ollama (local) | `http://localhost:11434/v1` | no key needed | yes, no internet needed |
-| LM Studio (local) | `http://localhost:1234/v1` | no key needed | yes, no internet needed |
+| Provider | Base URL | Where to get a key | Free | Payment details |
+| --- | --- | --- | --- | --- |
+| Groq (default) | `https://api.groq.com/openai/v1` | `console.groq.com/keys` | yes: four limit counters | not needed |
+| Google AI Studio | `https://generativelanguage.googleapis.com/v1beta/openai` | `aistudio.google.com/apikey` | yes: tokens are free, the price is your data | not needed |
+| OpenRouter | `https://openrouter.ai/api/v1` | `openrouter.ai/keys` | yes: models marked `:free` | not needed for `:free` |
+| Mistral | `https://api.mistral.ai/v1` | `console.mistral.ai/api-keys/` | yes: the “Experiment” mode | not needed, a phone is |
+| DeepSeek | `https://api.deepseek.com` | `platform.deepseek.com/api_keys` | no, a balance is required | needed |
+| OpenAI | `https://api.openai.com/v1` | `platform.openai.com/api-keys` | no | needed |
+| Together | `https://api.together.xyz/v1` | `api.together.ai/settings/api-keys` | no | needed |
+| Ollama (local) | `http://localhost:11434/v1` | no key needed | yes, no internet needed | not needed |
+| LM Studio (local) | `http://localhost:1234/v1` | no key needed | yes, no internet needed | not needed |
+
+Keys from Groq, Google AI Studio and OpenRouter are issued without payment details, which is why the provider list in the course starts with them: on update, settings of earlier versions that never had a key switch from DeepSeek to Groq, while a key and address you have entered stay untouched.
 
 For local models the page must be allowed to reach the server: for Ollama set `OLLAMA_ORIGINS` to `*`, for LM Studio enable CORS in the server settings.
 
@@ -141,10 +164,10 @@ For local models the page must be allowed to reach the server: for Ollama set `O
 | Code | What it means | What to do |
 | --- | --- | --- |
 | 401 | the key was rejected | copy the key in full and check it is still active in the dashboard |
-| 402 | the balance is empty | top up the balance in the provider dashboard |
+| 402 | the balance is empty | top up the balance in the provider dashboard or switch to a free provider without a card |
 | 404 | model or address not found | load the model list and pick a name from it |
-| 429 | rate limit reached | wait a minute or switch the model |
-| Failed to fetch | no network, or the provider blocks browser requests | use DeepSeek, OpenRouter or Groq, or a local model |
+| 429 | the free-tier limit is reached | look at the limits line (remaining values and reset time), wait the time from `retry-after` or switch the model |
+| Failed to fetch | no network, or the provider blocks browser requests | use Groq, Google AI Studio, OpenRouter or a local model |
 
 ### Safety and classroom use
 

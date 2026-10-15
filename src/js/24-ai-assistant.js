@@ -1,8 +1,12 @@
 /* ---- ИИ-помощник: локальный движок, провайдеры и внешняя модель ------- */
-/* Внешняя модель подключается по OpenAI-совместимому API: DeepSeek, OpenAI,
-   OpenRouter, Groq, Gemini, Mistral, Together, локальные Ollama и LM Studio или
-   свой адрес. Ключ хранится только в этом браузере (localStorage) и уходит
-   напрямую выбранному провайдеру: страница работает без сервера-посредника. */
+/* Внешняя модель подключается по OpenAI-совместимому API. Список начинается с
+   бесплатных провайдеров, которым ключ выдают без платёжных данных: Groq,
+   Google AI Studio (Gemini), OpenRouter и Mistral. Дальше идут платные
+   (DeepSeek, OpenAI, Together), локальные Ollama и LM Studio и свой адрес.
+   Остаток лимитов провайдеры присылают в заголовках ответа (x-ratelimit-…),
+   поэтому счётчики видно прямо в курсе. Ключ хранится только в этом браузере
+   (localStorage) и уходит напрямую выбранному провайдеру: страница работает
+   без сервера-посредника. */
 
 /* ---- Строки помощника ------------------------------------------------ */
 /* Подсказки о провайдерах содержат адреса, шаги и пояснения, поэтому их удобнее
@@ -91,12 +95,12 @@ const AI_TEXT = {
     'ai.err.402': {ru: 'Провайдер сообщает, что на балансе нет средств (код 402). Пополните баланс в кабинете провайдера.', en: 'The provider reports an empty balance (402). Top up the balance in the provider dashboard.', kk: 'Провайдер баланста қаражат жоқ деп хабарлайды (402). Кабинетте балансты толтырыңыз.'},
     'ai.err.403': {ru: 'Доступ запрещён (код 403). Проверьте, что ключ подходит для выбранной модели и адреса.', en: 'Access denied (403). Check that the key is allowed for the chosen model and address.', kk: 'Қатынауға тыйым салынды (403). Кілттің таңдалған модель мен мекенжайға сәйкестігін тексеріңіз.'},
     'ai.err.404': {ru: 'Модель или адрес не найдены (код 404). Проверьте название модели и базовый адрес — список моделей даёт кнопка «Загрузить список моделей».', en: 'Model or address not found (404). Check the model name and the base URL; the “Load model list” button shows the valid names.', kk: 'Модель немесе мекенжай табылмады (404). Модель атауы мен базалық мекенжайды тексеріңіз; жарамды атауларды «Модельдер тізімін жүктеу» түймесі береді.'},
-    'ai.err.429': {ru: 'Провайдер просит снизить темп (код 429): исчерпан лимит запросов бесплатного тарифа. Подождите минуту или выберите другую модель.', en: 'The provider asks you to slow down (429): the free-tier rate limit is reached. Wait a minute or choose another model.', kk: 'Провайдер қарқынды азайтуды сұрайды (429): тегін тарифтің шегі бітті. Бір минут күтіңіз немесе басқа модель таңдаңыз.'},
+    'ai.err.429': {ru: 'Провайдер просит снизить темп (код 429): сработал один из счётчиков бесплатного тарифа — запросы или токены в минуту либо в сутки. Остаток и время сброса видны в строке лимитов; подождите или выберите другую модель.', en: 'The provider asks you to slow down (429): one of the free-tier counters is spent — requests or tokens per minute or per day. The remaining values and the reset time are shown in the limits line; wait or pick another model.', kk: 'Провайдер қарқынды азайтуды сұрайды (429): тегін тарифтің счётчиктерінің бірі бітті — минуттағы немесе тәуліктегі сұраныс не токен. Қалдық пен сброс уақыты шектеулер жолында көрінеді; күтіңіз немесе басқа модель таңдаңыз.'},
     'ai.err.5xx': {ru: 'На стороне провайдера сбой (код {code}). Попробуйте ещё раз через минуту.', en: 'The provider had a failure (code {code}). Try again in a minute.', kk: 'Провайдер жағында ақау (код {code}). Бір минуттан кейін қайта көріңіз.'},
     'ai.err.network': {
-        ru: 'Запрос не ушёл: нет интернета или провайдер запрещает запросы прямо из браузера (CORS). Проверьте сеть, а если ошибка повторится — выберите провайдера с поддержкой браузерных запросов (DeepSeek, OpenRouter, Groq) или локальную модель (Ollama).',
-        en: 'The request did not go through: no internet, or the provider blocks browser requests (CORS). Check the network; if it repeats, pick a provider that allows browser requests (DeepSeek, OpenRouter, Groq) or a local model (Ollama).',
-        kk: 'Сұраныс жіберілмеді: интернет жоқ немесе провайдер браузерден сұранысқа тыйым салады (CORS). Желіні тексеріңіз; қайталанса, браузер сұранысын қолдайтын провайдерді (DeepSeek, OpenRouter, Groq) немесе жергілікті модельді (Ollama) таңдаңыз.'
+        ru: 'Запрос не ушёл: нет интернета или провайдер запрещает запросы прямо из браузера (CORS). Проверьте сеть, а если ошибка повторится — выберите другого провайдера (Groq, Google AI Studio, OpenRouter) или локальную модель (Ollama).',
+        en: 'The request did not go through: no internet, or the provider blocks browser requests (CORS). Check the network; if it repeats, pick another provider (Groq, Google AI Studio, OpenRouter) or a local model (Ollama).',
+        kk: 'Сұраныс жіберілмеді: интернет жоқ немесе провайдер браузерден сұранысқа тыйым салады (CORS). Желіні тексеріңіз; қайталанса, басқа провайдерді (Groq, Google AI Studio, OpenRouter) немесе жергілікті модельді (Ollama) таңдаңыз.'
     },
     'ai.err.timeout': {ru: 'Провайдер не ответил за минуту. Попробуйте ещё раз или выберите более быструю модель.', en: 'The provider did not answer within a minute. Try again or choose a faster model.', kk: 'Провайдер бір минутта жауап бермеді. Қайта көріңіз немесе жылдамырақ модель таңдаңыз.'},
     'ai.err.stopped': {ru: 'Запрос прерван.', en: 'The request was stopped.', kk: 'Сұраныс тоқтатылды.'},
@@ -110,9 +114,9 @@ const AI_TEXT = {
 
     /* ---- Страница «ИИ-наставник» ---- */
     'ai.page.desc': {
-        ru: 'Помощник работает в двух режимах. Локальный включается сразу и ищет ответ в теории и заданиях курса. Внешняя модель — DeepSeek или другой провайдер с OpenAI-совместимым API — отвечает свободным текстом, разбирает задания по шагам и придумывает новые задачи с таблицами данных.',
-        en: 'The assistant works in two modes. The local one starts at once and searches the theory and the tasks of the course. An external model — DeepSeek or another OpenAI-compatible provider — writes free-form answers, walks through tasks step by step and invents new tasks with data tables.',
-        kk: 'Көмекші екі режимде жұмыс істейді. Жергілікті режим бірден қосылып, жауапты курстың теориясы мен тапсырмаларынан іздейді. Сыртқы модель — DeepSeek немесе OpenAI-үйлесімді API бар өзге провайдер — еркін мәтінмен жауап береді, тапсырмаларды қадамдап талдайды және деректер кестелерімен жаңа тапсырма құрастырады.'
+        ru: 'Помощник работает в двух режимах. Локальный включается сразу и ищет ответ в теории и заданиях курса. Внешняя модель — бесплатный провайдер без карты (Groq, Google AI Studio, OpenRouter) или любой другой с OpenAI-совместимым API — отвечает свободным текстом, разбирает задания по шагам и придумывает новые задачи с таблицами данных.',
+        en: 'The assistant works in two modes. The local one starts at once and searches the theory and the tasks of the course. An external model — a free provider without a card (Groq, Google AI Studio, OpenRouter) or any other OpenAI-compatible one — writes free-form answers, walks through tasks step by step and invents new tasks with data tables.',
+        kk: 'Көмекші екі режимде жұмыс істейді. Жергілікті режим бірден қосылып, жауапты курстың теориясы мен тапсырмаларынан іздейді. Сыртқы модель — картасыз тегін провайдер (Groq, Google AI Studio, OpenRouter) немесе OpenAI-үйлесімді API бар өзге қызмет — еркін мәтінмен жауап береді, тапсырмаларды қадамдап талдайды және деректер кестелерімен жаңа тапсырма құрастырады.'
     },
     'ai.page.drawer': {ru: 'Панель помощника открывается на любой странице', en: 'The assistant panel opens on any page', kk: 'Көмекші панелі кез келген бетте ашылады'},
     'ai.page.drawerHint': {
@@ -155,7 +159,10 @@ const AI_TEXT = {
     'ai.setup.base': {ru: 'Базовый адрес API (OpenAI-совместимый)', en: 'API base URL (OpenAI-compatible)', kk: 'API базалық мекенжайы (OpenAI-үйлесімді)'},
     'ai.setup.model': {ru: 'Модель', en: 'Model', kk: 'Модель'},
     'ai.setup.key': {ru: 'API-ключ', en: 'API key', kk: 'API кілті'},
-    'ai.setup.keyHint': {ru: 'вставьте ключ вида sk-… из кабинета провайдера', en: 'paste the key such as sk-… from the provider dashboard', kk: 'провайдер кабинетінен sk-… түріндегі кілтті қойыңыз'},
+    'ai.setup.keyHint': {ru: 'вставьте ключ из кабинета провайдера: gsk_…, AIza…, sk-or-…', en: 'paste the key from the provider dashboard: gsk_…, AIza…, sk-or-…', kk: 'провайдер кабинетінен кілтті қойыңыз: gsk_…, AIza…, sk-or-…'},
+    'ai.setup.group.free': {ru: 'Бесплатные: ключ без платёжных данных', en: 'Free: a key without payment details', kk: 'Тегін: кілт төлем деректерінсіз'},
+    'ai.setup.group.paid': {ru: 'Платные: нужен баланс', en: 'Paid: a balance is required', kk: 'Ақылы: баланс керек'},
+    'ai.setup.group.local': {ru: 'Локальные и свой адрес', en: 'Local and custom', kk: 'Жергілікті және өз мекенжайы'},
     'ai.setup.enabled': {ru: 'Использовать внешнюю модель', en: 'Use an external model', kk: 'Сыртқы модельді қолдану'},
     'ai.setup.stream': {ru: 'Показывать ответ по мере появления', en: 'Show the answer as it arrives', kk: 'Жауапты пайда болған сайын көрсету'},
     'ai.setup.save': {ru: 'Сохранить настройки', en: 'Save the settings', kk: 'Параметрлерді сақтау'},
@@ -191,6 +198,31 @@ const AI_TEXT = {
     'ai.guide.local': {ru: 'Локальная модель: интернет не нужен', en: 'Local model: no internet needed', kk: 'Жергілікті модель: интернет қажет емес'},
     'ai.guide.paid': {ru: 'Нужен баланс в кабинете провайдера', en: 'A balance in the provider dashboard is required', kk: 'Провайдер кабинетінде баланс қажет'},
     'ai.guide.free': {ru: 'Есть бесплатный тариф или пробный баланс', en: 'A free tier or trial balance is available', kk: 'Тегін тариф немесе сынақ балансы бар'},
+    'ai.guide.noCard': {ru: 'Ключ без карты: платёжные данные не нужны', en: 'Key without a card: no payment details needed', kk: 'Кілт картасыз: төлем деректері қажет емес'},
+    'ai.guide.dataNote': {ru: 'На бесплатном уровне содержимое запросов может использоваться для улучшения продуктов провайдера — не отправляйте персональные данные.', en: 'On the free tier the content of your requests may be used to improve the provider products — do not send personal data.', kk: 'Тегін деңгейде сұраныс мазмұны провайдер өнімдерін жақсартуға пайдаланылуы мүмкін — жеке деректерді жібермеңіз.'},
+    'ai.limits.title': {ru: 'Лимиты {name} из заголовков ответа', en: 'Limits of {name} from the response headers', kk: '{name} шектеулері жауап тақырыпшаларында'},
+    'ai.limits.hint': {ru: 'Остаток по счётчикам провайдера появится здесь после первого ответа: он приходит в заголовках, заходить в кабинет не нужно.', en: 'The remaining provider counters will appear here after the first answer: they arrive in the headers, no trip to the dashboard is needed.', kk: 'Провайдер счётчиктерінің қалдығы бірінші жауаптан кейін осында шығады: ол тақырыпшаларда келеді, кабинетке кірудің қажеті жоқ.'},
+    'ai.limits.counter': {ru: '{kind}: осталось {remaining} из {limit}', en: '{kind}: {remaining} of {limit} left', kk: '{kind}: {limit} ішінен {remaining} қалды'},
+    'ai.limits.counterNoLimit': {ru: '{kind}: осталось {remaining}', en: '{kind}: {remaining} left', kk: '{kind}: {remaining} қалды'},
+    'ai.limits.kind.requests': {ru: 'запросы', en: 'requests', kk: 'сұраныстар'},
+    'ai.limits.kind.tokens': {ru: 'токены', en: 'tokens', kk: 'токендер'},
+    'ai.limits.kind.generic': {ru: 'запросы и токены', en: 'requests and tokens', kk: 'сұраныстар мен токендер'},
+    'ai.limits.reset': {ru: 'обновление через {reset}', en: 'reset in {reset}', kk: 'жаңаруы {reset} кейін'},
+    'ai.limits.retry': {ru: 'повторить можно через {seconds} с', en: 'you may retry in {seconds} s', kk: 'қайталауға {seconds} с кейін болады'},
+    'ai.limits.none': {ru: 'Провайдер не прислал лимиты в заголовках ответа.', en: 'The provider sent no limits in the response headers.', kk: 'Провайдер жауап тақырыпшаларында шектеулерді жібермеді.'},
+    'ai.free.title': {ru: 'Бесплатные провайдеры без карты', en: 'Free providers without a card', kk: 'Картасыз тегін провайдерлер'},
+    'ai.free.give': {ru: 'Что даёт бесплатно', en: 'What you get for free', kk: 'Тегін не береді'},
+    'ai.free.catch': {ru: 'В чём подвох', en: 'What the catch is', kk: 'Айласы неде'},
+    'ai.free.groq.give': {ru: 'Ключ без карты и быстрые открытые модели', en: 'A key without a card and fast open-weight models', kk: 'Картасыз кілт және жылдам ашық модельдер'},
+    'ai.free.groq.catch': {ru: 'Лимиты считаются по четырём величинам сразу (запросы и токены в минуту и в сутки): сработает та, до которой вы дойдёте первой. С российского адреса консоль отвечает отказом — тогда выбирайте другого провайдера.', en: 'Limits are counted on four scales at once (requests and tokens per minute and per day): whichever you reach first stops you. From a Russian address the console refuses to open — choose another provider then.', kk: 'Шектеулер бірден төрт шамамен есептеледі (минуттағы және тәуліктегі сұраныс пен токен): қайсысына бірінші жетсеңіз, сол тоқтатады. Ресейлік мекенжайдан консоль ашылмайды — онда басқа провайдер таңдаңыз.'},
+    'ai.free.gemini.give': {ru: 'Настоящий бесплатный уровень: входные и выходные токены не стоят ничего, карта не нужна', en: 'A genuine free tier: input and output tokens cost nothing and no card is needed', kk: 'Шынайы тегін деңгей: кіріс және шығыс токендер ақыға тұрмайды, карта қажет емес'},
+    'ai.free.gemini.catch': {ru: 'Плата — данными: содержимое запросов бесплатного уровня Google использует для улучшения продуктов (у платного уровня — «нет»). Точных цифр лимитов в документации больше нет: смотреть их нужно в AI Studio.', en: 'The price is your data: Google uses free-tier request content to improve its products (the paid tier does not). The docs no longer publish exact limits: read them in AI Studio.', kk: 'Ақы — деректер: Google тегін деңгейдегі сұраныс мазмұнын өнімдерін жақсартуға пайдаланады (ақылы деңгейде — «жоқ»). Құжаттамада нақты шектеу сандары енді жоқ: оларды AI Studio-дан қарау керек.'},
+    'ai.free.openrouter.give': {ru: 'Один ключ без карты открывает десятки моделей разных разработчиков', en: 'One key without a card opens dozens of models from different vendors', kk: 'Бір кілт картасыз ондаған модельді ашады'},
+    'ai.free.openrouter.catch': {ru: 'Бесплатны только модели с хвостом :free: 20 запросов в минуту и 50 в сутки (1000 после однократного пополнения на $10). Неудачные попытки тоже считаются.', en: 'Only models whose name ends with :free are free: 20 requests per minute and 50 per day (1,000 after a one-time $10 top-up). Failed attempts count too.', kk: 'Тек атауы :free болып аяқталатын модельдер тегін: минутына 20 және тәулігіне 50 сұраныс (бір рет $10 толтырғанда 1000). Сәтсіз әрекеттер де есептеледі.'},
+    'ai.free.mistral.give': {ru: 'Бесплатный режим «Experiment», карта не нужна', en: 'The free “Experiment” mode, no card needed', kk: '«Experiment» тегін режимі, карта қажет емес'},
+    'ai.free.mistral.catch': {ru: 'Нужна проверка телефона, а запросы бесплатного режима могут идти на улучшение моделей.', en: 'A phone check is required, and free-mode requests may be used to improve the models.', kk: 'Телефонды растау керек, ал тегін режимдегі сұраныстар модельді жақсартуға кетуі мүмкін.'},
+    'ai.free.local.give': {ru: 'Ollama и LM Studio: оплата и интернет не нужны, данные не покидают компьютер', en: 'Ollama and LM Studio: no payment and no internet needed, data never leaves the computer', kk: 'Ollama және LM Studio: ақы мен интернет қажет емес, деректер компьютерден шықпайды'},
+    'ai.free.local.catch': {ru: 'Нужен компьютер с запасом памяти: качество ответов зависит от размера модели.', en: 'A computer with spare memory is required: answer quality depends on the model size.', kk: 'Жадысы жеткілікті компьютер керек: жауап сапасы модель көлеміне байланысты.'},
     'ai.table.caption': {ru: 'Таблица из ответа модели', en: 'Table from the model answer', kk: 'Модель жауабындағы кесте'},
     'ai.errors.title': {ru: 'Частые ошибки и что делать', en: 'Common errors and what to do', kk: 'Жиі кездесетін қателер және не істеу керек'},
     'ai.errors.code': {ru: 'Код или сообщение', en: 'Code or message', kk: 'Код немесе хабарлама'},
@@ -198,11 +230,11 @@ const AI_TEXT = {
     'ai.errors.action': {ru: 'Что сделать', en: 'What to do', kk: 'Не істеу керек'},
     'ai.errors.howto.title': {ru: 'Как это устроено', en: 'How it works', kk: 'Бұл қалай жұмыс істейді'},
     'ai.errors.howto': {
-        ru: 'Курс — один файл без сервера: браузер сам обращается к API провайдера, поэтому провайдер должен разрешать запросы из браузера (CORS). Ключ лежит в localStorage, в файл курса и в архив он не попадает. Без ключа помощник остаётся полностью рабочим: он отвечает по теории и заданиям курса.',
-        en: 'The course is a single file without a server: the browser calls the provider API itself, so the provider must allow browser requests (CORS). The key lives in localStorage and never enters the course file or the kit archive. Without a key the assistant still works: it answers from the theory and the tasks of the course.',
-        kk: 'Курс — серверсіз бір файл: браузер провайдердің API-іне өзі жүгінеді, сондықтан провайдер браузерден сұранысқа рұқсат беруі керек (CORS). Кілт localStorage қоймасында жатыр, курс файлына және архивке түспейді. Кілтсіз де көмекші толық жұмыс істейді: ол курстың теориясы мен тапсырмалары бойынша жауап береді.'
+        ru: 'Курс — один файл без сервера: браузер сам обращается к API провайдера, поэтому провайдер должен разрешать запросы из браузера (CORS). Ключ лежит в localStorage, в файл курса и в архив он не попадает. Без ключа помощник остаётся полностью рабочим: он отвечает по теории и заданиям курса. У бесплатных провайдеров лимиты считаются по запросам и токенам сразу за минуту и за сутки: остаток приходит в заголовках ответа и виден в строке лимитов.',
+        en: 'The course is a single file without a server: the browser calls the provider API itself, so the provider must allow browser requests (CORS). The key lives in localStorage and never enters the course file or the kit archive. Without a key the assistant still works: it answers from the theory and the tasks of the course. Free providers count limits on requests and tokens per minute and per day: the remaining values arrive in the response headers and are shown in the limits line.',
+        kk: 'Курс — серверсіз бір файл: браузер провайдердің API-іне өзі жүгінеді, сондықтан провайдер браузерден сұранысқа рұқсат беруі керек (CORS). Кілт localStorage қоймасында жатыр, курс файлына және архивке түспейді. Кілтсіз де көмекші толық жұмыс істейді: ол курстың теориясы мен тапсырмалары бойынша жауап береді. Тегін провайдерлерде шектеулер сұраныс пен токен бойынша минутқа және тәулікке саналады: қалдық жауап тақырыпшаларында келеді және шектеулер жолында көрінеді.'
     },
-    'ai.how.step1': {ru: 'Выберите провайдера и получите ключ по шагам ниже.', en: 'Choose a provider and get a key using the steps below.', kk: 'Провайдерді таңдап, төмендегі қадамдармен кілт алыңыз.'},
+    'ai.how.step1': {ru: 'Начните с бесплатного провайдера без карты — Groq, Google AI Studio или OpenRouter — и получите ключ по шагам ниже.', en: 'Start with a free provider without a card — Groq, Google AI Studio or OpenRouter — and get a key using the steps below.', kk: 'Картасыз тегін провайдерден бастаңыз — Groq, Google AI Studio немесе OpenRouter — кілтті төмендегі қадамдармен алыңыз.'},
     'ai.how.step2': {ru: 'Вставьте ключ и проверьте подключение кнопкой «Проверить подключение».', en: 'Paste the key and test it with the “Test the connection” button.', kk: 'Кілтті қойып, «Қосылымды тексеру» түймесімен тексеріңіз.'},
     'ai.how.step3': {ru: 'Сохраните настройки: вопросы, разбор заданий и генерация пойдут во внешнюю модель.', en: 'Save the settings: questions, task help and generation will go to the external model.', kk: 'Параметрлерді сақтаңыз: сұрақтар, тапсырма талдау және құрастыру сыртқы модельге жіберіледі.'},
     'ai.how.step4': {ru: 'Ключ хранится только в этом браузере; его можно удалить в любой момент.', en: 'The key is kept only in this browser and can be deleted at any time.', kk: 'Кілт тек осы браузерде сақталады; оны кез келген уақытта жоюға болады.'}
@@ -221,13 +253,249 @@ function ait(key, vars) {
    guide.steps и guide.tips — подсказки, где взять ключ и на что смотреть. */
 const AI_PROVIDERS = [
     {
+        id: 'groq', name: 'Groq',
+        base: 'https://api.groq.com/openai/v1',
+        models: ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'qwen/qwen3-32b'],
+        keyUrl: 'https://console.groq.com/keys',
+        docsUrl: 'https://console.groq.com/docs/openai',
+        priceUrl: 'https://console.groq.com/docs/rate-limits',
+        browser: true, paid: false, free: true, noCard: true,
+        guide: {
+            ru: {
+                steps: [
+                    'Откройте консоль Groq: https://console.groq.com — вход по e-mail или через аккаунт Google.',
+                    'Откройте раздел «API Keys»: https://console.groq.com/keys',
+                    'Нажмите «Create API Key», задайте имя (например, statpracticum-class) и скопируйте ключ gsk_… — он показывается один раз.',
+                    'Платёжные данные не спрашивают: бесплатный тариф включается сразу после регистрации.',
+                    'Вставьте ключ в поле «API-ключ», нажмите «Загрузить список моделей» и выберите модель из списка.',
+                    'Нажмите «Проверить подключение», затем «Сохранить настройки».'
+                ],
+                tips: [
+                    'Лимиты считаются сразу по четырём величинам: запросы в минуту (RPM), токены в минуту (TPM), запросы в сутки (RPD) и токены в сутки (TPD). Сработает та, до которой вы дойдёте первой.',
+                    'Точные значения зависят от организации: смотрите страницу лимитов в настройках аккаунта https://console.groq.com/settings/limits',
+                    'Остаток по каждому счётчику приходит в заголовках ответа (x-ratelimit-remaining-requests, x-ratelimit-remaining-tokens, x-ratelimit-reset-…). Курс показывает его под полем «API-ключ» и в панели помощника — в интерфейс заходить не нужно.',
+                    'Лимиты общие на организацию: второй ключ в том же аккаунте остатка не увеличит.',
+                    'Регион: с российского адреса консоль отвечает отказом, поэтому ключ там не выдать. В этом случае возьмите Google AI Studio или OpenRouter — там ключ тоже выдают без карты.',
+                    'Ответы приходят очень быстро, но модели открытые: на длинных рассуждениях они уступают платным. При ошибке 429 подождите столько секунд, сколько указано в поле «повторить через».'
+                ]
+            },
+            en: {
+                steps: [
+                    'Open the Groq console: https://console.groq.com — sign in with e-mail or a Google account.',
+                    'Open “API Keys”: https://console.groq.com/keys',
+                    'Press “Create API Key”, give it a name (for example statpracticum-class) and copy the gsk_… key — it is shown once.',
+                    'No payment details are asked for: the free tier starts right after sign-up.',
+                    'Paste the key into the “API key” field, press “Load the model list” and pick a model from the list.',
+                    'Press “Test the connection”, then “Save the settings”.'
+                ],
+                tips: [
+                    'Limits are counted on four scales at once: requests per minute (RPM), tokens per minute (TPM), requests per day (RPD) and tokens per day (TPD). Whichever you reach first is the one that stops you.',
+                    'The exact values depend on the organization: see the limits page in the account settings https://console.groq.com/settings/limits',
+                    'The remaining counters arrive in the response headers (x-ratelimit-remaining-requests, x-ratelimit-remaining-tokens, x-ratelimit-reset-…). The course shows them under the “API key” field and in the assistant panel, so no trip to the dashboard is needed.',
+                    'Limits are shared by the organization: a second key in the same account adds no quota.',
+                    'Region: from a Russian address the console refuses to open, so a key cannot be issued there. In that case take Google AI Studio or OpenRouter — both issue a key without a card as well.',
+                    'Answers arrive very fast, but the models are open-weight: on long reasoning they are weaker than paid ones. On a 429 error wait the number of seconds shown as “retry after”.'
+                ]
+            },
+            kk: {
+                steps: [
+                    'Groq консолін ашыңыз: https://console.groq.com — e-mail немесе Google аккаунтымен кіріңіз.',
+                    '«API Keys» бөлімін ашыңыз: https://console.groq.com/keys',
+                    '«Create API Key» түймесін басып, атау жазыңыз (мысалы, statpracticum-class) және gsk_… кілтін көшіріңіз — ол бір рет көрсетіледі.',
+                    'Төлем деректері сұралмайды: тегін тариф тіркелгеннен кейін бірден қосылады.',
+                    'Кілтті «API кілті» өрісіне қойып, «Модельдер тізімін жүктеу» түймесін басып, тізімнен модель таңдаңыз.',
+                    '«Қосылымды тексеру», содан кейін «Параметрлерді сақтау» түймесін басыңыз.'
+                ],
+                tips: [
+                    'Шектеулер бірден төрт шамамен есептеледі: минуттағы сұраныс (RPM), минуттағы токен (TPM), тәуліктегі сұраныс (RPD) және тәуліктегі токен (TPD). Қайсысына бірінші жетсеңіз, сол тоқтатады.',
+                    'Нақты мәндер ұйымға байланысты: аккаунт параметрлеріндегі шектеулер бетін қараңыз https://console.groq.com/settings/limits',
+                    'Әр счётчиктің қалдығы жауап тақырыпшаларында келеді (x-ratelimit-remaining-requests, x-ratelimit-remaining-tokens, x-ratelimit-reset-…). Курс оларды «API кілт» өрісінің астында және көмекші панелінде көрсетеді — кабинетке кірудің қажеті жоқ.',
+                    'Шектеулер ұйымға ортақ: сол аккаунттағы екінші кілт қалдықты көбейтпейді.',
+                    'Аймақ: ресейлік мекенжайдан консоль ашылмайды, сондықтан кілт алу мүмкін емес. Бұл жағдайда Google AI Studio немесе OpenRouter алыңыз — олар да кілтті картасыз береді.',
+                    'Жауаптар өте жылдам келеді, бірақ модельдер ашық: ұзақ талдауда ақылы модельдерден әлсіздеу. 429 қатесінде «қайталау» өрісіндегі секунд қадарын күтіңіз.'
+                ]
+            }
+        }
+    },
+    {
+        id: 'gemini', name: 'Google AI Studio (Gemini)',
+        base: 'https://generativelanguage.googleapis.com/v1beta/openai',
+        models: ['gemini-2.5-flash'],
+        keyUrl: 'https://aistudio.google.com/apikey',
+        docsUrl: 'https://ai.google.dev/gemini-api/docs/openai',
+        priceUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
+        browser: true, paid: false, free: true, noCard: true,
+        guide: {
+            ru: {
+                steps: [
+                    'Откройте Google AI Studio: https://aistudio.google.com/apikey и войдите в аккаунт Google.',
+                    'Нажмите «Create API key» и выберите проект Google Cloud (или создайте новый).',
+                    'Платёжный аккаунт не нужен: на бесплатном уровне ключ AIza… выдают без карты.',
+                    'Скопируйте ключ и вставьте его в поле «API-ключ».',
+                    'Проверьте базовый адрес: для Gemini он заканчивается на /v1beta/openai.',
+                    'Нажмите «Загрузить список моделей», затем «Проверить подключение» и «Сохранить настройки».'
+                ],
+                tips: [
+                    'Бесплатный уровень настоящий: входные и выходные токены не стоят ничего, платить за них не нужно.',
+                    'Плата — другая, и она указана в самом прайсе: в таблицах есть строка об использовании содержимого запросов для улучшения продуктов компании. На бесплатном уровне там стоит «да», на платном — «нет». Не отправляйте сюда персональные данные учеников.',
+                    'Конкретных значений лимитов в документации больше нет: она отвечает, что лимиты зависят от нескольких факторов, а смотреть их нужно в самом AI Studio. Круглые числа из чужих подборок перепроверяйте у себя в аккаунте.',
+                    'Переход на первый платный уровень требует привязанного платёжного аккаунта и потолка трат. Переключение с бесплатного уровня срабатывает практически сразу, последующие — в течение десяти минут.',
+                    'Иногда в проекте Google Cloud нужно включить Generative Language API — ссылка есть на странице ключей. Базовый адрес уже подставлен: менять его нужно только для другого региона или прокси.'
+                ]
+            },
+            en: {
+                steps: [
+                    'Open Google AI Studio: https://aistudio.google.com/apikey and sign in with a Google account.',
+                    'Press “Create API key” and choose a Google Cloud project (or create a new one).',
+                    'No billing account is needed: on the free tier the AIza… key is issued without a card.',
+                    'Copy the key and paste it into the “API key” field.',
+                    'Check the base URL: for Gemini it ends with /v1beta/openai.',
+                    'Press “Load the model list”, then “Test the connection” and “Save the settings”.'
+                ],
+                tips: [
+                    'The free tier is real: input and output tokens cost nothing, there is no bill for them.',
+                    'The price is different and it is written in the price list itself: the tables carry a row about whether the content of your requests is used to improve the company products. On the free tier it says “yes”, on the paid one “no”. Do not send students’ personal data here.',
+                    'The documentation no longer gives exact limit values: it answers that limits depend on several factors and should be read in AI Studio itself. Round numbers from third-party round-ups are worth re-checking in your own account.',
+                    'Moving to the first paid tier requires a linked billing account and a spending cap. The switch from the free tier takes effect almost at once, later tiers within ten minutes.',
+                    'Sometimes the Generative Language API must be enabled in the Google Cloud project — the link is on the keys page. The base URL is pre-filled: change it only for another region or a proxy.'
+                ]
+            },
+            kk: {
+                steps: [
+                    'Google AI Studio ашыңыз: https://aistudio.google.com/apikey — Google аккаунтымен кіріңіз.',
+                    '«Create API key» түймесін басып, Google Cloud жобасын таңдаңыз (немесе жаңасын жасаңыз).',
+                    'Төлем аккаунты қажет емес: тегін деңгейде AIza… кілті картасыз беріледі.',
+                    'Кілтті көшіріп, «API кілті» өрісіне қойыңыз.',
+                    'Базалық мекенжайды тексеріңіз: Gemini үшін ол /v1beta/openai болып аяқталады.',
+                    '«Модельдер тізімін жүктеу», содан кейін «Қосылымды тексеру» және «Параметрлерді сақтау» түймесін басыңыз.'
+                ],
+                tips: [
+                    'Тегін деңгей шынайы: кіріс және шығыс токендер ақыға тұрмайды, олар үшін төлеу керек емес.',
+                    'Ақы — басқа, және ол прайстың өзінде жазылған: кестелерде сұраныс мазмұны компания өнімдерін жақсартуға пайдаланыла ма деген жол бар. Тегін деңгейде «иә», ақылы деңгейде «жоқ» деп тұр. Оқушылардың жеке деректерін мұнда жібермеңіз.',
+                    'Құжаттамада нақты шектеу мәндері енді жоқ: ол шектеулер бірнеше факторға байланысты, оларды AI Studio-ның өзінен қарау керек деп жауап береді. Бөгде тізімдердегі дөңгелек сандарды өз аккаунтыңызда тексеріп алыңыз.',
+                    'Бірінші ақылы деңгейге өту үшін төлем аккаунты мен шығыс шегі қажет. Тегін деңгейден ауысу дерлік бірден, кейінгілері он минут ішінде іске асады.',
+                    'Кейде Google Cloud жобасында Generative Language API қосу керек — сілтеме кілттер бетінде. Базалық мекенжай алдын ала қойылған: оны тек басқа аймақ немесе прокси үшін өзгертіңіз.'
+                ]
+            }
+        }
+    },
+    {
+        id: 'openrouter', name: 'OpenRouter',
+        base: 'https://openrouter.ai/api/v1',
+        models: ['openrouter/free', 'deepseek/deepseek-chat-v3:free'],
+        keyUrl: 'https://openrouter.ai/keys',
+        docsUrl: 'https://openrouter.ai/docs/quickstart',
+        priceUrl: 'https://openrouter.ai/models?max_price=0',
+        browser: true, paid: false, free: true, noCard: true,
+        guide: {
+            ru: {
+                steps: [
+                    'Зарегистрируйтесь на https://openrouter.ai (достаточно e-mail или входа через Google).',
+                    'Откройте «Keys» и нажмите «Create key»: https://openrouter.ai/keys',
+                    'Скопируйте ключ sk-or-… и вставьте его в поле «API-ключ» на этой странице.',
+                    'Нажмите «Загрузить список моделей» и выберите модель с хвостом :free — только такие модели бесплатны.',
+                    'Нажмите «Проверить подключение» и «Сохранить настройки».'
+                ],
+                tips: [
+                    'Метка бесплатной модели — хвост :free в идентификаторе, например deepseek/deepseek-chat-v3:free. Без этого хвоста модель тарифицируется по токенам.',
+                    'Бесплатный тариф: 20 запросов в минуту и 50 в сутки; после однократного пополнения на $10 суточный лимит поднимается до 1000 запросов. Неудачные попытки тоже считаются.',
+                    'Если не хочется выбирать конкретную модель, впишите openrouter/free: маршрутизатор сам отдаст запрос подходящей бесплатной модели.',
+                    'Один ключ без карты открывает десятки моделей разных разработчиков — удобно сравнить ответы.',
+                    'Бесплатные модели провайдеры иногда используют для обучения, поэтому не отправляйте им личные данные учеников.'
+                ]
+            },
+            en: {
+                steps: [
+                    'Sign up at https://openrouter.ai (an e-mail or a Google login is enough).',
+                    'Open “Keys” and press “Create key”: https://openrouter.ai/keys',
+                    'Copy the sk-or-… key and paste it into the “API key” field on this page.',
+                    'Press “Load the model list” and pick a model whose name ends with :free — only those are free of charge.',
+                    'Press “Test the connection” and “Save the settings”.'
+                ],
+                tips: [
+                    'The mark of a free model is the :free tail in its identifier, for example deepseek/deepseek-chat-v3:free. Without that tail the model is billed per token.',
+                    'The free tier allows 20 requests per minute and 50 per day; a one-time $10 top-up raises the daily cap to 1,000 requests. Failed attempts count too.',
+                    'If you would rather not choose a specific model, type openrouter/free: the router sends the request to a suitable free model itself.',
+                    'One key without a card opens dozens of models from different vendors — handy for comparing answers.',
+                    'Providers sometimes use free models for training, so do not send students’ personal data to them.'
+                ]
+            },
+            kk: {
+                steps: [
+                    'https://openrouter.ai сайтында тіркеліңіз (e-mail немесе Google арқылы кіру жеткілікті).',
+                    '«Keys» бөлімін ашып, «Create key» түймесін басыңыз: https://openrouter.ai/keys',
+                    'sk-or-… кілтін көшіріп, осы беттегі «API кілті» өрісіне қойыңыз.',
+                    '«Модельдер тізімін жүктеу» түймесін басып, атауы :free болып аяқталатын модельді таңдаңыз — тек сондай модельдер тегін.',
+                    '«Қосылымды тексеру» және «Параметрлерді сақтау» түймелерін басыңыз.'
+                ],
+                tips: [
+                    'Тегін модельдің белгісі — идентификатордағы :free қосымшасы, мысалы deepseek/deepseek-chat-v3:free. Бұл қосымшасыз модель токен бойынша тарифтеледі.',
+                    'Тегін тариф: минутына 20 сұраныс және тәулігіне 50; бір рет $10 толтырсаңыз, тәуліктік шек 1000 сұранысқа көтеріледі. Сәтсіз әрекеттер де есептеледі.',
+                    'Нақты модель таңдағыңыз келмесе, openrouter/free жазыңыз: маршрутизатор сұранысты тиісті тегін модельге өзі жібереді.',
+                    'Бір кілт картасыз ондаған модельді ашады — жауаптарды салыстыруға қолайлы.',
+                    'Тегін модельдерді провайдерлер оқытуға пайдалануы мүмкін, сондықтан оқушылардың жеке деректерін жібермеңіз.'
+                ]
+            }
+        }
+    },
+    {
+        id: 'mistral', name: 'Mistral',
+        base: 'https://api.mistral.ai/v1',
+        models: ['mistral-small-latest'],
+        keyUrl: 'https://console.mistral.ai/api-keys/',
+        docsUrl: 'https://docs.mistral.ai/api/',
+        priceUrl: 'https://mistral.ai/pricing',
+        browser: true, paid: false, free: true, noCard: true,
+        guide: {
+            ru: {
+                steps: [
+                    'Войдите в консоль: https://console.mistral.ai',
+                    'Откройте «API Keys»: https://console.mistral.ai/api-keys/',
+                    'Нажмите «Create new key» и скопируйте ключ.',
+                    'Вставьте ключ в поле «API-ключ», загрузите список моделей и проверьте подключение.'
+                ],
+                tips: [
+                    'Бесплатный режим «Experiment»: карта не нужна, но нужна проверка телефона.',
+                    'В бесплатном режиме запросы могут использоваться для улучшения моделей: для школы лучше платный тариф.',
+                    'Если телефон не подходит, начните с Groq, Google AI Studio или OpenRouter — этого достаточно для класса.'
+                ]
+            },
+            en: {
+                steps: [
+                    'Sign in to the console: https://console.mistral.ai',
+                    'Open “API Keys”: https://console.mistral.ai/api-keys/',
+                    'Press “Create new key” and copy the key.',
+                    'Paste the key into the “API key” field, load the model list and test the connection.'
+                ],
+                tips: [
+                    'The free “Experiment” mode needs no card, but a phone check is required.',
+                    'In the free mode requests may be used to improve the models: for school work a paid plan is safer.',
+                    'If the phone step does not suit you, start with Groq, Google AI Studio or OpenRouter — that is enough for a classroom.'
+                ]
+            },
+            kk: {
+                steps: [
+                    'Консольге кіріңіз: https://console.mistral.ai',
+                    '«API Keys» бөлімін ашыңыз: https://console.mistral.ai/api-keys/',
+                    '«Create new key» түймесін басып, кілтті көшіріңіз.',
+                    'Кілтті «API кілті» өрісіне қойып, модельдер тізімін жүктеп, қосылымды тексеріңіз.'
+                ],
+                tips: [
+                    '«Experiment» тегін режимі: карта қажет емес, бірақ телефонды растау керек.',
+                    'Тегін режимде сұраныстар модельді жақсартуға пайдаланылуы мүмкін: мектеп үшін ақылы тариф сенімдірек.',
+                    'Телефон қолайсыз болса, Groq, Google AI Studio немесе OpenRouter-ден бастаңыз — сыныпқа осы жеткілікті.'
+                ]
+            }
+        }
+    },
+    {
         id: 'deepseek', name: 'DeepSeek',
         base: 'https://api.deepseek.com',
         models: ['deepseek-flash', 'deepseek-v4-pro'],
         keyUrl: 'https://platform.deepseek.com/api_keys',
         docsUrl: 'https://api-docs.deepseek.com/',
         priceUrl: 'https://api-docs.deepseek.com/quick_start/pricing',
-        browser: true, paid: true, free: false,
+        browser: true, paid: true, free: false, noCard: false,
         guide: {
             ru: {
                 steps: [
@@ -242,6 +510,7 @@ const AI_PROVIDERS = [
                 tips: [
                     'Базовый адрес https://api.deepseek.com и модели deepseek-flash (быстрая и дешёвая) или deepseek-v4-pro (точнее на сложных задачах). Точный список даёт кнопка «Загрузить список моделей».',
                     'Ключ DeepSeek можно использовать прямо со страницы курса: сервер отдаёт CORS-заголовки, посредник не нужен.',
+                    'Бесплатного уровня у API нет: нужен баланс. Если платить не хочется, выберите Groq, Google AI Studio или OpenRouter — они стоят в начале списка, и ключ там выдают без карты.',
                     'Ключ — доступ к балансу. Не публикуйте его; если он попал в чужие руки, удалите ключ в разделе «API keys» и создайте новый.'
                 ]
             },
@@ -258,6 +527,7 @@ const AI_PROVIDERS = [
                 tips: [
                     'Base URL https://api.deepseek.com and the models deepseek-flash (fast and cheap) or deepseek-v4-pro (more accurate on hard tasks). The exact list comes from the “Load the model list” button.',
                     'The DeepSeek key can be used right from the course page: the server sends CORS headers, so no proxy is needed.',
+                    'The API has no free tier: a balance is required. If you would rather not pay, choose Groq, Google AI Studio or OpenRouter — they stand first in the list and issue a key without a card.',
                     'A key is access to your balance. Never publish it; if it leaks, delete the key under “API keys” and create a new one.'
                 ]
             },
@@ -274,6 +544,7 @@ const AI_PROVIDERS = [
                 tips: [
                     'Базалық мекенжай https://api.deepseek.com, модельдер: deepseek-flash (жылдам әрі арзан) немесе deepseek-v4-pro (күрделі есептерде дәлірек). Нақты тізімді «Модельдер тізімін жүктеу» түймесі береді.',
                     'DeepSeek кілтін курс бетінен тікелей қолдануға болады: сервер CORS тақырыпшаларын жібереді, делдал қажет емес.',
+                    'API-нің тегін деңгейі жоқ: баланс керек. Ақы төлегіңіз келмесе, Groq, Google AI Studio немесе OpenRouter таңдаңыз — олар тізімнің басында тұр және кілтті картасыз береді.',
                     'Кілт — балансқа қатынау. Оны жарияламаңыз; қолға түссе, «API keys» бөлімінде жойып, жаңасын жасаңыз.'
                 ]
             }
@@ -298,7 +569,8 @@ const AI_PROVIDERS = [
                 ],
                 tips: [
                     'Название модели уточняйте кнопкой «Загрузить список моделей»: у OpenAI оно меняется чаще, чем у других провайдеров.',
-                    'Запросы из браузера поддерживаются, но ключ активной платёжной карты лучше не оставлять на общем компьютере.'
+                    'Запросы из браузера поддерживаются, но ключ активной платёжной карты лучше не оставлять на общем компьютере.',
+                    'Бесплатный тариф у OpenAI не предусмотрен: если карта не подходит, начните с Groq, Google AI Studio или OpenRouter.'
                 ]
             },
             en: {
@@ -311,7 +583,8 @@ const AI_PROVIDERS = [
                 ],
                 tips: [
                     'Check the model name with the “Load the model list” button: OpenAI renames models more often than other providers.',
-                    'Browser requests are supported, but a key tied to a live payment card is better not left on a shared computer.'
+                    'Browser requests are supported, but a key tied to a live payment card is better not left on a shared computer.',
+                    'OpenAI has no free tier: if a card is not an option, start with Groq, Google AI Studio or OpenRouter.'
                 ]
             },
             kk: {
@@ -324,213 +597,8 @@ const AI_PROVIDERS = [
                 ],
                 tips: [
                     'Модель атауын «Модельдер тізімін жүктеу» түймесімен нақтылаңыз: OpenAI атауларды жиі өзгертеді.',
-                    'Браузерден сұраныс қолдау табады, бірақ нақты төлем картасына байланған кілтті ортақ компьютерде қалдырмаған жөн.'
-                ]
-            }
-        }
-    },
-    {
-        id: 'openrouter', name: 'OpenRouter',
-        base: 'https://openrouter.ai/api/v1',
-        models: ['openrouter/free', 'deepseek/deepseek-chat-v3:free'],
-        keyUrl: 'https://openrouter.ai/keys',
-        docsUrl: 'https://openrouter.ai/docs/quickstart',
-        priceUrl: 'https://openrouter.ai/models?max_price=0',
-        browser: true, paid: false, free: true,
-        guide: {
-            ru: {
-                steps: [
-                    'Зарегистрируйтесь на https://openrouter.ai (достаточно e-mail или входа через Google).',
-                    'Откройте «Keys» и нажмите «Create key»: https://openrouter.ai/keys',
-                    'Скопируйте ключ sk-or-… и вставьте его в поле «API-ключ» на этой странице.',
-                    'Нажмите «Загрузить список моделей» и выберите модель со словом :free — такие модели бесплатны.',
-                    'Нажмите «Проверить подключение» и «Сохранить настройки».'
-                ],
-                tips: [
-                    'Бесплатный тариф даёт ограниченное число запросов в день (обычно 50 на модель, около 200 всего); после однократного пополнения на $10 лимит выше.',
-                    'Один ключ OpenRouter открывает модели DeepSeek, Llama, Qwen и других — удобно, если нужно сравнить ответы.',
-                    'Бесплатные модели провайдеры иногда используют для обучения, поэтому не отправляйте им личные данные учеников.'
-                ]
-            },
-            en: {
-                steps: [
-                    'Sign up at https://openrouter.ai (an e-mail or a Google login is enough).',
-                    'Open “Keys” and press “Create key”: https://openrouter.ai/keys',
-                    'Copy the sk-or-… key and paste it into the “API key” field on this page.',
-                    'Press “Load the model list” and pick a model marked :free — those are free of charge.',
-                    'Press “Test the connection” and “Save the settings”.'
-                ],
-                tips: [
-                    'The free tier allows a limited number of requests a day (usually 50 per model, about 200 in total); a one-time $10 top-up raises the limit.',
-                    'One OpenRouter key opens DeepSeek, Llama, Qwen and other models — handy for comparing answers.',
-                    'Providers may use free models for training, so do not send students’ personal data to them.'
-                ]
-            },
-            kk: {
-                steps: [
-                    'https://openrouter.ai сайтында тіркеліңіз (e-mail немесе Google арқылы кіру жеткілікті).',
-                    '«Keys» бөлімін ашып, «Create key» түймесін басыңыз: https://openrouter.ai/keys',
-                    'sk-or-… кілтін көшіріп, осы беттегі «API кілті» өрісіне қойыңыз.',
-                    '«Модельдер тізімін жүктеу» түймесін басып, :free белгісі бар модельді таңдаңыз — олар тегін.',
-                    '«Қосылымды тексеру» және «Параметрлерді сақтау» түймелерін басыңыз.'
-                ],
-                tips: [
-                    'Тегін тариф тәулігіне шектеулі сұраныс береді (әдетте модельге 50, барлығы 200-ге жуық); бір рет $10 толтырсаңыз, шек жоғарылайды.',
-                    'Бір OpenRouter кілті DeepSeek, Llama, Qwen және басқа модельдерді ашады — жауаптарды салыстыруға қолайлы.',
-                    'Тегін модельдерді провайдерлер оқытуға пайдалануы мүмкін, сондықтан оқушылардың жеке деректерін жібермеңіз.'
-                ]
-            }
-        }
-    },
-    {
-        id: 'groq', name: 'Groq',
-        base: 'https://api.groq.com/openai/v1',
-        models: ['llama-3.3-70b-versatile'],
-        keyUrl: 'https://console.groq.com/keys',
-        docsUrl: 'https://console.groq.com/docs/openai',
-        priceUrl: 'https://console.groq.com/docs/rate-limits',
-        browser: true, paid: false, free: true,
-        guide: {
-            ru: {
-                steps: [
-                    'Зарегистрируйтесь в консоли: https://console.groq.com (e-mail или Google).',
-                    'Откройте «API Keys»: https://console.groq.com/keys',
-                    'Нажмите «Create API Key», скопируйте ключ gsk_… — он показывается один раз.',
-                    'Вставьте ключ в поле «API-ключ» и вызовите «Загрузить список моделей».',
-                    'Проверьте подключение и сохраните настройки.'
-                ],
-                tips: [
-                    'Есть бесплатный тариф с ограничениями на минуту и на сутки: на уроке делайте паузы между запросами.',
-                    'Ответы приходят очень быстро, но модели открытые и уступают DeepSeek на длинных рассуждениях.',
-                    'Ключ работает прямо из браузера, прокси не нужен.'
-                ]
-            },
-            en: {
-                steps: [
-                    'Sign up in the console: https://console.groq.com (e-mail or Google).',
-                    'Open “API Keys”: https://console.groq.com/keys',
-                    'Press “Create API Key” and copy the gsk_… key — it is shown once.',
-                    'Paste the key into the “API key” field and call “Load the model list”.',
-                    'Test the connection and save the settings.'
-                ],
-                tips: [
-                    'There is a free tier with per-minute and per-day limits: pause between requests during a lesson.',
-                    'Answers arrive very fast, but the models are open-weight and weaker than DeepSeek at long reasoning.',
-                    'The key works straight from the browser, no proxy needed.'
-                ]
-            },
-            kk: {
-                steps: [
-                    'Консольде тіркеліңіз: https://console.groq.com (e-mail немесе Google).',
-                    '«API Keys» бөлімін ашыңыз: https://console.groq.com/keys',
-                    '«Create API Key» түймесін басып, gsk_… кілтін көшіріңіз — ол бір рет көрсетіледі.',
-                    'Кілтті «API кілті» өрісіне қойып, «Модельдер тізімін жүктеу» түймесін басыңыз.',
-                    'Қосылымды тексеріп, параметрлерді сақтаңыз.'
-                ],
-                tips: [
-                    'Тегін тарифте минуттық және тәуліктік шектеулер бар: сабақта сұраныстар арасында кідіріс жасаңыз.',
-                    'Жауаптар өте жылдам келеді, бірақ ашық модельдер ұзақ талдауда DeepSeek-тен әлсіздеу.',
-                    'Кілт браузерден тікелей жұмыс істейді, делдал қажет емес.'
-                ]
-            }
-        }
-    },
-    {
-        id: 'gemini', name: 'Google AI Studio (Gemini)',
-        base: 'https://generativelanguage.googleapis.com/v1beta/openai',
-        models: ['gemini-2.5-flash'],
-        keyUrl: 'https://aistudio.google.com/apikey',
-        docsUrl: 'https://ai.google.dev/gemini-api/docs/openai',
-        priceUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
-        browser: true, paid: false, free: true,
-        guide: {
-            ru: {
-                steps: [
-                    'Откройте https://aistudio.google.com/apikey и войдите в аккаунт Google.',
-                    'Нажмите «Create API key» и выберите проект Google Cloud (или создайте новый).',
-                    'Скопируйте ключ AIza… и вставьте в поле «API-ключ».',
-                    'Проверьте базовый адрес: для Gemini он заканчивается на /v1beta/openai.',
-                    'Нажмите «Загрузить список моделей», затем «Проверить подключение».'
-                ],
-                tips: [
-                    'Бесплатный тариф ограничен числом запросов в минуту; для класса удобно чередовать учеников.',
-                    'Иногда нужно включить Generative Language API в проекте Google Cloud — ссылка есть на странице ключей.',
-                    'Базовый адрес уже подставлен: менять его нужно только для другого региона или прокси.'
-                ]
-            },
-            en: {
-                steps: [
-                    'Open https://aistudio.google.com/apikey and sign in with a Google account.',
-                    'Press “Create API key” and choose a Google Cloud project (or create one).',
-                    'Copy the AIza… key and paste it into the “API key” field.',
-                    'Check the base URL: for Gemini it ends with /v1beta/openai.',
-                    'Press “Load the model list”, then “Test the connection”.'
-                ],
-                tips: [
-                    'The free tier is limited by requests per minute; in a classroom it is easier to take turns.',
-                    'Sometimes the Generative Language API must be enabled in the Google Cloud project — the link is on the keys page.',
-                    'The base URL is pre-filled: change it only for another region or a proxy.'
-                ]
-            },
-            kk: {
-                steps: [
-                    'https://aistudio.google.com/apikey ашып, Google аккаунтымен кіріңіз.',
-                    '«Create API key» түймесін басып, Google Cloud жобасын таңдаңыз (немесе жаңасын жасаңыз).',
-                    'AIza… кілтін көшіріп, «API кілті» өрісіне қойыңыз.',
-                    'Базалық мекенжайды тексеріңіз: Gemini үшін ол /v1beta/openai болып аяқталады.',
-                    '«Модельдер тізімін жүктеу», содан кейін «Қосылымды тексеру» түймесін басыңыз.'
-                ],
-                tips: [
-                    'Тегін тариф минуттағы сұраныс санымен шектеледі; сыныпта кезекпен жұмыс істеген қолайлы.',
-                    'Кейде Google Cloud жобасында Generative Language API қосу керек — сілтеме кілттер бетінде.',
-                    'Базалық мекенжай алдын ала қойылған: оны тек басқа аймақ немесе прокси үшін өзгертіңіз.'
-                ]
-            }
-        }
-    },
-    {
-        id: 'mistral', name: 'Mistral',
-        base: 'https://api.mistral.ai/v1',
-        models: ['mistral-small-latest'],
-        keyUrl: 'https://console.mistral.ai/api-keys/',
-        docsUrl: 'https://docs.mistral.ai/api/',
-        priceUrl: 'https://mistral.ai/pricing',
-        browser: true, paid: false, free: true,
-        guide: {
-            ru: {
-                steps: [
-                    'Войдите в консоль: https://console.mistral.ai',
-                    'Откройте «API Keys»: https://console.mistral.ai/api-keys/',
-                    'Нажмите «Create new key» и скопируйте ключ.',
-                    'Вставьте ключ в поле «API-ключ», загрузите список моделей и проверьте подключение.'
-                ],
-                tips: [
-                    'У Mistral есть бесплатный режим с ограничением по токенам в месяц.',
-                    'В бесплатном режиме запросы могут использоваться для улучшения моделей: для школы лучше платный тариф.'
-                ]
-            },
-            en: {
-                steps: [
-                    'Sign in to the console: https://console.mistral.ai',
-                    'Open “API Keys”: https://console.mistral.ai/api-keys/',
-                    'Press “Create new key” and copy the key.',
-                    'Paste the key into the “API key” field, load the model list and test the connection.'
-                ],
-                tips: [
-                    'Mistral has a free mode with a monthly token limit.',
-                    'In the free mode requests may be used to improve the models: for school work a paid plan is safer.'
-                ]
-            },
-            kk: {
-                steps: [
-                    'Консольге кіріңіз: https://console.mistral.ai',
-                    '«API Keys» бөлімін ашыңыз: https://console.mistral.ai/api-keys/',
-                    '«Create new key» түймесін басып, кілтті көшіріңіз.',
-                    'Кілтті «API кілті» өрісіне қойып, модельдер тізімін жүктеп, қосылымды тексеріңіз.'
-                ],
-                tips: [
-                    'Mistral-да айлық токен шегі бар тегін режим бар.',
-                    'Тегін режимде сұраныстар модельді жақсартуға пайдаланылуы мүмкін: мектеп үшін ақылы тариф сенімдірек.'
+                    'Браузерден сұраныс қолдау табады, бірақ нақты төлем картасына байланған кілтті ортақ компьютерде қалдырмаған жөн.',
+                    'OpenAI-де тегін тариф жоқ: карта қолайсыз болса, Groq, Google AI Studio немесе OpenRouter-ден бастаңыз.'
                 ]
             }
         }
@@ -553,7 +621,8 @@ const AI_PROVIDERS = [
                 ],
                 tips: [
                     'В каталоге есть модели DeepSeek и Llama — удобно сравнить ответы.',
-                    'Бесплатного тарифа нет: без баланса запросы отклоняются.'
+                    'Бесплатного тарифа нет: без баланса запросы отклоняются.',
+                    'Если нужен бесплатный вариант, начните с Groq, Google AI Studio или OpenRouter — они стоят в начале списка.'
                 ]
             },
             en: {
@@ -565,7 +634,8 @@ const AI_PROVIDERS = [
                 ],
                 tips: [
                     'The catalogue includes DeepSeek and Llama models — handy for comparing answers.',
-                    'There is no free tier: without a balance requests are rejected.'
+                    'There is no free tier: without a balance requests are rejected.',
+                    'For a free option start with Groq, Google AI Studio or OpenRouter — they stand first in the list.'
                 ]
             },
             kk: {
@@ -577,7 +647,8 @@ const AI_PROVIDERS = [
                 ],
                 tips: [
                     'Каталогта DeepSeek және Llama модельдері бар — жауаптарды салыстыруға қолайлы.',
-                    'Тегін тариф жоқ: баланссыз сұраныстар қабылданбайды.'
+                    'Тегін тариф жоқ: баланссыз сұраныстар қабылданбайды.',
+                    'Тегін нұсқа керек болса, Groq, Google AI Studio немесе OpenRouter-ден бастаңыз — олар тізімнің басында.'
                 ]
             }
         }
@@ -738,8 +809,28 @@ const AI_PROVIDERS = [
     }
 ];
 
+/* По умолчанию — бесплатный провайдер: ключ выдаётся без платёжных данных. */
+const AI_DEFAULT_PROVIDER = 'groq';
+
 function aiProviderInfo(id) {
     return AI_PROVIDERS.find(p => p.id === id) || AI_PROVIDERS[0]
+}
+
+/* Порядок в списке: сначала бесплатные без карты, потом платные, потом локальные. */
+function aiProviderGroup(provider) {
+    if (provider.local || provider.id === 'custom') return 'local';
+    if (provider.noCard || provider.free) return 'free';
+    return 'paid'
+}
+
+function aiProviderOptionsHtml(current) {
+    const groups = [['free', 'ai.setup.group.free'], ['paid', 'ai.setup.group.paid'], ['local', 'ai.setup.group.local']];
+    return groups.map(([group, label]) => {
+        const items = AI_PROVIDERS.filter(p => aiProviderGroup(p) === group);
+        if (!items.length) return '';
+        return `<optgroup label="${esc(ait(label))}">` + items.map(p =>
+            `<option value="${p.id}" ${p.id === current ? 'selected' : ''}>${esc(aiProviderName(p))}</option>`).join('') + '</optgroup>'
+    }).join('')
 }
 
 /* Названия провайдеров — имена собственные, но пояснения к ним переводятся. */
@@ -759,12 +850,106 @@ function aiNormalizeBase(url) {
 function aiChatUrl(base) { return aiNormalizeBase(base) + '/chat/completions' }
 function aiModelsUrl(base) { return aiNormalizeBase(base) + '/models' }
 
+/* ---- Лимиты провайдера из заголовков ответа --------------------------- */
+/* Groq и OpenRouter присылают остаток счётчиков прямо в ответе:
+   x-ratelimit-remaining-requests, x-ratelimit-remaining-tokens,
+   x-ratelimit-reset-… и retry-after. Счётчики читаются на месте — в кабинет
+   провайдера заходить не нужно. */
+const AI_LIMIT_GROUPS = [
+    {kind: 'requests', limit: 'x-ratelimit-limit-requests', remaining: 'x-ratelimit-remaining-requests', reset: 'x-ratelimit-reset-requests'},
+    {kind: 'tokens', limit: 'x-ratelimit-limit-tokens', remaining: 'x-ratelimit-remaining-tokens', reset: 'x-ratelimit-reset-tokens'},
+    {kind: 'generic', limit: 'x-ratelimit-limit', remaining: 'x-ratelimit-remaining', reset: 'x-ratelimit-reset'}
+];
+let aiLastLimits = null;
+
+function aiHeader(res, name) {
+    if (!res || !res.headers || typeof res.headers.get !== 'function') return '';
+    try { return String(res.headers.get(name) || '').trim() } catch (error) { return '' }
+}
+
+function aiFormatCount(value) {
+    const raw = String(value == null ? '' : value).trim();
+    if (!/^\d+$/.test(raw)) return raw;
+    const number = Number(raw);
+    if (!isFinite(number)) return raw;
+    const tag = aiLang() === 'ru' ? 'ru-RU' : (aiLang() === 'kk' ? 'kk-KZ' : 'en-US');
+    try { return number.toLocaleString(tag) } catch (error) { return raw }
+}
+
+/* Читает заголовки ответа и запоминает последний известный остаток. */
+function aiCaptureLimits(res, providerId) {
+    const limits = {provider: providerId || aiSettings().aiProvider, groups: [], retryAfter: aiHeader(res, 'retry-after')};
+    for (const group of AI_LIMIT_GROUPS) {
+        /* Общие заголовки берём, только если отдельных счётчиков в ответе нет. */
+        if (group.kind === 'generic' && limits.groups.length) continue;
+        const remaining = aiHeader(res, group.remaining);
+        const limit = aiHeader(res, group.limit);
+        const reset = aiHeader(res, group.reset);
+        if (!remaining && !limit && !reset) continue;
+        limits.groups.push({kind: group.kind, remaining: remaining, limit: limit, reset: reset})
+    }
+    if (!limits.groups.length && !limits.retryAfter) return null;
+    aiLastLimits = limits;
+    return limits
+}
+
+/* Строка для интерфейса: «запросы: осталось 998 из 1000; токены: … · обновление через …». */
+function aiLimitsSummary(limits) {
+    const data = limits || aiLastLimits;
+    if (!data) return '';
+    const parts = [];
+    let reset = '';
+    for (const group of data.groups || []) {
+        const kind = ait('ai.limits.kind.' + group.kind);
+        if (group.remaining) {
+            parts.push(group.limit
+                ? ait('ai.limits.counter', {kind: kind, remaining: aiFormatCount(group.remaining), limit: aiFormatCount(group.limit)})
+                : ait('ai.limits.counterNoLimit', {kind: kind, remaining: aiFormatCount(group.remaining)}))
+        }
+        if (!reset && group.reset) reset = group.reset
+    }
+    let text = parts.join('; ');
+    if (reset) text += (text ? ' · ' : '') + ait('ai.limits.reset', {reset: reset});
+    if (data.retryAfter) text += (text ? ' · ' : '') + ait('ai.limits.retry', {seconds: aiFormatCount(data.retryAfter)});
+    if (!text) return '';
+    return ait('ai.limits.title', {name: aiLimitsProviderName(data)}) + ': ' + text
+}
+
+/* Обновляет строки лимитов на странице ИИ и в панели помощника. */
+function aiRenderLimits() {
+    const text = aiLimitsSummary();
+    const nodes = document.querySelectorAll ? document.querySelectorAll('.ai-limits-line') : [];
+    for (const node of nodes) {
+        const hint = node.getAttribute('data-hint') === '1' ? ait('ai.limits.hint') : '';
+        node.textContent = text || hint
+    }
+    aiSyncDrawerMode()
+}
+
+function aiLimitsProviderName(limits) {
+    const provider = aiProviderInfo((limits || aiLastLimits || {}).provider);
+    return aiProviderName(provider)
+}
+
 /* ---- Настройки ------------------------------------------------------- */
 
 function aiSettings() {
     if (!progress.settings || typeof progress.settings !== 'object') progress.settings = {};
     const s = progress.settings;
-    if (typeof s.aiProvider !== 'string' || !AI_PROVIDERS.some(p => p.id === s.aiProvider)) s.aiProvider = 'deepseek';
+    if (typeof s.aiProvider !== 'string' || !AI_PROVIDERS.some(p => p.id === s.aiProvider)) s.aiProvider = AI_DEFAULT_PROVIDER;
+    /* Настройки версий до 4.1 выбирали платный DeepSeek по умолчанию. Если ключ
+       так и не завели, переключаем такие установки на бесплатного провайдера;
+       заведённые ключи и адреса не трогаем. */
+    if (!s.aiFreeDefaultMigrated) {
+        const untouched = s.aiProvider === 'deepseek' && !s.aiApiKey && !String(s.aiEndpoint || '').trim();
+        if (untouched) {
+            s.aiProvider = AI_DEFAULT_PROVIDER;
+            s.aiBaseUrl = aiProviderInfo(s.aiProvider).base;
+            s.aiModel = aiProviderInfo(s.aiProvider).models[0] || '';
+            s.aiModels = []
+        }
+        s.aiFreeDefaultMigrated = true
+    }
     const provider = aiProviderInfo(s.aiProvider);
     if (typeof s.aiBaseUrl !== 'string' || !s.aiBaseUrl.trim()) s.aiBaseUrl = provider.base;
     if (typeof s.aiModel !== 'string' || !s.aiModel.trim()) s.aiModel = provider.models[0] || '';
@@ -828,7 +1013,9 @@ function aiProviderGuideHtml(provider) {
     const badge = provider.local
         ? `<span class="pill">${ait('ai.guide.local')}</span>`
         : `<span class="pill green">${ait('ai.guide.browser')}</span>`;
-    const money = provider.local ? '' : (provider.free ? `<span class="pill green">${ait('ai.guide.free')}</span>` : `<span class="pill warm">${ait('ai.guide.paid')}</span>`);
+    const money = provider.local ? '' : (provider.noCard
+        ? `<span class="pill green">${ait('ai.guide.noCard')}</span>`
+        : (provider.free ? `<span class="pill green">${ait('ai.guide.free')}</span>` : `<span class="pill warm">${ait('ai.guide.paid')}</span>`));
     const links = [[ait('ai.guide.key'), provider.keyUrl], [ait('ai.guide.docs'), provider.docsUrl], [ait('ai.guide.price'), provider.priceUrl]]
         .filter(x => x[1])
         .map(x => `<a class="btn sm ghost" href="${esc(x[1])}" target="_blank" rel="noopener noreferrer">${ico('external')} ${esc(x[0])}</a>`)
@@ -844,6 +1031,8 @@ function aiProviderGuideHtml(provider) {
         ${links ? `<div class="row wrap ai-guide-links">${links}</div>` : ''}
         ${steps ? `<p class="small muted" style="margin:12px 0 3px">${esc(ait('ai.guide.steps'))}</p><ol class="ai-instructions">${steps}</ol>` : ''}
         ${tips ? `<details class="ai-guide-tips"><summary>${esc(ait('ai.guide.tips'))}</summary><ul class="ai-tips">${tips}</ul></details>` : ''}
+        ${provider.noCard && !provider.local ? `<p class="small muted" style="margin-top:8px">${esc(ait('ai.guide.dataNote'))}</p>` : ''}
+        ${provider.local ? '' : `<p class="small muted ai-limits-line" style="margin-top:6px" data-hint="0"></p>`}
       </div>`
 }
 
@@ -857,6 +1046,7 @@ function aiProviderChanged() {
     if (model) model.value = provider.models[0] || '';
     if (list) list.innerHTML = aiModelOptions().map(m => `<option value="${esc(m)}"></option>`).join('');
     if (help) help.innerHTML = aiProviderGuideHtml(provider);
+    aiRenderLimits();
     aiStatusLine(provider.local ? ait('ai.setup.noKey') : ait('ai.how.step2'), 'info')
 }
 
@@ -885,7 +1075,7 @@ function aiErrorReason(error) {
     if (code === 402) return ait('ai.err.402');
     if (code === 403) return ait('ai.err.403');
     if (code === 404) return ait('ai.err.404');
-    if (code === 429) return ait('ai.err.429');
+    if (code === 429) return ait('ai.err.429') + (error && error.retryAfter ? ' ' + ait('ai.limits.retry', {seconds: aiFormatCount(error.retryAfter)}) : '');
     if (code === 'timeout') return ait('ai.err.timeout');
     if (code === 'stopped') return ait('ai.err.stopped');
     if (code === 'nocontent') return ait('ai.err.nocontent');
@@ -896,9 +1086,13 @@ function aiErrorReason(error) {
 }
 
 async function aiFetchError(res) {
+    const limits = aiCaptureLimits(res);
+    aiRenderLimits();
     let detail = '';
     try { detail = (await res.text() || '').slice(0, 300) } catch (e) { detail = '' }
-    return aiRequestError(res.status, detail)
+    const error = aiRequestError(res.status, detail);
+    if (limits && limits.retryAfter) error.retryAfter = limits.retryAfter;
+    return error
 }
 
 /* Возвращает текст ответа. onDelta(text) вызывается по мере появления текста. */
@@ -935,6 +1129,8 @@ async function aiExternalChat(messages, options) {
         if (timer) clearTimeout(timer);
         throw await aiFetchError(res)
     }
+    /* Остаток лимитов приходит в заголовках ответа: показываем без похода в кабинет. */
+    if (aiCaptureLimits(res)) aiRenderLimits();
     const canStream = wantStream && res.body && typeof res.body.getReader === 'function' && typeof TextDecoder === 'function';
     try {
         if (!canStream) {
@@ -990,6 +1186,7 @@ async function aiFetchModels() {
         throw aiRequestError('network', error && error.message)
     }
     if (!res.ok) throw await aiFetchError(res);
+    if (aiCaptureLimits(res)) aiRenderLimits();
     let data = null;
     try { data = await res.json() } catch (e) { throw aiRequestError('nocontent', '') }
     const list = (data && (data.data || data.models)) || [];
@@ -1578,7 +1775,8 @@ function aiSyncDrawerMode() {
         return
     }
     const provider = aiProviderInfo(s.aiProvider);
-    el.textContent = ait('ai.mode.model', {name: aiProviderName(provider), model: s.aiModel})
+    const limits = aiLimitsSummary();
+    el.textContent = ait('ai.mode.model', {name: aiProviderName(provider), model: s.aiModel}) + (limits ? ' · ' + limits : '')
 }
 
 function aiDrawerChrome() {
@@ -1723,6 +1921,24 @@ function aiErrorRows() {
     ]
 }
 
+/* Таблица «что даёт бесплатно и в чём подвох» — из неё видно, почему список
+   провайдеров начинается с Groq, Google AI Studio и OpenRouter. */
+function aiFreeTableHtml() {
+    const rows = [
+        ['Groq', 'ai.free.groq.give', 'ai.free.groq.catch'],
+        ['Google AI Studio (Gemini)', 'ai.free.gemini.give', 'ai.free.gemini.catch'],
+        ['OpenRouter', 'ai.free.openrouter.give', 'ai.free.openrouter.catch'],
+        ['Mistral', 'ai.free.mistral.give', 'ai.free.mistral.catch'],
+        ['Ollama · LM Studio', 'ai.free.local.give', 'ai.free.local.catch']
+    ];
+    const body = rows.map(row => `<tr><th scope="row">${esc(row[0])}</th><td>${esc(ait(row[1]))}</td><td>${esc(ait(row[2]))}</td></tr>`).join('');
+    return `<div class="table-scroll" style="margin-top:12px"><table class="data-table">
+        <caption>${esc(ait('ai.free.title'))}</caption>
+        <thead><tr><th scope="col">${esc(ait('ai.setup.provider'))}</th><th scope="col">${esc(ait('ai.free.give'))}</th><th scope="col">${esc(ait('ai.free.catch'))}</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>`
+}
+
 function renderAI() {
     const s = aiSettings();
     const provider = aiProviderInfo(s.aiProvider);
@@ -1749,6 +1965,7 @@ function renderAI() {
             <button class="btn ghost hidden" id="ai-stop-page" onclick="aiStop()">${esc(ait('ai.stop'))}</button>
           </div>
           <p class="small muted" style="margin-top:8px">${esc(aiConfigured() ? ait('ai.setup.ready') : ait('ai.mode.local'))}</p>
+          <p class="small muted ai-limits-line" id="ai-chat-limits" data-hint="0"></p>
         </div>
         <div class="card">
           <h3 style="margin-top:0">${esc(ait('ai.studio.title'))}</h3>
@@ -1780,7 +1997,7 @@ function renderAI() {
         <div class="profile-grid">
           <div class="profile-row"><label><input type="checkbox" id="ai-enabled" ${s.aiEnabled ? 'checked' : ''}> ${esc(ait('ai.setup.enabled'))}</label></div>
           <div class="profile-row"><label class="small muted" for="ai-provider">${esc(ait('ai.setup.provider'))}</label>
-            <select id="ai-provider" onchange="aiProviderChanged()">${AI_PROVIDERS.map(p => `<option value="${p.id}" ${p.id === s.aiProvider ? 'selected' : ''}>${esc(aiProviderName(p))}</option>`).join('')}</select></div>
+            <select id="ai-provider" onchange="aiProviderChanged()">${aiProviderOptionsHtml(s.aiProvider)}</select></div>
           <div class="profile-row"><label class="small muted" for="ai-base">${esc(ait('ai.setup.base'))}</label>
             <input id="ai-base" class="field" value="${esc(s.aiBaseUrl)}" style="width:100%"></div>
           <div class="profile-row"><label class="small muted" for="ai-model">${esc(ait('ai.setup.model'))}</label>
@@ -1796,6 +2013,7 @@ function renderAI() {
           <button class="btn ghost" onclick="aiLoadModels()">${esc(ait('ai.setup.models'))}</button>
         </div>
         <p class="ai-status" id="ai-status">${esc(aiConfigured() ? ait('ai.setup.ready') : ait('ai.setup.noKey'))}</p>
+        <p class="small muted ai-limits-line" id="ai-limits" data-hint="1"></p>
         <p class="small muted" style="margin-top:8px">${esc(ait('ai.setup.storage'))}</p>
         <p class="small muted" style="margin-top:6px">${esc(ait('ai.setup.offlineNote'))}</p>
       </div>
@@ -1809,6 +2027,7 @@ function renderAI() {
           <li>${esc(ait('ai.how.step3'))}</li>
           <li>${esc(ait('ai.how.step4'))}</li>
         </ol>
+        ${aiFreeTableHtml()}
         <div id="ai-provider-help" class="stack" style="gap:12px;margin-top:14px">${aiProviderGuideHtml(provider)}</div>
       </div>
 
@@ -1827,6 +2046,7 @@ function renderAI() {
     if (res) res.innerHTML = aiRenderGenerated(gen);
     aiRenderHistory();
     aiRenderStudio();
+    aiRenderLimits();
     math($('main-content'))
 }
 
