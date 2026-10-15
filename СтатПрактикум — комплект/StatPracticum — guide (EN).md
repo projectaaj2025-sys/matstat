@@ -104,7 +104,7 @@ How strict is it? Measured on the build itself across all **96 open tasks**: at 
 
 The assistant lives in two places: the **AI mentor** page in the course programme and the **panel in the bottom-right corner**, which opens on any screen and knows which topic or task you are looking at. The buttons **Step-by-step help**, **Check my answer** and **Similar task** sit right in the task cards; the theory tab carries an **Explain the topic** button.
 
-**Without a key the assistant still works.** The local mode searches the theory and the tasks of the course: it shows the relevant paragraphs with formulas and data tables, the task hint and the order of work. The task generator takes course tasks and shows them in full — statement, data table, chart, answer field and solution.
+**Without a key the assistant still works.** The local mode searches the theory and the tasks of the course: it shows the relevant paragraphs with formulas and data tables, the task hint and the order of work. The task generator takes course tasks and recomputes them with new numbers: the statement, the data table, the chart, the answer and the solution stay consistent, so the task can be solved again. The **Change the numbers without a key** switch next to the generator brings the course tasks back unchanged, and while the teacher profile keeps solutions off the reference answer stays hidden in the card — use the **Check** button to test your answer.
 
 **With a key** an external model answers: free-form text, a step-by-step walkthrough, a check of a worded answer and new tasks with data tables. Answers are formatted like the course: markdown tables become real data tables, formulas become KaTeX formulas.
 

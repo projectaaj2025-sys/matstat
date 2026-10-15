@@ -84,6 +84,11 @@ const AI_TEXT = {
     'ai.check.correct': {ru: 'Ответ совпадает с эталонным.', en: 'The answer matches the reference one.', kk: 'Жауап эталонмен сәйкеседі.'},
     'ai.check.wrong': {ru: 'Пока не совпало с эталонным ответом.', en: 'It does not match the reference answer yet.', kk: 'Әзірге эталон жауаппен сәйкескен жоқ.'},
     'ai.check.reference': {ru: 'Эталонный ответ:', en: 'Reference answer:', kk: 'Эталон жауап:'},
+    'ai.check.referenceHidden': {
+        ru: 'Эталонный ответ скрыт, пока в профиле учителя выключен показ решений. Ответ можно проверить кнопкой «Проверить».',
+        en: 'The reference answer is hidden while the teacher profile keeps solutions off. Use the check button to test your answer.',
+        kk: 'Мұғалім профилінде шешімдер көрсетілуі өшірулі тұрғанда эталон жауап жасырылады. Жауапты «Тексеру» түймесімен тексеруге болады.'
+    },
     'ai.check.teacher': {ru: 'Проверка выполнена локально по данным курса.', en: 'The check was done locally against the course data.', kk: 'Тексеру курс деректері бойынша жергілікті орындалды.'},
     'ai.err.busy': {ru: 'Запрос уже выполняется.', en: 'A request is already running.', kk: 'Сұраныс орындалып жатыр.'},
     'ai.err.nokey': {ru: 'Сначала введите API-ключ.', en: 'Enter the API key first.', kk: 'Алдымен API кілтін енгізіңіз.'},
@@ -128,7 +133,11 @@ const AI_TEXT = {
     'ai.studio.makeMore': {ru: 'Добавить ещё', en: 'Add one more', kk: 'Тағы қосу'},
     'ai.studio.making': {ru: 'Генерирую задачу…', en: 'Generating a task…', kk: 'Тапсырма құрастырылуда…'},
     'ai.studio.makingSet': {ru: 'Генерирую задачи…', en: 'Generating tasks…', kk: 'Тапсырмалар құрастырылуда…'},
-    'ai.studio.local': {ru: 'Без ключа задачи берутся из курса: условие, таблицы данных и график показываются полностью.', en: 'Without a key the tasks come from the course: the statement, the data tables and the chart are shown in full.', kk: 'Кілтсіз тапсырмалар курстан алынады: шарты, деректер кестелері және график толық көрсетіледі.'},
+    'ai.studio.local': {
+        ru: 'Без ключа генератор подбирает задания курса и пересчитывает их с другими числами: условие, таблицы данных, график, ответ и разбор остаются согласованными. Каждое нажатие даёт новое сочетание чисел.',
+        en: 'Without a key the generator picks course tasks and recomputes them with other numbers: the statement, the data tables, the chart, the answer and the solution stay consistent. Every click gives a new combination of numbers.',
+        kk: 'Кілтсіз генератор курс тапсырмаларын таңдап, оларды басқа сандармен қайта есептейді: шарт, деректер кестелері, график, жауап пен шешім үйлесімді қалады. Әр басу жаңа сандар үйлесімін береді.'
+    },
     'ai.studio.mine': {ru: 'Мои сгенерированные задачи', en: 'My generated tasks', kk: 'Менің құрастырған тапсырмаларым'},
     'ai.studio.empty': {ru: 'Пока пусто. Сгенерируйте задачу — она останется здесь и сохранится на этом устройстве.', en: 'Nothing yet. Generate a task and it will stay here, saved on this device.', kk: 'Әзірге бос. Тапсырма құрастырыңыз — ол осында қалады және осы құрылғыда сақталады.'},
     'ai.studio.added': {ru: 'Задача добавлена в «Мои задачи».', en: 'The task was added to “My tasks”.', kk: 'Тапсырма «Менің тапсырмаларымға» қосылды.'},
@@ -148,6 +157,40 @@ const AI_TEXT = {
     'ai.studio.verdictOk': {ru: 'Верно: локальная проверка по данным курса даёт тот же результат.', en: 'Correct: the local check against the course data gives the same result.', kk: 'Дұрыс: курс деректері бойынша жергілікті тексеру бірдей нәтиже береді.'},
     'ai.studio.verdictNo': {ru: 'Пока не совпало. Посмотрите подсказку и разбор шагов.', en: 'Not yet. Look at the hint and the step-by-step solution.', kk: 'Әзірге сәйкескен жоқ. Кеңес пен қадамдық талдауды қараңыз.'},
     'ai.studio.noAnswer': {ru: 'У этой задачи нет числового ключа: проверку делает внешняя модель.', en: 'This task has no numeric key: the external model does the check.', kk: 'Бұл тапсырмада сандық кілт жоқ: тексеруді сыртқы модель жасайды.'},
+
+    /* ---- Локальные задачи с новыми числами ---- */
+    'ai.num.swap': {ru: 'Менять числа без ключа', en: 'Change the numbers without a key', kk: 'Кілтсіз сандарды өзгерту'},
+    'ai.num.swapHint': {
+        ru: 'Числа в задании меняются, а ответ и разбор считаются заново той же формулой: наборы данных, таблицы частот, вероятности, моменты и доли. Чем больше в задании чисел, тем больше вариантов. Если безопасного пересчёта нет, задача показывается как в курсе.',
+        en: 'The numbers in the task change, while the answer and the solution are recalculated by the same formula: data sets, frequency tables, probabilities, moments and shares. The more numbers a task has, the more variants there are. When there is no safe recomputation, the task stays as in the course.',
+        kk: 'Тапсырмадағы сандар өзгереді, ал жауап пен шешім сол формуламен қайта шығарылады: деректер жиынтығы, жиілік кестелері, ықтималдықтар, моменттер және үлестер. Тапсырмада сан неғұрлым көп болса, нұсқа да соғұрлым көп. Қауіпсіз қайта есептеу болмаса, тапсырма курстағыдай көрсетіледі.'
+    },
+    'ai.num.on': {ru: 'Локальные задачи будут с новыми числами.', en: 'Local tasks will come with new numbers.', kk: 'Жергілікті тапсырмалар жаңа сандармен болады.'},
+    'ai.num.off': {ru: 'Числа остаются как в курсе.', en: 'The numbers stay as in the course.', kk: 'Сандар курстағыдай қалады.'},
+    'ai.num.changed': {ru: 'новые числа', en: 'new numbers', kk: 'жаңа сандар'},
+    'ai.num.summary': {
+        ru: 'Числа пересчитаны: {n} из {total}. Нажмите «Сгенерировать задачу» ещё раз — числа будут другими.',
+        en: 'Numbers recomputed: {n} of {total}. Press “Generate a task” again to get other numbers.',
+        kk: 'Сандар қайта есептелді: {total} ішінен {n}. «Тапсырма құрастыру» түймесін тағы басыңыз — сандар басқа болады.'
+    },
+    'ai.num.preview': {ru: 'Новые числа: {list}', en: 'New numbers: {list}', kk: 'Жаңа сандар: {list}'},
+    'ai.num.kept': {
+        ru: 'Числа оставлены как в курсе: для этой формулировки безопасного пересчёта нет.',
+        en: 'The numbers are kept as in the course: there is no safe recomputation for this wording.',
+        kk: 'Сандар курстағыдай қалдырылды: бұл тұжырым үшін қауіпсіз қайта есептеу жоқ.'
+    },
+    'ai.num.solution': {ru: 'Решение пересчитано локально для новых чисел: {steps}', en: 'The solution is recomputed locally for the new numbers: {steps}', kk: 'Шешім жаңа сандар үшін жергілікті қайта есептелді: {steps}'},
+    'ai.num.solutionShort': {ru: 'Новый ответ: {answer}', en: 'The new answer: {answer}', kk: 'Жаңа жауап: {answer}'},
+    'ai.num.stat.range': {ru: 'Размах', en: 'Range', kk: 'Ауқым'},
+    'ai.num.stat.mean': {ru: 'Среднее', en: 'Mean', kk: 'Орташа'},
+    'ai.num.stat.median': {ru: 'Медиана', en: 'Median', kk: 'Медиана'},
+    'ai.num.stat.mode': {ru: 'Мода', en: 'Mode', kk: 'Мода'},
+    'ai.num.stat.count': {ru: 'Объём', en: 'Size', kk: 'Көлемі'},
+    'ai.num.stat.sum': {ru: 'Сумма', en: 'Sum', kk: 'Қосынды'},
+    'ai.num.stat.min': {ru: 'Минимум', en: 'Minimum', kk: 'Минимум'},
+    'ai.num.stat.max': {ru: 'Максимум', en: 'Maximum', kk: 'Максимум'},
+    'ai.num.stat.variance': {ru: 'Дисперсия', en: 'Variance', kk: 'Дисперсия'},
+    'ai.num.stat.sd': {ru: 'Стандартное отклонение', en: 'Standard deviation', kk: 'Стандартты ауытқу'},
 
     /* ---- Подключение провайдера ---- */
     'ai.setup.title': {ru: 'Подключение внешней модели (необязательно)', en: 'Connect an external model (optional)', kk: 'Сыртқы модельді қосу (міндетті емес)'},
@@ -780,6 +823,8 @@ function aiSettings() {
         s.aiBaseMigrated = true
     }
     if (typeof s.aiStream !== 'boolean') s.aiStream = true;
+    /* Локальный генератор по умолчанию пересчитывает задачи курса с новыми числами. */
+    if (typeof s.aiSwapNumbers !== 'boolean') s.aiSwapNumbers = true;
     if (!Array.isArray(s.aiChat)) s.aiChat = [];
     if (!Array.isArray(s.aiModels)) s.aiModels = [];
     return s
@@ -796,6 +841,8 @@ function aiSaveSettings() {
     if (key) s.aiApiKey = key.value.trim();
     if (enabled) s.aiEnabled = !!enabled.checked;
     if (stream) s.aiStream = !!stream.checked;
+    const swap = $('ai-swap-numbers');
+    if (swap) s.aiSwapNumbers = !!swap.checked;
     persist();
     aiRefreshChrome();
     aiStatusLine(ait('ai.setup.saved'), 'ok');
@@ -1756,11 +1803,15 @@ function renderAI() {
           <select id="ai-gen-topic" style="margin:6px 0 10px">${SECTIONS.map(sec => `<option value="${sec.id}">${esc(sec.title)}</option>`).join('')}</select>
           <label class="small muted" for="ai-gen-count">${esc(ait('ai.studio.count'))}</label>
           <select id="ai-gen-count" style="margin:6px 0 10px">${[1, 2, 3].map(n => `<option value="${n}">${n}</option>`).join('')}</select>
+          <div class="profile-row" style="margin:2px 0 10px">
+            <label><input type="checkbox" id="ai-swap-numbers" ${s.aiSwapNumbers ? 'checked' : ''} onchange="aiToggleNumberSwap(this.checked)"> ${esc(ait('ai.num.swap'))}</label>
+          </div>
           <div class="row wrap" style="gap:8px">
             <button class="btn primary" onclick="aiGenerate()">${esc(ait('ai.studio.make'))}</button>
             <button class="btn ghost" onclick="aiGenerateForCurrentTopic()">${esc(ait('ai.studio.makeMore'))}</button>
           </div>
-          <p class="small muted" style="margin-top:8px">${esc(ait('ai.studio.local'))}</p>
+          <p class="small muted" style="margin-top:8px">${esc(ait('ai.num.swapHint'))}</p>
+          <p class="small muted" style="margin-top:6px">${esc(ait('ai.studio.local'))}</p>
           <div id="ai-gen-result" class="ai-gen-result" style="margin-top:12px"></div>
         </div>
       </div>
