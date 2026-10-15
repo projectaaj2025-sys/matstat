@@ -358,5 +358,88 @@ check('сброс: после очистки прогресса разбор з�
     freshSlot ? freshSlot.innerHTML.slice(0, 80) : 'нет слота');
 check('основной DOM: без исключений', !initialErrors.length, initialErrors.slice(0, 2).join(' | '));
 
+// --- 18. ИИ-наставник: страница и сгенерированная задача переведены ------
+// Регресс: подпись «Сгенерированная задача», счётчик «Решено … из …» и
+// заголовки раздела оставались на русском при любом языке интерфейса.
+const aiMain = () => w.document.getElementById('main-content');
+const aiMainText = () => aiMain().textContent.replace(/\s+/g, ' ');
+for (const lang of ['en', 'kk']) {
+    ev(`setLanguage(${JSON.stringify(lang)})`);
+    await wait(350);
+    ev("go('ai')");
+    await wait(350);
+    const main = aiMain();
+    const title = main.querySelector('h1')?.textContent.trim() || '';
+    const recText = main.querySelector('.ai-rec-list .small.muted')?.textContent.trim() || '';
+    const genTitle = main.querySelector('#ai-gen-result strong')?.textContent.trim() || '';
+    const genQuestion = main.querySelector('#ai-gen-result p')?.textContent.trim() || '';
+    const navLabel = [...w.document.querySelectorAll('#course-nav .nav-label')]
+        .some(el => el.textContent.trim() === (lang === 'en' ? 'AI mentor' : 'ЖИ-тәлімгер'));
+    if (lang === 'en') {
+        check('en: заголовок страницы переведён', title === 'AI mentor for statistics', title);
+        check('en: подзаголовок переведён', /INTELLIGENT HELPER/.test(aiMainText()), aiMainText().slice(0, 120));
+        check('en: пункт меню переведён', navLabel);
+        check('en: счётчик рекомендаций переведён', /^Solved \d+ of \d+\./.test(recText), recText);
+        check('en: сгенерированная задача переведена', genTitle.startsWith('Generated task · '), genTitle);
+        check('en: условие сгенерированной задачи переведено',
+            genQuestion.length > 0 && !/[\u0400-\u04FF]/.test(genQuestion), genQuestion.slice(0, 120));
+        check('en: на странице ИИ не осталось кириллицы', !/[\u0400-\u04FF]/.test(aiMainText()),
+            (aiMainText().match(/[\u0400-\u04FF][^ ]*/g) || []).slice(0, 4).join(' '));
+    } else {
+        check('kk: заголовок страницы переведён', title === 'Статистика бойынша ЖИ-тәлімгер', title);
+        check('kk: пункт меню переведён', navLabel);
+        check('kk: счётчик рекомендаций переведён', /^\d+ ішінен \d+ шешіліп/.test(recText), recText);
+        check('kk: сгенерированная задача переведена', genTitle.startsWith('Генерацияланған тапсырма · '), genTitle);
+        check('kk: на странице ИИ не осталось русских фраз',
+            !/Решено|Сгенерированная|ИИ-наставник|Повторите/.test(aiMainText()),
+            (aiMainText().match(/Решено[^.]*|Сгенерированная[^·]*|ИИ-наставник[^ ]*/g) || []).slice(0, 3).join(' '));
+    }
+}
+// Счётчик рекомендаций показывает реальный прогресс по теме.
+ev("setLanguage('en')");
+await wait(250);
+const counted = ev('SECTIONS[0].tasks[0].id');
+// Остальные темы закрыты, поэтому первая тема попадает в список рекомендаций.
+ev('allTasks.filter(t=>t.sectionId!=="intro-stats").forEach(t=>{progress.solved[t.id]=true})');
+ev(`progress.solved[${JSON.stringify(counted)}]=true`);
+const recs = ev('aiRecommendations()');
+const countedRec = recs.find(r => r.title === ev('SECTIONS[0].title'));
+check('счётчик рекомендаций учитывает решённые задания',
+    !!countedRec && /Solved 1 of 21\./.test(countedRec.text), countedRec ? countedRec.text : 'нет рекомендации');
+ev('Object.assign(progress,EMPTY_PROGRESS());persist()');
+
+// Внешняя модель получает задание на языке интерфейса.
+let captured = null;
+w.fetch = async (url, options) => {
+    captured = JSON.parse(options.body);
+    return {
+        ok: true, status: 200,
+        json: async () => ({choices: [{message: {content: JSON.stringify({question: 'Sample question', answer: 'Sample answer'})}}]}),
+    };
+};
+ev("progress.settings.aiEnabled=true;progress.settings.aiApiKey='test-key'");
+for (const [lang, marker, topicLabel] of [['en', /must be in English/, 'Topic: '], ['kk', /қазақ тілінде/, 'Тақырып: ']]) {
+    ev(`setLanguage(${JSON.stringify(lang)})`);
+    await wait(300);
+    captured = null;
+    await ev('aiGenerate()');
+    await wait(200);
+    check(`${lang}: внешняя модель получила инструкцию на языке интерфейса`,
+        !!captured && marker.test(captured.messages[0].content), captured ? captured.messages[0].content.slice(0, 90) : 'запрос не отправлен');
+    check(`${lang}: тема задачи передана на языке интерфейса`,
+        !!captured && captured.messages[1].content.startsWith(topicLabel),
+        captured ? captured.messages[1].content.slice(0, 90) : 'запрос не отправлен');
+    const genQuestion = aiMain().querySelector('#ai-gen-result p')?.textContent.trim() || '';
+    check(`${lang}: сгенерированная моделью задача показана`, genQuestion === 'Sample question', genQuestion);
+}
+ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey=''");
+ev("setLanguage('ru')");
+await wait(250);
+ev("go('ai')");
+await wait(300);
+check('ru: страница ИИ остаётся на русском',
+    (aiMain().querySelector('h1')?.textContent.trim() || '') === 'ИИ-наставник по статистике',
+    aiMain().querySelector('h1')?.textContent.trim() || '');
+
 console.log(`\nИтог с регрессиями: ${pass} пройдено, ${fail} провалено`);
 process.exit(fail ? 1 : 0);
