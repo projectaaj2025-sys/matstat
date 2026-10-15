@@ -491,7 +491,14 @@ async function aiGenerate() {
     for (const task of tasks) aiTaskStoreAdd(task, section);
     if (res) {
         const title = ui('Сгенерированная задача') + (section ? ' · ' + section.title : '');
+        /* Локальный генератор: показываем, сколько заданий получило новые числа. */
+        const local = !tasks.some(task => task && task.source === 'model');
+        const swapped = tasks.filter(task => task && task.numbersChanged).length;
+        const summary = local
+            ? `<p class="small muted" id="ai-gen-summary">${esc(ait('ai.num.summary', {n: String(swapped), total: String(tasks.length)}))}</p>`
+            : '';
         res.innerHTML = aiTaskCardHtml(tasks[0], {key: 'preview', title: title, source: tasks[0].source, note: aiNumberSwapNote(tasks[0])})
+            + summary
             + (failure ? `<p class="small muted">${esc(ait('ai.fallback', {reason: failure}))}</p>` : '');
         math(res)
     }

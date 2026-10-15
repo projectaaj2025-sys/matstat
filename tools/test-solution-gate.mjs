@@ -628,7 +628,10 @@ const swapBox = w.document.getElementById('ai-swap-numbers');
 check('в генераторе есть флажок «менять числа»', !!swapBox);
 check('флажок соответствует настройке', !!swapBox && swapBox.checked === ev('aiSettings().aiSwapNumbers'));
 check('подсказка генератора объясняет пересчёт чисел',
-    /пересчитывается с другими числами/.test(w.document.getElementById('main-content').textContent));
+    /считаются заново/.test(w.document.getElementById('main-content').textContent)
+    && /вариантов/.test(w.document.getElementById('main-content').textContent));
+check('в генераторе сказано, что числа подбираются заново',
+    /пересчитывает их с другими числами/.test(w.document.getElementById('main-content').textContent));
 ev('aiToggleNumberSwap(false)');
 check('выключение флажка сохраняется в настройках', ev('aiSettings().aiSwapNumbers') === false && ev('aiNumberSwapEnabled()') === false);
 const plainWhenOff = ev("aiGenerateTask('intro-stats', {})");
@@ -651,7 +654,8 @@ for (const item of poolOf()) {
     if (!variant.numbersChanged || !variant.numbersPreview) problems.push('нет пометки о новых числах');
     const sameQuestion = variant.question === base.question;
     const sameTables = JSON.stringify(variant.inputTables || null) === JSON.stringify(base.inputTables || null);
-    if (sameQuestion && sameTables) problems.push('условие и таблицы не изменились');
+    const sameChart = JSON.stringify(variant.chart || null) === JSON.stringify(base.chart || null);
+    if (sameQuestion && sameTables && sameChart) problems.push('условие, таблицы и график не изменились');
     if (variant.id === base.id) problems.push('id не изменился');
     if (ev(`aiNumSame(${JSON.stringify(variant.answer)}, ${JSON.stringify(base.answer)})`)) problems.push('ответ не изменился');
     // Ответ должен быть согласован с числами нового условия: тот же пересчёт
@@ -664,8 +668,8 @@ for (const item of poolOf()) {
     }
     if (problems.length) inconsistent.push(item.id + ' (' + problems.join('; ') + ')');
 }
-check('пересчёт охватывает большую часть числовых заданий', mutated >= 80, `пересчитано ${mutated}`);
-check('пересчёт покрывает почти все темы курса', themeHits.size >= 15, `тем: ${themeHits.size}`);
+check('пересчёт охватывает большую часть числовых заданий', mutated >= 150, `пересчитано ${mutated}`);
+check('пересчёт покрывает почти все темы курса', themeHits.size >= 16, `тем: ${themeHits.size}`);
 check('пересчитанные задачи согласованы', inconsistent.length === 0, inconsistent.slice(0, 4).join(' | '));
 // Задание без чисел (выбор ответа по теории) пересчитать нельзя: вариант не создаётся.
 const choiceTask = ev("SECTIONS.find(s => s.id === 'intro-stats').tasks.filter(t => t.id === 'intro_choice')");
@@ -706,15 +710,26 @@ await wait(400);
 ev("document.getElementById('ai-gen-topic').value='variance-std'");
 await ev('aiGenerate()');
 await wait(300);
+check('под генератором видно, сколько заданий пересчитано',
+    /Числа пересчитаны: 1 из 1/.test(ev("(document.getElementById('ai-gen-summary') || {}).textContent || ''")),
+    ev("(document.getElementById('ai-gen-summary') || {}).textContent || ''").slice(0, 80));
 const swapped = ev("progress.settings.aiTasks[0]");
 const swappedTask = ev(`aiStudioTasks[${JSON.stringify(swapped.id)}]`);
 check('генератор сохранил задачу с новыми числами', !!swapped && !!swapped.task && swapped.task.numbersChanged === true,
     JSON.stringify(swapped).slice(0, 120));
 check('в «Моих задачах» видны новые числа, а не задание курса',
     !!swappedTask && swappedTask.numbersChanged === true && ev(`aiStoredCardHtml(progress.settings.aiTasks[0])`).includes('→'));
-const storedNumbers = String(swapped.task.question);
-check('сохранённое условие отличается от условия курса',
-    ev(`!taskMap[${JSON.stringify(swapped.task.origin)}] || taskMap[${JSON.stringify(swapped.task.origin)}].question !== ${JSON.stringify(storedNumbers)}`));
+// Условие может остаться прежним, а числа лежать в таблице — тогда
+// меняется таблица данных, поэтому сверяем и текст, и данные.
+check('сохранённая задача отличается от задания курса',
+    ev(`(() => {
+        const base = taskMap[${JSON.stringify(String(swapped.task.origin))}];
+        if (!base) return true;
+        const sameText = base.question === ${JSON.stringify(String(swapped.task.question))};
+        const sameTables = JSON.stringify(base.inputTables || null) === ${JSON.stringify(JSON.stringify(swapped.task.inputTables || null))};
+        const sameChart = JSON.stringify(base.chart || null) === ${JSON.stringify(JSON.stringify(swapped.task.chart || null))};
+        return !(sameText && sameTables && sameChart)
+    })()`));
 // Локальная проверка ответа: подставленный ответ пересчитанной задачи верен.
 ev(`document.getElementById('ai-in-${swapped.id}') && (document.getElementById('ai-in-${swapped.id}').value = ${JSON.stringify(String(swappedTask.answer))})`);
 ev(`aiStudioCheck(${JSON.stringify(swapped.id)})`);
@@ -803,6 +818,59 @@ check('ответ табличного закона сходится с новы
 check('сумма вероятностей остаётся единицей',
     !!lawVariant && Math.abs(lawNumbers.reduce((acc, p) => acc + p, 0) - 1) < 1e-9,
     String(lawNumbers.reduce((acc, p) => acc + p, 0)));
+
+// Разные числа при каждом запуске: набор подходящих условий не повторяется.
+const firstNumbers = [];
+for (let attempt = 0; attempt < 10; attempt++) {
+    const variant = variantOf({id: 't1_1', sectionId: 'intro-stats'});
+    if (variant) firstNumbers.push(String(variant.question));
+}
+check('генератор выдаёт разные числа, а не одно и то же',
+    firstNumbers.length >= 8 && new Set(firstNumbers).size >= 6,
+    `разных условий ${new Set(firstNumbers).size} из ${firstNumbers.length}`);
+
+// Табличные моменты: M(X) и D(X) по таблице считаются заново.
+for (const momentCase of [{id: 't5_1', sectionId: 'distribution-law'}, {id: 'v3_math_expectation_01', sectionId: 'math-expectation'},
+    {id: 'v3_variance_std_01', sectionId: 'variance-std'}, {id: 'v3_combined_problems_01', sectionId: 'combined-problems'}]) {
+    let variant = null;
+    for (let attempt = 0; attempt < 8 && !variant; attempt++) variant = variantOf(momentCase);
+    if (!variant) { caseFails.push(momentCase.id + ': нет варианта по таблице'); continue }
+    const base = ev(`taskMap[${JSON.stringify(momentCase.id)}]`);
+    if (JSON.stringify(variant.inputTables) === JSON.stringify(base.inputTables)) caseFails.push(momentCase.id + ': таблица не изменилась');
+}
+check('моменты по таблице пересчитываются', caseFails.length === 0, caseFails.slice(0, 3).join(' | '));
+
+// Общая формула: ответ курса воспроизводится ровно одной комбинацией чисел.
+check('пересчёт по общей формуле работает',
+    ['v3_continuous_rv_05', 't7_1', 'v3_other_distributions_12'].every(id => {
+        const section = ev(`taskMap[${JSON.stringify(id)}].sectionId`);
+        let variant = null;
+        for (let attempt = 0; attempt < 8 && !variant; attempt++) variant = variantOf({id: id, sectionId: section});
+        return !!variant && variant.numbersChanged === true
+    }));
+
+// График и таблица: данные меняются вместе с условием.
+const graphBase = ev("taskMap['v3_intro_stats_12']");
+let graphVariant = null;
+for (let attempt = 0; attempt < 8 && !graphVariant; attempt++) graphVariant = variantOf({id: 'v3_intro_stats_12', sectionId: 'intro-stats'});
+check('числа графика меняются вместе с условием',
+    !!graphVariant && graphVariant.question !== graphBase.question
+    && JSON.stringify(graphVariant.chart) !== JSON.stringify(graphBase.chart)
+    && JSON.stringify(graphVariant.inputTables) !== JSON.stringify(graphBase.inputTables),
+    graphVariant ? graphVariant.question : 'нет варианта');
+check('высоты частот на графике переписаны верно',
+    !!graphVariant && String(graphVariant.chart.ys.join(';')) === String(graphVariant.inputTables[0].rows[0].slice(1).join(';'))
+    && Number(graphVariant.answer) === graphVariant.chart.ys.reduce((acc, value) => acc + Number(value), 0),
+    graphVariant ? 'сумма ' + graphVariant.answer + ' против ' + graphVariant.chart.ys.join('+') : 'нет варианта');
+
+// Два набора чисел одного задания не должны повторяться: 8 запусков — 6 разных наборов.
+// Розыгрыш идёт одним вызовом: внутри jsdom Math.random между eval-ами замирает.
+const sumDraws = ev(`Array.from({length: 8}, () => {
+    const v = aiTaskNumberVariant(taskMap['var_graph'], {sectionId: 'variation-series'});
+    return v && v.chart ? v.chart.ys.join(',') : null
+}).filter(Boolean).map(String)`);
+check('каждый запуск даёт новый набор данных',
+    sumDraws.length >= 6 && new Set(sumDraws).size >= 5, `наборов: ${new Set(sumDraws).size} из ${sumDraws.length}`);
 
 // Флажок выключен: генератор берёт задание курса без изменений.
 ev('aiToggleNumberSwap(false)');

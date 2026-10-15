@@ -133,7 +133,11 @@ const AI_TEXT = {
     'ai.studio.makeMore': {ru: 'Добавить ещё', en: 'Add one more', kk: 'Тағы қосу'},
     'ai.studio.making': {ru: 'Генерирую задачу…', en: 'Generating a task…', kk: 'Тапсырма құрастырылуда…'},
     'ai.studio.makingSet': {ru: 'Генерирую задачи…', en: 'Generating tasks…', kk: 'Тапсырмалар құрастырылуда…'},
-    'ai.studio.local': {ru: 'Без ключа задачи берутся из курса: условие, таблицы данных и график показываются полностью.', en: 'Without a key the tasks come from the course: the statement, the data tables and the chart are shown in full.', kk: 'Кілтсіз тапсырмалар курстан алынады: шарты, деректер кестелері және график толық көрсетіледі.'},
+    'ai.studio.local': {
+        ru: 'Без ключа генератор подбирает задания курса и пересчитывает их с другими числами: условие, таблицы данных, график, ответ и разбор остаются согласованными. Каждое нажатие даёт новое сочетание чисел.',
+        en: 'Without a key the generator picks course tasks and recomputes them with other numbers: the statement, the data tables, the chart, the answer and the solution stay consistent. Every click gives a new combination of numbers.',
+        kk: 'Кілтсіз генератор курс тапсырмаларын таңдап, оларды басқа сандармен қайта есептейді: шарт, деректер кестелері, график, жауап пен шешім үйлесімді қалады. Әр басу жаңа сандар үйлесімін береді.'
+    },
     'ai.studio.mine': {ru: 'Мои сгенерированные задачи', en: 'My generated tasks', kk: 'Менің құрастырған тапсырмаларым'},
     'ai.studio.empty': {ru: 'Пока пусто. Сгенерируйте задачу — она останется здесь и сохранится на этом устройстве.', en: 'Nothing yet. Generate a task and it will stay here, saved on this device.', kk: 'Әзірге бос. Тапсырма құрастырыңыз — ол осында қалады және осы құрылғыда сақталады.'},
     'ai.studio.added': {ru: 'Задача добавлена в «Мои задачи».', en: 'The task was added to “My tasks”.', kk: 'Тапсырма «Менің тапсырмаларымға» қосылды.'},
@@ -157,13 +161,18 @@ const AI_TEXT = {
     /* ---- Локальные задачи с новыми числами ---- */
     'ai.num.swap': {ru: 'Менять числа без ключа', en: 'Change the numbers without a key', kk: 'Кілтсіз сандарды өзгерту'},
     'ai.num.swapHint': {
-        ru: 'Задание курса пересчитывается с другими числами: ответ и разбор считаются заново той же формулой. Если безопасного пересчёта нет, задача показывается как в курсе.',
-        en: 'A course task is recomputed with other numbers: the answer and the solution are recalculated by the same formula. When there is no safe recomputation, the task stays as in the course.',
-        kk: 'Курс тапсырмасы басқа сандармен қайта есептеледі: жауап пен шешім сол формуламен қайта шығарылады. Қауіпсіз қайта есептеу болмаса, тапсырма курстағыдай көрсетіледі.'
+        ru: 'Числа в задании меняются, а ответ и разбор считаются заново той же формулой: наборы данных, таблицы частот, вероятности, моменты и доли. Чем больше в задании чисел, тем больше вариантов. Если безопасного пересчёта нет, задача показывается как в курсе.',
+        en: 'The numbers in the task change, while the answer and the solution are recalculated by the same formula: data sets, frequency tables, probabilities, moments and shares. The more numbers a task has, the more variants there are. When there is no safe recomputation, the task stays as in the course.',
+        kk: 'Тапсырмадағы сандар өзгереді, ал жауап пен шешім сол формуламен қайта шығарылады: деректер жиынтығы, жиілік кестелері, ықтималдықтар, моменттер және үлестер. Тапсырмада сан неғұрлым көп болса, нұсқа да соғұрлым көп. Қауіпсіз қайта есептеу болмаса, тапсырма курстағыдай көрсетіледі.'
     },
     'ai.num.on': {ru: 'Локальные задачи будут с новыми числами.', en: 'Local tasks will come with new numbers.', kk: 'Жергілікті тапсырмалар жаңа сандармен болады.'},
     'ai.num.off': {ru: 'Числа остаются как в курсе.', en: 'The numbers stay as in the course.', kk: 'Сандар курстағыдай қалады.'},
     'ai.num.changed': {ru: 'новые числа', en: 'new numbers', kk: 'жаңа сандар'},
+    'ai.num.summary': {
+        ru: 'Числа пересчитаны: {n} из {total}. Нажмите «Сгенерировать задачу» ещё раз — числа будут другими.',
+        en: 'Numbers recomputed: {n} of {total}. Press “Generate a task” again to get other numbers.',
+        kk: 'Сандар қайта есептелді: {total} ішінен {n}. «Тапсырма құрастыру» түймесін тағы басыңыз — сандар басқа болады.'
+    },
     'ai.num.preview': {ru: 'Новые числа: {list}', en: 'New numbers: {list}', kk: 'Жаңа сандар: {list}'},
     'ai.num.kept': {
         ru: 'Числа оставлены как в курсе: для этой формулировки безопасного пересчёта нет.',
