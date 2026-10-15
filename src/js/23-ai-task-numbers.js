@@ -1273,8 +1273,8 @@ const AI_NUM_RULES = [
         order: ['m1', 'n1', 'm2', 'n2', 'p'],
         keep: ['p'],
         derived: {
-            n1: (args, rnd) => [50, 100, 200][Math.floor(rnd() * 3)],
-            n2: (args, rnd) => [500, 1000, 2000][Math.floor(rnd() * 3)],
+            n1: (args, rnd) => [40, 50, 60, 80, 100, 125, 200][Math.floor(rnd() * 7)],
+            n2: (args, rnd) => [400, 500, 800, 1000, 1500, 2000][Math.floor(rnd() * 6)],
             m1: args => Math.round(args.p * args.n1),
             m2: (args, rnd) => Math.round(args.p * args.n2) + 1 + Math.floor(rnd() * 5)
         },
@@ -2204,8 +2204,9 @@ function aiNumPickLaw(values, texts, rnd, freeSlot) {
         }
         if (weights.length !== count) continue;
         const next = weights.map(weight => Number((weight / base).toFixed(places)));
-        /* Меняем все вероятности, иначе таблица выглядит почти прежней. */
-        if (next.some((value, index) => aiNumSame(value, values[index]))) continue;
+        /* Хотя бы две вероятности должны измениться: иначе таблица почти прежняя. */
+        const changed = next.filter((value, index) => !aiNumSame(value, values[index])).length;
+        if (changed < Math.min(2, count)) continue;
         return next
     }
     return null
@@ -2423,16 +2424,21 @@ function aiNumPickData(values, rnd, strict) {
     const ascending = values.every((value, index) => index === 0 || value >= values[index - 1]);
     const levels = [];
     for (let i = 0; i <= room && levels.length <= 400; i++) levels.push(Number((lowBound + i * quantum).toFixed(2)));
-    for (let attempt = 0; attempt < 60 && levels.length >= count; attempt++) {
+    for (let attempt = 0; attempt < 60 && levels.length >= Math.min(2, count); attempt++) {
+        /* Уровней может стать меньше: повторения в выборке тоже меняются. */
+        const k = Math.max(1, Math.min(count, levels.length, count - 2 + Math.floor(rnd() * 4)));
         const pool = levels.slice();
-        const chosen = [];
-        while (chosen.length < count) {
+        const picked = [];
+        while (picked.length < k) {
             const index = Math.floor(rnd() * pool.length);
-            chosen.push(pool[index]);
+            picked.push(pool[index]);
             pool.splice(index, 1)
         }
-        chosen.sort((a, b) => a - b);
-        const map = chosen.slice();
+        picked.sort((a, b) => a - b);
+        const slots = picked.slice();
+        while (slots.length < count) slots.push(picked[Math.floor(rnd() * picked.length)]);
+        slots.sort((a, b) => a - b);
+        const map = slots.slice();
         if (!ascending) {
             for (let i = map.length - 1; i > 0; i--) {
                 const j = Math.floor(rnd() * (i + 1));
@@ -2441,18 +2447,35 @@ function aiNumPickData(values, rnd, strict) {
                 map[j] = swap
             }
         }
-        if (new Set(map).size !== count) continue;
         if (map.every((value, index) => aiNumSame(value, distinct[index]))) continue;
         keepDistinct.push(map)
     }
+    /* Свежий набор той же длины: у набора данных меняются и повторения, а не
+       только значения. Возвращаем его по позициям, а не по уникальным числам. */
+    const positional = [];
+    if (levels.length >= 2) {
+        const wanted = Math.min(count + 1, levels.length);
+        for (let attempt = 0; attempt < 40; attempt++) {
+            const map = [];
+            for (let i = 0; i < values.length; i++) map.push(levels[Math.floor(rnd() * levels.length)]);
+            if (ascending) map.sort((a, b) => a - b);
+            const unique = new Set(map).size;
+            if (unique < 2 || unique > wanted) continue;
+            const hits = map.filter((value, index) => !aiNumSame(value, values[index])).length;
+            if (hits < Math.min(2, values.length)) continue;
+            positional.push(map)
+        }
+    }
     const options = strict && keepDistinct.length ? keepDistinct : keepDistinct.concat(collapsed);
-    if (!options.length) return null;
+    const all = options.concat(positional);
+    if (!all.length) return null;
     /* Предпочитаем карты, где меняется не одно число, а хотя бы два. */
-    const changed = map => map.filter((value, index) => !aiNumSame(value, distinct[index])).length;
-    const strong = options.filter(map => changed(map) >= Math.min(2, distinct.length));
-    const pool = strong.length ? strong : options;
+    const placed = map => (map.length === values.length ? map : values.map(value => map[distinct.indexOf(value)]));
+    const changed = map => placed(map).filter((value, index) => !aiNumSame(value, values[index])).length;
+    const strong = all.filter(map => changed(map) >= Math.min(2, values.length));
+    const pool = strong.length ? strong : all;
     const map = pool[Math.floor(rnd() * pool.length)];
-    return values.map(value => map[distinct.indexOf(value)])
+    return placed(map)
 }
 
 /* Если условие просит округлить до 0,001, ответ печатаем именно так. */
