@@ -110,7 +110,7 @@ class Handler(SimpleHTTPRequestHandler):
                 payload = self.rfile.read(length)
                 body = json.loads(payload)
                 config = body.get('generationConfig', {}) if isinstance(body, dict) else {}
-                if not isinstance(body, dict) or not isinstance(body.get('contents'), list) or not isinstance(config, dict) or not isinstance(config.get('maxOutputTokens'), int) or not 1 <= config['maxOutputTokens'] <= 1200:
+                if not isinstance(body, dict) or not isinstance(body.get('contents'), list) or not isinstance(config, dict) or not isinstance(config.get('maxOutputTokens'), int) or not 1 <= config['maxOutputTokens'] <= 4000:
                     self.send_error(400)
                     return
             except (ValueError, json.JSONDecodeError):

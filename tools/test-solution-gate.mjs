@@ -963,6 +963,119 @@ ev("setLanguage('ru')");
 await wait(250);
 ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.settings.aiChat=[];progress.settings.aiTasks=[];progress.settings.aiSwapNumbers=true;persist()");
 
+// --- 25. Создание совсем новых задач: PISA, сложность, листы ------------
+// Регресс: генератор не умел PISA (контекст выбрасывался, а офлайн-карточка
+// теряла данные контекста), выбор ответа текстом не засчитывался, сложность
+// выбрать было нельзя, а из созданных задач нельзя было собрать лист.
+ev("Object.assign(progress,EMPTY_PROGRESS());persist()");
+ev("setLanguage('ru')");
+await wait(250);
+ev("go('ai')");
+await wait(400);
+check('в генераторе есть выбор вида задачи и сложности',
+    !!w.document.getElementById('ai-gen-kind') && !!w.document.getElementById('ai-gen-level')
+    && !!w.document.getElementById('ai-ws-make'));
+ev("document.getElementById('ai-gen-kind').value='pisa';document.getElementById('ai-gen-level').value='advanced';aiGenPrefsChanged()");
+check('вид и сложность запоминаются в настройках',
+    ev("aiSettings().aiGenKind") === 'pisa' && ev("aiSettings().aiGenLevel") === 'advanced');
+
+const pisaMock = {
+    context: {title: 'Доставка воды в школу', description: 'Школа заказывает воду. В понедельник привезли 10 бутылей, во вторник 14, в среду 16. Ученики хотят понять средний расход.', table: {caption: 'Привоз', head: ['День', 'Бутылей'], rows: [['Пн', '10'], ['Вт', '14'], ['Ср', '16']]}},
+    question: 'Найдите среднее число бутылей в день, округлите до десятых.', answer: '13.3',
+    hint: 'Сложите и разделите на 3.', solution: '(10+14+16)/3 = 13,333… ≈ 13,3.'
+};
+let genCaptured = null;
+w.fetch = async (url, options) => {
+    genCaptured = JSON.parse(options.body);
+    return {ok: true, status: 200, json: async () => ({choices: [{message: {content: JSON.stringify(pisaMock)}}]})};
+};
+ev("progress.settings.aiEnabled=true;progress.settings.aiApiKey='test-key';progress.settings.aiProvider='deepseek';progress.settings.aiBaseUrl='https://api.deepseek.com';progress.settings.aiTasks=[];persist()");
+ev("document.getElementById('ai-gen-topic').value='pisa-tests';document.getElementById('ai-gen-count').value='1'");
+await ev('aiGenerate()');
+await wait(300);
+check('модель просят создать контекст и один вопрос к нему',
+    !!genCaptured && genCaptured.messages[0].content.includes('"context"') && /PISA/.test(genCaptured.messages[0].content),
+    genCaptured ? genCaptured.messages[0].content.slice(0, 120) : 'нет запроса');
+check('в запросе указана выбранная сложность',
+    !!genCaptured && /повышенная/i.test(genCaptured.messages[0].content));
+const genStored = ev('progress.settings.aiTasks[0]');
+check('созданная PISA-задача сохранена с контекстом, видом и сложностью',
+    !!genStored && !!genStored.task && genStored.task.genKind === 'pisa' && genStored.task.difficulty === 'advanced'
+    && genStored.task.aiContext.title === 'Доставка воды в школу',
+    JSON.stringify(genStored).slice(0, 160));
+check('карточка созданной задачи показывает контекст и его таблицу',
+    w.document.getElementById('ai-gen-result').innerHTML.includes('Доставка воды в школу')
+    && w.document.getElementById('ai-gen-result').innerHTML.includes('Привоз'));
+const genKey = genStored.id;
+ev(`document.getElementById('ai-in-${genKey}').value='13,3';aiStudioCheck(${JSON.stringify(genKey)})`);
+check('ответ созданной PISA-задачи проверяется локально',
+    /Верно/.test(ev(`document.getElementById('ai-fb-${genKey}').textContent`)));
+
+// Выбор ответа: эталон текстом превращается в номер варианта и засчитывается.
+const singleTask = ev(`aiTaskFromModelAnswer(${JSON.stringify(JSON.stringify({question: 'q', options: ['Геометрическое', 'Биномиальное', 'Равномерное'], answer: 'Биномиальное', solution: 's'}))}, null, {})`);
+check('выбор ответа текстом хранится номером варианта', singleTask.answer === 1, String(singleTask.answer));
+check('выбор засчитывается по тексту и по номеру с 1',
+    ev(`aiLocalVerdict(${JSON.stringify(singleTask)}, 'Биномиальное')`) === true
+    && ev(`aiLocalVerdict(${JSON.stringify(singleTask)}, '2')`) === true
+    && ev(`aiLocalVerdict(${JSON.stringify(singleTask)}, 'Геометрическое')`) === false);
+// Округление из условия даёт допуск, несколько ответов — через точку с запятой.
+check('ответ с округлением из условия засчитывается',
+    ev(`aiLocalVerdict(aiTaskFromModelAnswer('{"question":"Найдите долю, округлите до сотых","answer":"0.333333","solution":"s"}', null, {}), '0,33')`) === true);
+check('несколько ответов проверяются по частям',
+    ev(`aiLocalVerdict(aiTaskFromModelAnswer('{"question":"q","answer":[2.5,0.25],"solution":"s"}', null, {}), '2.5; 0.25')`) === true);
+check('задача без проверяемого ответа не создаётся',
+    ev(`aiTaskProblem(aiTaskFromModelAnswer('{"question":"q"}', null, {}), 'task')`) === 'answer'
+    && ev(`aiTaskProblem(aiTaskFromModelAnswer('{"question":"q","answer":"1"}', null, {kind: 'pisa'}), 'pisa')`) === 'context');
+
+// Офлайн-PISA: контекст курса целиком, карточка не теряет его данные.
+ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey=''");
+const localPisa = ev("aiGenerateTask('pisa-tests', {kind: 'pisa', level: 'standard'})");
+check('офлайн-задача PISA несёт контекст целиком',
+    !!localPisa && localPisa.genKind === 'pisa' && !!localPisa.aiContext && localPisa.aiContext.description.length > 20,
+    localPisa && localPisa.aiContext ? localPisa.aiContext.title : 'нет контекста');
+check('офлайн-карточка PISA показывает контекст',
+    !!localPisa && ev(`aiTaskCardHtml(${JSON.stringify(localPisa)}, {key: 'pisa-off', register: false})`).includes(localPisa.aiContext.title));
+
+// «Похожая задача»: модель видит исходное задание и данные его контекста.
+let similarCaptured = null;
+w.fetch = async (url, options) => {
+    similarCaptured = JSON.parse(options.body);
+    return {ok: true, status: 200, json: async () => ({choices: [{message: {content: JSON.stringify(pisaMock)}}]})};
+};
+ev("progress.settings.aiEnabled=true;progress.settings.aiApiKey='test-key';progress.settings.aiTasks=[];persist()");
+ev("spAiSimilarTask('p1_q1')");
+await wait(500);
+const similarSystem = similarCaptured ? similarCaptured.messages.map(m => m.content).join('\n') : '';
+check('похожая задача: модель видит исходный вопрос и контекст',
+    similarSystem.includes('Сколько всего учеников') && /3;4;5/.test(similarSystem),
+    similarSystem.slice(0, 140));
+ev('aiDrawerClose()');
+ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey=''");
+
+// Рабочий лист комбинируется из отмеченных созданных задач.
+ev('progress.settings.aiTasks=[];persist()');
+ev(`aiTaskStoreAdd(aiTaskFromModelAnswer(${JSON.stringify(JSON.stringify(pisaMock))}, null, {kind: 'pisa', level: 'basic'}), null)`);
+ev(`aiTaskStoreAdd(aiTaskFromModelAnswer('{"question":"Новая задача про кофейню: найдите среднее чисел 10, 20 и 30.","answer":"20","solution":"(10+20+30)/3 = 20"}', null, {kind: 'task', level: 'standard'}), null)`);
+ev("go('ai')");
+await wait(400);
+const sheetIds = ev('progress.settings.aiTasks.map(x=>x.id)');
+check('созданные задачи лежат в хранилище', Array.isArray(sheetIds) && sheetIds.length === 2);
+for (const id of sheetIds) ev(`aiWsToggle(${JSON.stringify(id)}, true)`);
+check('отметки «в лист» сохранены', ev('aiSettings().aiWsSelected.length') === 2);
+ev("document.getElementById('worksheet-dialog').showModal = function() {}");
+ev("document.getElementById('ai-ws-key').checked = true");
+ev('aiMakeWorksheet()');
+await wait(250);
+const sheetHtml = w.document.getElementById('worksheet-body').innerHTML;
+check('лист содержит контекст PISA и обе созданные задачи',
+    sheetHtml.includes('Доставка воды в школу') && sheetHtml.includes('среднее число бутылей') && sheetHtml.includes('кофейню'));
+check('версия учителя содержит ответы созданных задач', sheetHtml.includes('worksheet-answer'));
+ev('wsState.key=false;renderWorksheet()');
+await wait(250);
+check('ученическая версия листа без ответов',
+    !w.document.getElementById('worksheet-body').innerHTML.includes('worksheet-answer'));
+ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.settings.aiTasks=[];progress.settings.aiWsSelected=[];persist()");
+
 // --- Серверный Gemini-ключ: он никогда не попадает в браузерную сборку ---
 let aiCalls = [];
 w.fetch = async (url, options = {}) => {
