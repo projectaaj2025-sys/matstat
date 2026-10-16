@@ -99,3 +99,7 @@
  .ai-fab-label{display:none}
  .ai-drawer{top:auto;left:8px;right:8px;bottom:8px;max-height:82vh}
 }
+.ai-context{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0;background:var(--soft)}
+.ai-context h4{margin:8px 0 6px}
+.ai-context p:last-child{margin-bottom:0}
+.ai-ws-row{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}

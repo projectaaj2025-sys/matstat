@@ -157,6 +157,42 @@ const AI_TEXT = {
     'ai.studio.verdictOk': {ru: 'Верно: локальная проверка по данным курса даёт тот же результат.', en: 'Correct: the local check against the course data gives the same result.', kk: 'Дұрыс: курс деректері бойынша жергілікті тексеру бірдей нәтиже береді.'},
     'ai.studio.verdictNo': {ru: 'Пока не совпало. Посмотрите подсказку и разбор шагов.', en: 'Not yet. Look at the hint and the step-by-step solution.', kk: 'Әзірге сәйкескен жоқ. Кеңес пен қадамдық талдауды қараңыз.'},
     'ai.studio.noAnswer': {ru: 'У этой задачи нет числового ключа: проверку делает внешняя модель.', en: 'This task has no numeric key: the external model does the check.', kk: 'Бұл тапсырмада сандық кілт жоқ: тексеруді сыртқы модель жасайды.'},
+    'ai.studio.kind': {ru: 'Что создать', en: 'What to create', kk: 'Не құрастыру керек'},
+    'ai.studio.kindTask': {ru: 'Обычная новая задача', en: 'A new regular task', kk: 'Кәдімгі жаңа тапсырма'},
+    'ai.studio.kindPisa': {ru: 'PISA: контекст + один вопрос', en: 'PISA: a context + one question', kk: 'PISA: контекст + бір сұрақ'},
+    'ai.studio.level': {ru: 'Сложность', en: 'Difficulty', kk: 'Күрделілігі'},
+    'ai.level.basic': {ru: 'Базовая', en: 'Basic', kk: 'Базалық'},
+    'ai.level.standard': {ru: 'Обычная', en: 'Standard', kk: 'Қалыпты'},
+    'ai.level.advanced': {ru: 'Повышенная', en: 'Advanced', kk: 'Жоғары'},
+    'ai.studio.createHint': {
+        ru: 'С подключённой моделью ИИ придумывает новую задачу, которой нет в курсе: для PISA — жизненный контекст и ровно один вопрос к нему. Без ключа сайт честно пересчитывает задачи курса или берёт контекст курса целиком, вместе с его данными.',
+        en: 'With a model connected, the AI invents a new task that is not in the course: for PISA, a real-life context and exactly one question about it. Without a key the site honestly recomputes course tasks or takes a whole course context together with its data.',
+        kk: 'Модель қосылғанда ЖИ курста жоқ жаңа тапсырма ойлап табады: PISA үшін — өмірлік контекст және оған дәл бір сұрақ. Кілтсіз сайт курс тапсырмаларын адал қайта есептейді немесе курс контекстін деректерімен бірге толық алады.'
+    },
+    'ai.studio.invalid': {
+        ru: 'Модель вернула ответ, из которого нельзя собрать проверяемую задачу (нет вопроса, ответа или контекста). Карточка не создана — попробуйте ещё раз.',
+        en: 'The model returned text that cannot become a checkable task (no question, answer or context). No card was created — please try again.',
+        kk: 'Модель тексерілетін тапсырма құрастыруға болмайтын жауап қайтарды (сұрақ, жауап немесе контекст жоқ). Карточка құрылмады — қайта көріңіз.'
+    },
+    'ai.studio.context': {ru: 'Контекст', en: 'Context', kk: 'Контекст'},
+    'ai.studio.forSheet': {ru: 'В рабочий лист', en: 'Add to the worksheet', kk: 'Жұмыс парағына'},
+    'ai.studio.wsTitle': {ru: 'Рабочий лист из созданных задач', en: 'Worksheet from the created tasks', kk: 'Құрастырылған тапсырмалардан жұмыс парағы'},
+    'ai.studio.wsHint': {
+        ru: 'Отметьте задачи «В рабочий лист» и соберите из них лист для печати: контексты PISA напечатаются перед своими вопросами, а ответы попадут только в версию учителя.',
+        en: 'Tick “Add to the worksheet” on tasks and build a printable sheet from them: PISA contexts are printed before their questions, and answers appear only in the teacher version.',
+        kk: 'Тапсырмаларда «Жұмыс парағына» белгілеп, олардан басып шығаруға парақ құрастырыңыз: PISA контекстері сұрақтарының алдында шығады, ал жауаптар тек мұғалім нұсқасына түседі.'
+    },
+    'ai.studio.wsMake': {ru: 'Собрать рабочий лист ({n})', en: 'Build the worksheet ({n})', kk: 'Жұмыс парағын құрастыру ({n})'},
+    'ai.studio.wsKey': {ru: 'Добавить ответы и решения (версия учителя)', en: 'Add answers and solutions (teacher version)', kk: 'Жауаптар мен шешімдерді қосу (мұғалім нұсқасы)'},
+    'ai.studio.wsNeed': {ru: 'Сначала отметьте хотя бы одну созданную задачу.', en: 'First tick at least one created task.', kk: 'Алдымен кемінде бір құрастырылған тапсырманы белгілеңіз.'},
+    'ai.studio.wsDone': {ru: 'Рабочий лист собран из {n} созданных задач.', en: 'The worksheet was built from {n} created tasks.', kk: 'Жұмыс парағы {n} құрастырылған тапсырмадан құрастырылды.'},
+    'ai.studio.localPisa': {
+        ru: 'Без ключа взят контекст курса целиком вместе с его данными и одним вопросом к нему: задача решаема, но сюжет не новый.',
+        en: 'Without a key a whole course context is taken together with its data and one question about it: the task is solvable, but the situation is not new.',
+        kk: 'Кілтсіз курс контексті деректерімен және оған бір сұрақпен бірге толық алынды: тапсырма шешіледі, бірақ жағдаят жаңа емес.'
+    },
+    'ai.studio.parts': {ru: 'Несколько ответов запишите через точку с запятой.', en: 'Write several answers separated by semicolons.', kk: 'Бірнеше жауапты нүктелі үтір арқылы жазыңыз.'},
+    'ai.studio.optionsHint': {ru: 'Напишите номер варианта (1, 2, …) или его текст.', en: 'Write the option number (1, 2, …) or its text.', kk: 'Нұсқа нөмірін (1, 2, …) немесе оның мәтінін жазыңыз.'},
 
     /* ---- Локальные задачи с новыми числами ---- */
     'ai.num.swap': {ru: 'Менять числа без ключа', en: 'Change the numbers without a key', kk: 'Кілтсіз сандарды өзгерту'},
@@ -884,6 +920,9 @@ function aiSettings() {
         s.aiBaseMigrated = true
     }
     if (typeof s.aiStream !== 'boolean') s.aiStream = true;
+    if (!['task', 'pisa'].includes(s.aiGenKind)) s.aiGenKind = 'task';
+    if (!['basic', 'standard', 'advanced'].includes(s.aiGenLevel)) s.aiGenLevel = 'standard';
+    if (!Array.isArray(s.aiWsSelected)) s.aiWsSelected = [];
     /* Локальный генератор по умолчанию пересчитывает задачи курса с новыми числами. */
     if (typeof s.aiSwapNumbers !== 'boolean') s.aiSwapNumbers = true;
     if (!Array.isArray(s.aiChat)) s.aiChat = [];
@@ -1412,13 +1451,91 @@ const AI_CHAT_PROMPTS = {
     kk: 'Сыз математикалық статистика курсы бойынша мұғалімсіз. Жауапты қазақ тілінде, қысқа әрі түсінікті беріңіз, қажет болса формулалармен. Кестелерді markdown кестелері түрінде рәсімдеңіз.'
 };
 const AI_GENERATE_PROMPTS = {
-    ru: 'Ты помощник по курсу математической статистики. Придумай одну задачу по указанной теме для школьника и реши её. Ответь строго JSON-объектом без markdown: {"question":"условие задачи","answer":"числовой или текстовый ответ","table":{"caption":"название данных","head":["столбец 1","столбец 2"],"rows":[["значение","значение"]]},"options":[],"hint":"подсказка","solution":"решение по шагам"}. Массив table заполняй, если по условию нужны данные: таблица показывается ученику отдельно. Вопрос и ответ на русском языке.',
-    en: 'You are a tutor for a school course in mathematical statistics. Make up one problem on the given topic for a school student and solve it. Reply with a strict JSON object without markdown: {"question":"problem statement","answer":"numeric or short answer","table":{"caption":"data caption","head":["column 1","column 2"],"rows":[["value","value"]]},"options":[],"hint":"hint","solution":"step-by-step solution"}. Fill table when the problem needs data: the table is shown to the student separately. The question and the answer must be in English.',
-    kk: 'Сыз математикалық статистика курсы бойынша көмекшісіз. Көрсетілген тақырып бойынша мектеп оқушысына арналған бір есеп құрастырып, оны шешіңіз. Markdown жоқ, тек JSON объектісімен жауап беріңіз: {"question":"есеп шарты","answer":"сандық немесе қысқа жауап","table":{"caption":"деректер атауы","head":["1-баған","2-баған"],"rows":[["мән","мән"]]},"options":[],"hint":"кеңес","solution":"қадамдық шешім"}. Есепте деректер керек болса, table өрісін толтырыңыз: кесте оқушыға бөлек көрсетіледі. Сұрақ пен жауап қазақ тілінде болуы керек.'
+    ru: 'Ты автор учебных задач по математической статистике для школьников. Придумай совсем новую задачу, которой нет в курсе, и реши её. Ответь строго JSON-объектом без markdown: {"question":"условие задачи","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"table":null,"hint":"подсказка","solution":"решение по шагам"}. Если даёшь варианты ответа, заполни options (3–4 варианта) и укажи answerIndex — номер правильного варианта, начиная с 0. Таблицу table заполняй, если по условию нужны данные: она показывается ученику отдельно. Вопрос и ответ на русском языке.',
+    en: 'You are an author of school problems in mathematical statistics. Make up a completely new problem that is not in the course and solve it. Reply with a strict JSON object without markdown: {"question":"problem statement","answer":"exact numeric or short answer","answerIndex":null,"options":[],"table":null,"hint":"hint","solution":"step-by-step solution"}. If you give answer options, fill options (3–4 of them) and set answerIndex to the number of the correct option, counting from 0. Fill table when the problem needs data: it is shown to the student separately. The question and the answer must be in English.',
+    kk: 'Сіз мектеп оқушыларына арналған математикалық статистика тапсырмаларының авторысыз. Курста жоқ мүлде жаңа тапсырма ойлап тауып, оны шешіңіз. Markdown жоқ, тек JSON объектісімен жауап беріңіз: {"question":"тапсырма шарты","answer":"нақты сандық немесе қысқа жауап","answerIndex":null,"options":[],"table":null,"hint":"кеңес","solution":"қадамдық шешім"}. Жауап нұсқаларын берсеңіз, options өрісін толтырыңыз (3–4 нұсқа) және answerIndex ішіне 0-ден бастап дұрыс нұсқаның нөмірін жазыңыз. Тапсырмада деректер керек болса, table өрісін толтырыңыз: кесте оқушыға бөлек көрсетіледі. Сұрақ пен жауап қазақ тілінде болуы керек.'
 };
 const AI_TOPIC_LABELS = {ru: 'Тема', en: 'Topic', kk: 'Тақырып'};
 function aiPrompt(kind) { const table = kind === 'generate' ? AI_GENERATE_PROMPTS : AI_CHAT_PROMPTS; return table[LANG] || table.ru }
 function aiTopicLabel() { return AI_TOPIC_LABELS[LANG] || AI_TOPIC_LABELS.en }
+
+/* ---- Сложность и промпт создания совсем новой задачи ------------------- */
+
+const AI_GEN_LEVELS = ['basic', 'standard', 'advanced'];
+function aiGenLevelKey(value) {
+    const text = String(value || '').trim().toLowerCase();
+    if (AI_GEN_LEVELS.includes(text)) return text;
+    if (/базов|basic|жеңіл|оңай/.test(text)) return 'basic';
+    if (/повыш|усложн|advanced|hard|жоғары|күрделі/.test(text)) return 'advanced';
+    return 'standard'
+}
+function aiLevelLabel(value) { return ait('ai.level.' + aiGenLevelKey(value)) }
+
+const AI_LEVEL_PROMPTS = {
+    basic: {
+        ru: 'Сложность: базовая. Один шаг решения: прямое применение одной формулы или чтение данных, небольшие круглые числа.',
+        en: 'Difficulty: basic. One solution step: direct use of one formula or reading the data, small round numbers.',
+        kk: 'Күрделілігі: базалық. Шешімнің бір қадамы: бір формуланы тікелей қолдану немесе деректерді оқу, шағын дөңгелек сандар.'
+    },
+    standard: {
+        ru: 'Сложность: обычная. Два-три шага: выбрать формулу, подставить данные и сделать короткий вывод о смысле результата.',
+        en: 'Difficulty: standard. Two or three steps: choose a formula, put the data in and draw a short conclusion about what the result means.',
+        kk: 'Күрделілігі: қалыпты. Екі-үш қадам: формуланы таңдау, деректерді қою және нәтиженің мағынасы туралы қысқа қорытынды жасау.'
+    },
+    advanced: {
+        ru: 'Сложность: повышенная. Несколько шагов или сравнение двух вариантов; в конце нужен вывод о смысле результата, а не только число. Числа не обязаны быть круглыми, но ответ должен оставаться проверяемым.',
+        en: 'Difficulty: advanced. Several steps or a comparison of two options; the end needs a conclusion about what the result means, not just a number. The numbers need not be round, but the answer must stay checkable.',
+        kk: 'Күрделілігі: жоғары. Бірнеше қадам немесе екі нұсқаны салыстыру; соңында тек сан емес, нәтиженің мағынасы туралы қорытынды керек. Сандар дөңгелек болмауы мүмкін, бірақ жауап тексерілетін болып қалуы керек.'
+    }
+};
+
+/* Пример существующего контекста — только образец формата, не источник сюжета. */
+function aiPisaSample(section) {
+    const sections = section && (section.contexts || []).length ? [section] : SECTIONS.filter(s => (s.contexts || []).length);
+    for (const sec of sections) {
+        const c = (sec.contexts || [])[0];
+        if (c) return {title: c.title, description: String(c.description || '').slice(0, 420), hasTable: !!c.dataTable}
+    }
+    return null
+}
+
+/* Системная инструкция именно для создания задачи: вид (обычная/PISA),
+   сложность, образец формата и — для «похожей задачи» — исходное задание
+   вместе с его контекстом, чтобы похожесть не терялась. */
+function aiGenerateSystem(opts) {
+    const o = opts || {};
+    const kind = o.kind === 'pisa' ? 'pisa' : 'task';
+    const level = aiGenLevelKey(o.level);
+    const lang = aiLang();
+    const head = {
+        task: {
+            ru: 'Ты автор учебных задач по математической статистике для школьников. Придумай СОВСЕМ НОВУЮ задачу, которой нет в курсе: новый сюжет, новые данные и новые числа. Не переписывай и не пересказывай задачи курса. Ответь строго одним JSON-объектом без markdown и без пояснений вокруг него.',
+            en: 'You are an author of school problems in mathematical statistics. Make up a COMPLETELY NEW problem that is not in the course: a new situation, new data and new numbers. Do not copy or retell course problems. Reply with exactly one JSON object, without markdown and without any text around it. The question and the answer must be in English.',
+            kk: 'Сіз мектеп оқушыларына арналған математикалық статистика тапсырмаларының авторысыз. Курста жоқ МҮЛДЕ ЖАҢА тапсырма ойлап табыңыз: жаңа жағдаят, жаңа деректер және жаңа сандар. Курс тапсырмаларын көшірмеңіз және қайталамаңыз. Дәл бір JSON объектісімен, markdown жоқ және айналасында түсіндірмесіз жауап беріңіз. Сұрақ пен жауап қазақ тілінде болуы керек.'
+        },
+        pisa: {
+            ru: 'Ты автор учебных задач по математической статистике в формате PISA. Придумай СОВСЕМ НОВЫЙ контекст, которого нет в курсе: короткую правдоподобную жизненную ситуацию (3–6 предложений) со всеми данными, нужными для решения, или с таблицей данных. Затем задай РОВНО ОДИН вопрос к этому контексту. Без контекста вопрос решаться не должен: все числа бери из контекста или его таблицы. Не переписывай контексты курса. Ответь строго одним JSON-объектом без markdown и без пояснений вокруг него.',
+            en: 'You are an author of school problems in mathematical statistics in the PISA format. Make up a COMPLETELY NEW context that is not in the course: a short plausible real-life situation (3–6 sentences) with all the data needed for the solution, or with a data table. Then ask EXACTLY ONE question about this context. The question must not be solvable without the context: take every number from the context or its table. Do not copy course contexts. Reply with exactly one JSON object, without markdown and without any text around it. The question and the answer must be in English.',
+            kk: 'Сіз PISA форматындағы математикалық статистика тапсырмаларының авторысыз. Курста жоқ МҮЛДЕ ЖАҢА контекст ойлап табыңыз: шешімге қажет барлық деректері бар қысқа шынайы өмірлік жағдаят (3–6 сөйлем) немесе деректер кестесі. Содан кейін осы контекстке ДӘЛ БІР сұрақ қойыңыз. Сұрақ контекстсіз шешілмеуі керек: барлық сандарды контексттен немесе оның кестесінен алыңыз. Курс контекстерін көшірмеңіз. Дәл бір JSON объектісімен, markdown жоқ және айналасында түсіндірмесіз жауап беріңіз. Сұрақ пен жауап қазақ тілінде болуы керек.'
+        }
+    }[kind][lang] || '';
+    const schema = kind === 'pisa'
+        ? '{"context":{"title":"название ситуации","description":"текст контекста со всеми данными","table":null},"question":"один вопрос к контексту","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"hint":"подсказка","solution":"решение по шагам"}'
+        : '{"question":"условие новой задачи","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"table":null,"hint":"подсказка","solution":"решение по шагам"}';
+    const rules = {
+        ru: 'Правила. Верни JSON вида: ' + schema + '. Если нужны данные, помести их в table (для PISA — в context.table): таблица показывается ученику отдельно, поэтому в вопросе не дублируй её целиком, а сослись на неё. Если даёшь options (3–4 варианта), укажи answerIndex — номер правильного варианта, начиная с 0; иначе options — пустой массив. Ответ обязан следовать из данных: проверь вычисления перед ответом. Если ответ нужно округлить, напиши об этом в вопросе (например: округлите до сотых). solution — решение по шагам с подставленными числами; hint — короткая подсказка без готового ответа. Вопрос, контекст и ответ — на языке интерфейса ученика.',
+        en: 'Rules. Return JSON of this shape: ' + schema + '. If data are needed, put them into table (for PISA, into context.table): the table is shown to the student separately, so do not repeat it in the question, refer to it. If you give options (3–4 of them), set answerIndex to the number of the correct option, counting from 0; otherwise options is an empty array. The answer must follow from the data: check the calculations before answering. If the answer has to be rounded, say so in the question (for example: round to hundredths). solution is a step-by-step solution with the numbers put in; hint is a short hint without the finished answer.',
+        kk: 'Ережелер. Мына түрдегі JSON қайтарыңыз: ' + schema + '. Деректер керек болса, оларды table ішіне (PISA үшін — context.table ішіне) салыңыз: кесте оқушыға бөлек көрсетіледі, сондықтан оны сұрақта толық қайталамаңыз, оған сілтеме жасаңыз. options берсеңіз (3–4 нұсқа), answerIndex ішіне 0-ден бастап дұрыс нұсқаның нөмірін жазыңыз; әйтпесе options — бос массив. Жауап деректерден шығуы керек: жауап берер алдында есептеулерді тексеріңіз. Жауапты дөңгелектеу керек болса, оны сұрақта жазыңыз (мысалы: жүздікке дейін дөңгелектеңіз). solution — сандар қойылған қадамдық шешім; hint — дайын жауапсыз қысқа кеңес.'
+    }[lang] || '';
+    const parts = [head, AI_LEVEL_PROMPTS[level][lang] || AI_LEVEL_PROMPTS[level].ru, rules];
+    if (o.baseTask) parts.push(aiContextPrompt({task: o.baseTask}));
+    if (o.section) parts.push(aiContextPrompt({section: o.section}));
+    if (kind === 'pisa') {
+        const sample = aiPisaSample(o.section);
+        if (sample) parts.push('Style example only — invent a different situation, do not copy this one (JSON): ' + JSON.stringify(sample))
+    }
+    return parts.filter(Boolean).join('\n\n')
+}
 
 /* Ответ внешней модели прогоняется через словарь курса: если модель вернула
    условие или разбор из курса, они переводятся вместе с остальным содержимым. */
@@ -1429,17 +1546,35 @@ function aiContextPrompt(ctx) {
     if (!ctx) return '';
     if (ctx.task) {
         const t = ctx.task;
+        /* Контекст задания живёт отдельно от вопроса: в разделе это описание и
+           таблица контекста, в банке — общее условие ситуации. Без него модель
+           не видит данных, на которые ссылается вопрос. */
+        let contextData = t.aiContext || undefined;
+        if (!contextData && t.context) {
+            const sec = SECTIONS.find(s => s.id === t.sectionId);
+            const c = sec && (sec.contexts || []).find(x => x.id === t.context);
+            if (c) contextData = {title: c.title, description: c.description, table: c.dataTable || undefined}
+        }
+        if (!contextData) {
+            const problem = (COURSE.bankProblems || []).find(x => x.id === t.problemId || (x.tasks || []).some(y => y.id === t.id));
+            if (problem && problem.statement) contextData = {title: problem.title, description: problem.statement, tables: problem.tables || undefined}
+        }
         return 'Current task data (JSON): ' + JSON.stringify({
             id: t.id, topic: t.sectionTitle || t.sectionId, type: t.type,
             question: t.question, options: t.options || undefined,
+            context: contextData,
             tables: t.inputTables || undefined,
             chart: t.chart ? {xs: t.chart.xs, ys: t.chart.ys, yLabel: t.chart.yLabel} : undefined,
             answer: t.answer, hint: t.hint, solution: t.solution
-        }).slice(0, 2500)
+        }).slice(0, 3500)
     }
     if (ctx.section) {
         const s = ctx.section;
-        return 'Current course topic (JSON): ' + JSON.stringify({title: s.title, objectives: s.objectives, formulas: s.formulas, mistake: s.error}).slice(0, 1500)
+        const sample = (s.contexts || [])[0];
+        return 'Current course topic (JSON): ' + JSON.stringify({
+            title: s.title, objectives: s.objectives, formulas: s.formulas, mistake: s.error,
+            sampleContext: sample ? {title: sample.title, description: String(sample.description || '').slice(0, 400), hasTable: !!sample.dataTable} : undefined
+        }).slice(0, 2000)
     }
     return ''
 }
@@ -1475,7 +1610,15 @@ function aiModePrompt(ctx) {
 }
 
 function aiSystemMessage(ctx) {
-    const parts = [aiPrompt(ctx && ctx.kind === 'similar' ? 'generate' : 'chat')];
+    /* Создание задачи — отдельный промпт: вид (обычная/PISA), сложность и,
+       для похожей задачи, само исходное задание с его контекстом. */
+    if (ctx && ctx.kind === 'similar') {
+        const base = ctx.baseTask || ctx.task || null;
+        const kind = ctx.genKind || (base && (base.genKind === 'pisa' || base.aiContext || base.context) ? 'pisa'
+            : (ctx.section && ctx.section.id === 'pisa-tests' ? 'pisa' : 'task'));
+        return aiGenerateSystem({kind: kind, level: ctx.level, section: ctx.section || null, baseTask: base})
+    }
+    const parts = [aiPrompt('chat')];
     const mode = aiModePrompt(ctx);
     if (mode) parts.push(mode);
     const data = aiContextPrompt(ctx);
@@ -1874,7 +2017,7 @@ function renderAI() {
     const s = aiSettings();
     const provider = aiProviderInfo(s.aiProvider);
     const recs = aiRecommendations();
-    const gen = aiGenerateTask((SECTIONS[0] || {}).id);
+    const gen = aiGenerateTask((SECTIONS[0] || {}).id, {kind: s.aiGenKind, level: s.aiGenLevel});
     const errorRows = aiErrorRows().map(row => `<tr><th scope="row">${esc(row[0])}</th><td>${esc(row[1])}</td></tr>`).join('');
     $('main-content').innerHTML = `<div class="page ai-page">
       ${pageTop(ui('ИИ-наставник'))}
@@ -1903,6 +2046,13 @@ function renderAI() {
           <select id="ai-gen-topic" style="margin:6px 0 10px">${SECTIONS.map(sec => `<option value="${sec.id}">${esc(sec.title)}</option>`).join('')}</select>
           <label class="small muted" for="ai-gen-count">${esc(ait('ai.studio.count'))}</label>
           <select id="ai-gen-count" style="margin:6px 0 10px">${[1, 2, 3].map(n => `<option value="${n}">${n}</option>`).join('')}</select>
+          <label class="small muted" for="ai-gen-kind">${esc(ait('ai.studio.kind'))}</label>
+          <select id="ai-gen-kind" style="margin:6px 0 10px" onchange="aiGenPrefsChanged()">
+            <option value="task" ${s.aiGenKind === 'task' ? 'selected' : ''}>${esc(ait('ai.studio.kindTask'))}</option>
+            <option value="pisa" ${s.aiGenKind === 'pisa' ? 'selected' : ''}>${esc(ait('ai.studio.kindPisa'))}</option>
+          </select>
+          <label class="small muted" for="ai-gen-level">${esc(ait('ai.studio.level'))}</label>
+          <select id="ai-gen-level" style="margin:6px 0 10px" onchange="aiGenPrefsChanged()">${AI_GEN_LEVELS.map(level => `<option value="${level}" ${s.aiGenLevel === level ? 'selected' : ''}>${esc(ait('ai.level.' + level))}</option>`).join('')}</select>
           <div class="profile-row" style="margin:2px 0 10px">
             <label><input type="checkbox" id="ai-swap-numbers" ${s.aiSwapNumbers ? 'checked' : ''} onchange="aiToggleNumberSwap(this.checked)"> ${esc(ait('ai.num.swap'))}</label>
           </div>
@@ -1910,7 +2060,8 @@ function renderAI() {
             <button class="btn primary" onclick="aiGenerate()">${esc(ait('ai.studio.make'))}</button>
             <button class="btn ghost" onclick="aiGenerateForCurrentTopic()">${esc(ait('ai.studio.makeMore'))}</button>
           </div>
-          <p class="small muted" style="margin-top:8px">${esc(ait('ai.num.swapHint'))}</p>
+          <p class="small muted" style="margin-top:8px">${esc(ait('ai.studio.createHint'))}</p>
+          <p class="small muted" style="margin-top:6px">${esc(ait('ai.num.swapHint'))}</p>
           <p class="small muted" style="margin-top:6px">${esc(ait('ai.studio.local'))}</p>
           <div id="ai-gen-result" class="ai-gen-result" style="margin-top:12px"></div>
         </div>
@@ -1919,6 +2070,11 @@ function renderAI() {
       <div class="card" style="margin-top:18px">
         <div class="between"><h3 style="margin:0">${esc(ait('ai.studio.mine'))}</h3><span class="pill small" id="ai-task-count"></span></div>
         <div id="ai-task-list" class="stack" style="margin-top:12px"></div>
+        <div class="row wrap" style="gap:8px;margin-top:14px;align-items:center">
+          <label class="small"><input type="checkbox" id="ai-ws-key"> ${esc(ait('ai.studio.wsKey'))}</label>
+          <button class="btn" id="ai-ws-make" onclick="aiMakeWorksheet()">${esc(ait('ai.studio.wsMake', {n: '0'}))}</button>
+        </div>
+        <p class="small muted" style="margin-top:8px">${esc(ait('ai.studio.wsHint'))}</p>
       </div>
 
       <div class="card" style="margin-top:18px">
