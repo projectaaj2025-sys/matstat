@@ -6,3 +6,6 @@ venv/
 
 # Optional local JavaScript test dependencies
 node_modules/
+
+# Local server-side AI credential (never commit)
+.env
