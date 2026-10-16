@@ -1,7 +1,10 @@
 # Reproducible browser captures and render intermediates
 _screens/
 _render/
+_render_v2/
 _review/
+_review_v2/
 contact-sheet.jpg
 video-review.jpg
+video-review-v2.jpg
 debug-*.png

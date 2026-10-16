@@ -199,6 +199,7 @@ await shot('12-progress');
 await go('#ai', '.ai-page');
 await top();
 await shot('13-ai-page');
+await shotAt('13b-ai-api-settings', '#ai-enabled', 190);
 
 await page.evaluate(() => {
   aiDrawerOpen({kind: 'topic', section: SECTIONS.find(s => s.id === 'variance-std') || SECTIONS[0]});
