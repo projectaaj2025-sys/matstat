@@ -310,7 +310,7 @@ const AI_PROVIDERS = [
     {
         id: 'deepseek', name: 'DeepSeek',
         base: 'https://api.deepseek.com',
-        models: ['deepseek-flash', 'deepseek-v4-pro'],
+        models: ['deepseek-flash', 'deepseek-v4-pro', 'deepseek-chat', 'deepseek-reasoner'],
         keyUrl: 'https://platform.deepseek.com/api_keys',
         docsUrl: 'https://api-docs.deepseek.com/',
         priceUrl: 'https://api-docs.deepseek.com/quick_start/pricing',
@@ -525,7 +525,7 @@ const AI_PROVIDERS = [
     {
         id: 'gemini', name: 'Google AI Studio (Gemini)',
         base: 'https://generativelanguage.googleapis.com/v1beta',
-        models: ['gemini-2.5-flash'],
+        models: ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.5-pro'],
         keyUrl: 'https://aistudio.google.com/apikey',
         docsUrl: 'https://ai.google.dev/gemini-api/docs/api-key',
         priceUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
@@ -843,19 +843,43 @@ function aiNormalizeBase(url) {
     return base
 }
 
+function aiCleanKey(raw) {
+    return String(raw || '').trim().replace(/^["']+|["']+$/g, '').replace(/^Bearer\s+/i, '').trim()
+}
+
+/* Автоопределение провайдера по однозначным префиксам ключей. */
+function aiDetectProviderByKey(rawKey) {
+    const k = aiCleanKey(rawKey);
+    if (/^(?:AIza[0-9A-Za-z_-]{10,}|AQ\.[0-9A-Za-z._-]{10,})/.test(k)) return 'gemini';
+    if (/^gsk_[0-9A-Za-z_-]{10,}/.test(k)) return 'groq';
+    if (/^sk-or-[0-9A-Za-z_-]{10,}/.test(k)) return 'openrouter';
+    return ''
+}
+
 function aiChatUrl(base) { return aiNormalizeBase(base) + '/chat/completions' }
 function aiModelsUrl(base) { return aiNormalizeBase(base) + '/models' }
 function aiGeminiContent(data) {
-    return ((data && data.candidates && data.candidates[0] && data.candidates[0].content || {}).parts || [])
-        .map(part => part && part.text || '').join('')
+    const parts = ((data && data.candidates && data.candidates[0] && data.candidates[0].content || {}).parts || []);
+    const visible = parts.filter(part => part && !part.thought && typeof part.text === 'string');
+    return (visible.length ? visible : parts).map(part => part && part.text || '').join('')
 }
 function aiGeminiBody(messages, options) {
-    const system = messages.filter(m => m.role === 'system').map(m => String(m.content || '')).join('\n\n');
-    const contents = messages.filter(m => m.role !== 'system').map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user', parts: [{text: String(m.content || '')}]
-    }));
+    const opts = options || {};
+    const system = messages.filter(m => m && m.role === 'system').map(m => String(m.content || '')).filter(Boolean).join('\n\n');
+    const contents = [];
+    for (const m of messages) {
+        if (!m || m.role === 'system') continue;
+        const text = String(m.content || '').trim();
+        if (!text) continue;
+        const role = m.role === 'assistant' ? 'model' : 'user';
+        if (!contents.length && role === 'model') continue;
+        const prev = contents[contents.length - 1];
+        if (prev && prev.role === role) prev.parts[0].text += '\n\n' + text;
+        else contents.push({role, parts: [{text}]});
+    }
+    if (!contents.length) contents.push({role: 'user', parts: [{text: 'OK'}]});
     const body = {contents, generationConfig: {
-        temperature: options.temperature ?? 0.4, maxOutputTokens: options.maxTokens || 1200
+        temperature: opts.temperature ?? 0.4, maxOutputTokens: opts.maxTokens || 2500
     }};
     if (system) body.systemInstruction = {parts: [{text: system}]};
     return body
@@ -886,7 +910,7 @@ async function aiDetectSiteKey() {
         if (!config || config.geminiAvailable !== true) return;
         aiSiteAvailable = true;
         const s = aiSettings();
-        if (!s.aiKeySource && !s.aiApiKey && !s.aiEnabled) {
+        if (!s.aiApiKey && !s.aiDisabledByUser) {
             s.aiKeySource = 'site';
             s.aiProvider = 'gemini';
             s.aiBaseUrl = aiProviderInfo('gemini').base;
@@ -894,22 +918,36 @@ async function aiDetectSiteKey() {
             s.aiEnabled = true;
             persist()
         }
-        aiRefreshChrome();
-        if (route.id === 'ai') renderAI()
+        if (route.id === 'ai') renderAI();
+        aiRefreshChrome()
     } catch (e) { /* offline or static site: keep personal-key mode */ }
 }
 
 function aiSettings() {
     if (!progress.settings || typeof progress.settings !== 'object') progress.settings = {};
     const s = progress.settings;
+    if (typeof s.aiApiKey !== 'string') s.aiApiKey = '';
+    else s.aiApiKey = aiCleanKey(s.aiApiKey);
     if (typeof s.aiProvider !== 'string' || !AI_PROVIDERS.some(p => p.id === s.aiProvider)) s.aiProvider = 'deepseek';
+    if (s.aiProvider !== 'custom' && s.aiApiKey) {
+        const guessed = aiDetectProviderByKey(s.aiApiKey);
+        if (guessed && guessed !== s.aiProvider) {
+            s.aiProvider = guessed;
+            s.aiBaseUrl = aiProviderInfo(guessed).base;
+            s.aiModel = aiProviderInfo(guessed).models[0] || '';
+        }
+    }
     const provider = aiProviderInfo(s.aiProvider);
     if (typeof s.aiBaseUrl !== 'string' || !s.aiBaseUrl.trim()) s.aiBaseUrl = provider.base;
+    if (/generativelanguage\.googleapis\.com/i.test(s.aiBaseUrl) && s.aiProvider !== 'custom') s.aiProvider = 'gemini';
     /* Existing browsers saved Gemini's former OpenAI-compatible base. */
-    if (s.aiProvider === 'gemini') s.aiBaseUrl = aiNormalizeBase(s.aiBaseUrl).replace(/\/openai$/i, '');
-    if (typeof s.aiModel !== 'string' || !s.aiModel.trim()) s.aiModel = provider.models[0] || '';
-    if (typeof s.aiApiKey !== 'string') s.aiApiKey = '';
+    if (s.aiProvider === 'gemini') s.aiBaseUrl = aiNormalizeBase(s.aiBaseUrl).replace(/\/(openai|models)$/i, '');
+    if (typeof s.aiModel !== 'string' || !s.aiModel.trim()) s.aiModel = aiProviderInfo(s.aiProvider).models[0] || '';
     if (typeof s.aiEnabled !== 'boolean') s.aiEnabled = false;
+    if (!s.aiEnabledMigrated) {
+        if (s.aiApiKey && !s.aiDisabledByUser) s.aiEnabled = true;
+        s.aiEnabledMigrated = true
+    }
     /* Настройки прежних версий хранили полный адрес /chat/completions. */
     if (!s.aiBaseMigrated) {
         const legacy = aiNormalizeBase(typeof s.aiEndpoint === 'string' ? s.aiEndpoint : '');
@@ -932,36 +970,112 @@ function aiSettings() {
 
 function aiEndpoint() { return aiChatUrl(aiSettings().aiBaseUrl) }
 
-function aiSaveSettings() {
+/* При вводе ключа автоматически включаем галочку внешней модели и угадываем провайдера по префиксу. */
+function aiKeyInput() {
+    const keyEl = $('ai-key');
+    if (!keyEl) return;
+    const val = aiCleanKey(keyEl.value);
+    if (!val) return;
     const s = aiSettings();
-    const provider = $('ai-provider'), base = $('ai-base'), model = $('ai-model'), key = $('ai-key'), enabled = $('ai-enabled'), stream = $('ai-stream');
+    s.aiDisabledByUser = false;
+    const enabled = $('ai-enabled');
+    if (enabled) enabled.checked = true;
+    const detected = aiDetectProviderByKey(val);
+    const providerEl = $('ai-provider');
+    if (detected && providerEl && providerEl.value !== 'custom' && providerEl.value !== detected) {
+        providerEl.value = detected;
+        aiProviderChanged()
+    }
+}
+
+function aiToggleEnabled(checked) {
+    const s = aiSettings();
+    s.aiEnabled = !!checked;
+    s.aiDisabledByUser = !checked;
+    persist();
+    aiRefreshChrome();
+    aiStatusLine(aiConfigured() ? ait('ai.setup.ready') : ait('ai.setup.noKey'), aiConfigured() ? 'ok' : 'info')
+}
+
+/* Читаем поля формы в настройки: вызывается при сохранении, проверке подключения,
+   загрузке моделей и отправке вопроса, если пользователь ввёл ключ и сразу нажал кнопку. */
+function aiSyncFormToSettings(fromSave) {
+    const s = aiSettings();
+    const provider = $('ai-provider'), base = $('ai-base'), model = $('ai-model'), key = $('ai-key'), enabled = $('ai-enabled'), stream = $('ai-stream'), source = $('ai-key-source');
+    if (!provider && !key) return s;
+    const formKey = key && !key.disabled ? aiCleanKey(key.value) : '';
+    const domKeyEdited = !!(key && !key.disabled && key.value !== key.defaultValue && formKey);
+    const domKeyActive = domKeyEdited || !!(formKey && s.aiApiKey && formKey === s.aiApiKey);
+    if (!fromSave && !domKeyActive) return s;
+    const hadKey = aiHasKey(s);
+    const prevKey = s.aiApiKey;
     if (provider && AI_PROVIDERS.some(p => p.id === provider.value)) s.aiProvider = provider.value;
-    if (base) s.aiBaseUrl = aiNormalizeBase(base.value) || aiProviderInfo(s.aiProvider).base;
+    if (formKey && s.aiProvider !== 'custom') {
+        const detected = aiDetectProviderByKey(formKey);
+        if (detected && detected !== s.aiProvider) {
+            s.aiProvider = detected;
+            if (provider) provider.value = detected;
+            if (base) base.value = aiProviderInfo(detected).base;
+            if (model) model.value = aiProviderInfo(detected).models[0] || '';
+            const help = $('ai-provider-help');
+            if (help) help.innerHTML = aiProviderGuideHtml(aiProviderInfo(detected));
+        }
+    }
+    const pInfo = aiProviderInfo(s.aiProvider);
+    if (base) s.aiBaseUrl = aiNormalizeBase(base.value) || pInfo.base;
+    if (/generativelanguage\.googleapis\.com/i.test(s.aiBaseUrl) && s.aiProvider !== 'custom') s.aiProvider = 'gemini';
+    if (s.aiProvider === 'gemini') s.aiBaseUrl = aiNormalizeBase(s.aiBaseUrl).replace(/\/(openai|models)$/i, '') || pInfo.base;
     if (model) s.aiModel = model.value.trim() || aiProviderInfo(s.aiProvider).models[0] || '';
-    const source = $('ai-key-source');
-    s.aiKeySource = source && source.value === 'site' && aiSiteAvailable && s.aiProvider === 'gemini' ? 'site' : 'own';
-    if (key && s.aiKeySource !== 'site') s.aiApiKey = key.value.trim();
+    const siteSelected = !!(source && source.value === 'site' && aiSiteAvailable);
+    s.aiKeySource = siteSelected && s.aiProvider === 'gemini' ? 'site' : 'own';
+    if (key && s.aiKeySource !== 'site') {
+        s.aiApiKey = formKey;
+        if (key.value !== formKey) key.value = formKey;
+        key.defaultValue = key.value;
+    }
     if (s.aiKeySource === 'site') {
         s.aiBaseUrl = aiProviderInfo('gemini').base;
         s.aiModel = aiProviderInfo('gemini').models[0];
     }
-    if (enabled) s.aiEnabled = !!enabled.checked;
+    const newKeyAdded = (!hadKey && aiHasKey(s)) || (!!formKey && formKey !== prevKey);
+    if (newKeyAdded || !fromSave) {
+        if (aiHasKey(s) && !s.aiDisabledByUser) {
+            s.aiEnabled = true;
+            if (enabled) enabled.checked = true;
+        }
+    } else if (!aiHasKey(s)) {
+        s.aiEnabled = false;
+        s.aiDisabledByUser = false;
+        if (enabled) enabled.checked = false;
+    } else if (!s.aiDisabledByUser) {
+        s.aiEnabled = true;
+        if (enabled) enabled.checked = true;
+    } else if (enabled) {
+        s.aiEnabled = !!enabled.checked;
+    }
     if (stream) s.aiStream = !!stream.checked;
-    const swap = $('ai-swap-numbers');
-    if (swap) s.aiSwapNumbers = !!swap.checked;
+    if (fromSave) {
+        const swap = $('ai-swap-numbers');
+        if (swap) s.aiSwapNumbers = !!swap.checked;
+    }
     persist();
+    return s
+}
+
+function aiSaveSettings() {
+    aiSyncFormToSettings(true);
     aiRefreshChrome();
     aiStatusLine(ait('ai.setup.saved'), 'ok');
     toast(ait('ai.setup.saved'))
 }
 
 function aiConfigured() {
-    const s = aiSettings();
+    const s = aiSyncFormToSettings(false);
     return !!(s.aiEnabled && aiHasKey(s) && s.aiBaseUrl && s.aiModel)
 }
 
 function aiProviderReady() {
-    const s = aiSettings();
+    const s = aiSyncFormToSettings(false);
     return !!(aiHasKey(s) && s.aiBaseUrl && s.aiModel)
 }
 
@@ -1029,7 +1143,7 @@ function aiProviderChanged() {
     const base = $('ai-base'), model = $('ai-model'), list = $('ai-model-list'), help = $('ai-provider-help');
     if (base) base.value = provider.base;
     if (model) model.value = provider.models[0] || '';
-    if (list) list.innerHTML = aiModelOptions().map(m => `<option value="${esc(m)}"></option>`).join('');
+    if (list) list.innerHTML = [...new Set([...provider.models, ...(aiSettings().aiModels || [])].filter(Boolean))].map(m => `<option value="${esc(m)}"></option>`).join('');
     if (help) help.innerHTML = aiProviderGuideHtml(provider);
     if (provider.id !== 'gemini' && $('ai-key-source')) $('ai-key-source').value = 'own';
     aiKeySourceChanged();
@@ -1080,7 +1194,7 @@ async function aiFetchError(res) {
 
 /* Возвращает текст ответа. onDelta(text) вызывается по мере появления текста. */
 async function aiExternalChat(messages, options) {
-    const s = aiSettings();
+    const s = aiSyncFormToSettings(false);
     if (!aiHasKey(s)) throw aiRequestError('nokey', ait('ai.err.nokey'));
     const opts = options || {};
     const base = aiNormalizeBase(s.aiBaseUrl);
@@ -1090,19 +1204,20 @@ async function aiExternalChat(messages, options) {
     if (opts.registerAbort) opts.registerAbort(controllers);
     const wantStream = opts.stream !== false && s.aiStream;
     const gemini = s.aiProvider === 'gemini';
+    const token = s.aiApiKey || s.aiProvider;
     let res;
     try {
         res = await fetch(gemini ? aiGeminiUrl(s, wantStream) : aiChatUrl(base), {
             method: 'POST',
             headers: gemini
-                ? (aiUsingSite(s) ? {'Content-Type': 'application/json'} : {'Content-Type': 'application/json', 'x-goog-api-key': s.aiApiKey})
-                : {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.aiApiKey},
+                ? (aiUsingSite(s) ? {'Content-Type': 'application/json'} : {'Content-Type': 'application/json', 'x-goog-api-key': token})
+                : {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
             body: JSON.stringify(gemini ? aiGeminiBody(messages, opts) : {
                 model: s.aiModel,
                 messages: messages,
                 temperature: opts.temperature ?? 0.4,
                 stream: !!wantStream,
-                max_tokens: opts.maxTokens || 1200
+                max_tokens: opts.maxTokens || 2500
             }),
             signal: controllers ? controllers.signal : undefined
         })
@@ -1120,20 +1235,16 @@ async function aiExternalChat(messages, options) {
         if (!canStream) {
             const data = await res.json();
             if (timer) clearTimeout(timer);
+            const message = data && data.choices && data.choices[0] && data.choices[0].message;
             const content = gemini ? aiGeminiContent(data)
-                : data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+                : message && (message.content || message.reasoning_content);
             if (!content) throw aiRequestError('nocontent', '');
             return content
         }
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = '', text = '';
-        while (true) {
-            const chunk = await reader.read();
-            if (chunk.done) break;
-            buffer += decoder.decode(chunk.value, {stream: true});
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
+        let buffer = '', text = '', reasoning = '', rawAll = '';
+        const processLines = lines => {
             for (const line of lines) {
                 const trimmed = line.trim();
                 if (!trimmed.startsWith('data:')) continue;
@@ -1142,15 +1253,36 @@ async function aiExternalChat(messages, options) {
                 let parsed = null;
                 try { parsed = JSON.parse(payload) } catch (e) { continue }
                 const delta = parsed && parsed.choices && parsed.choices[0] && (parsed.choices[0].delta || {});
-                const piece = gemini ? aiGeminiContent(parsed) : delta && (delta.content || delta.reasoning_content);
+                const piece = gemini ? aiGeminiContent(parsed) : delta && delta.content;
+                if (!piece && !gemini && delta && delta.reasoning_content) reasoning += delta.reasoning_content;
                 if (piece) {
                     text += piece;
                     if (opts.onDelta) opts.onDelta(text)
                 }
             }
+        };
+        while (true) {
+            const chunk = await reader.read();
+            if (chunk.done) break;
+            const decoded = decoder.decode(chunk.value, {stream: true});
+            rawAll += decoded;
+            buffer += decoded;
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+            processLines(lines);
         }
+        const tail = decoder.decode();
+        if (tail) { rawAll += tail; buffer += tail }
+        if (buffer.trim()) processLines(buffer.split('\n'));
         if (timer) clearTimeout(timer);
-        const finalText = text.trim();
+        let finalText = (text || reasoning).trim();
+        if (!finalText && rawAll.trim().startsWith('{')) {
+            try {
+                const parsed = JSON.parse(rawAll.trim());
+                const message = parsed && parsed.choices && parsed.choices[0] && parsed.choices[0].message;
+                finalText = String(gemini ? aiGeminiContent(parsed) : (message && (message.content || message.reasoning_content)) || '').trim()
+            } catch (e) { /* ignore non-JSON fallback */ }
+        }
         if (!finalText) throw aiRequestError('nocontent', '');
         return finalText
     } finally {
@@ -1159,14 +1291,15 @@ async function aiExternalChat(messages, options) {
 }
 
 async function aiFetchModels() {
-    const s = aiSettings();
+    const s = aiSyncFormToSettings(false);
     if (!aiHasKey(s)) throw aiRequestError('nokey', ait('ai.err.nokey'));
+    const token = s.aiApiKey || s.aiProvider;
     let res;
     try {
         res = await fetch(aiUsingSite(s) ? '/api/ai/models' : aiModelsUrl(s.aiBaseUrl), {
             method: 'GET',
             headers: aiUsingSite(s) ? {} : s.aiProvider === 'gemini'
-                ? {'x-goog-api-key': s.aiApiKey} : {'Authorization': 'Bearer ' + s.aiApiKey}
+                ? {'x-goog-api-key': token} : {'Authorization': 'Bearer ' + token}
         })
     } catch (error) {
         throw aiRequestError('network', error && error.message)
@@ -1175,15 +1308,22 @@ async function aiFetchModels() {
     let data = null;
     try { data = await res.json() } catch (e) { throw aiRequestError('nocontent', '') }
     const list = (data && (data.data || data.models)) || [];
-    const names = list.map(item => typeof item === 'string' ? item : (item && (item.id || item.name)))
+    const filtered = list.filter(item => {
+        if (!item || typeof item !== 'object') return true;
+        if (Array.isArray(item.supportedGenerationMethods) && !item.supportedGenerationMethods.includes('generateContent')) return false;
+        const rawName = String(item.id || item.name || '');
+        if (s.aiProvider === 'gemini' && /(?:^|\/)(?:embedding|text-embedding|gemini-embedding|aqa|imagen|veo|learnlm)|-(?:tts|image-generation|audio|robotics|computer-use)\b/i.test(rawName)) return false;
+        return true
+    });
+    const names = (filtered.length ? filtered : list).map(item => typeof item === 'string' ? item : (item && (item.id || item.name)))
         .filter(Boolean).map(name => s.aiProvider === 'gemini' ? name.replace(/^models\//, '') : name);
     if (!names.length) throw aiRequestError('nocontent', '');
     return names
 }
 
-/* Проверка: сначала список моделей (бесплатно), затем пробный запрос. */
+/* Проверка: сначала список моделей (бесплатно), затем пробный запрос, если списка нет. */
 async function aiTestConnection(button) {
-    const s = aiSettings();
+    const s = aiSyncFormToSettings(false);
     if (!aiHasKey(s)) {
         aiStatusLine(ait('ai.err.nokey'), 'error');
         toast(ait('ai.err.nokey'), true);
@@ -1194,14 +1334,26 @@ async function aiTestConnection(button) {
     try {
         const names = await aiFetchModels();
         aiFillModelList(names);
-        if (s.aiProvider === 'gemini') {
-            await aiExternalChat([{role: 'user', content: 'Reply with OK'}], {stream: false, maxTokens: 512});
-        }
+        s.aiDisabledByUser = false;
+        s.aiEnabled = true;
+        if ($('ai-enabled')) $('ai-enabled').checked = true;
+        persist();
+        aiRefreshChrome();
         aiStatusLine(ait('ai.setup.testOk', {n: names.length}), 'ok');
         return {ok: true, models: names}
     } catch (error) {
+        if ([400, 401, 402, 403, 429].includes(error && error.code)) {
+            const reason = aiErrorReason(error);
+            aiStatusLine(ait('ai.setup.testFail', {reason: reason}), 'error');
+            return {ok: false, reason: reason}
+        }
         try {
             const answer = await aiExternalChat([{role: 'user', content: 'Reply with OK'}], {stream: false, maxTokens: 512});
+            s.aiDisabledByUser = false;
+            s.aiEnabled = true;
+            if ($('ai-enabled')) $('ai-enabled').checked = true;
+            persist();
+            aiRefreshChrome();
             aiStatusLine(ait('ai.setup.testOkChat'), 'ok');
             return {ok: true, answer: answer}
         } catch (inner) {
@@ -1218,13 +1370,16 @@ async function aiTestConnection(button) {
 function aiFillModelList(names) {
     const saved = aiSettings();
     saved.aiModels = names.slice(0, 80);
+    const provider = aiProviderInfo(saved.aiProvider);
+    if (names.length && !names.includes(saved.aiModel)) {
+        const preferred = (provider.models || []).find(m => names.includes(m)) || names[0];
+        saved.aiModel = preferred;
+        const model = $('ai-model');
+        if (model) model.value = preferred;
+    }
     persist();
     const select = $('ai-model-list');
     if (select) select.innerHTML = aiModelOptions(saved).map(name => `<option value="${esc(name)}"></option>`).join('');
-    if (!names.includes(saved.aiModel)) {
-        const model = $('ai-model');
-        if (model && !model.value.trim()) model.value = names[0]
-    }
 }
 
 function aiModelOptions(settings) {
@@ -1234,14 +1389,22 @@ function aiModelOptions(settings) {
 }
 
 async function aiLoadModels() {
-    const s = aiSettings();
+    const s = aiSyncFormToSettings(false);
     if (!aiHasKey(s)) { toast(ait('ai.err.nokey'), true); return }
     aiStatusLine(ait('ai.setup.testing'), 'info');
     try {
         const names = await aiFetchModels();
         aiFillModelList(names);
         const model = $('ai-model');
-        if (model) model.value = names.includes(s.aiModel) ? s.aiModel : names[0];
+        const provider = aiProviderInfo(s.aiProvider);
+        const chosen = names.includes(s.aiModel) ? s.aiModel : ((provider.models || []).find(m => names.includes(m)) || names[0]);
+        s.aiModel = chosen;
+        if (model) model.value = chosen;
+        s.aiDisabledByUser = false;
+        s.aiEnabled = true;
+        if ($('ai-enabled')) $('ai-enabled').checked = true;
+        persist();
+        aiRefreshChrome();
         aiStatusLine(ait('ai.setup.modelsOk', {n: names.length}), 'ok');
         toast(ait('ai.setup.modelsOk', {n: names.length}))
     } catch (error) {
@@ -1520,12 +1683,12 @@ function aiGenerateSystem(opts) {
         }
     }[kind][lang] || '';
     const schema = kind === 'pisa'
-        ? '{"context":{"title":"название ситуации","description":"текст контекста со всеми данными","table":null},"question":"один вопрос к контексту","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"hint":"подсказка","solution":"решение по шагам"}'
-        : '{"question":"условие новой задачи","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"table":null,"hint":"подсказка","solution":"решение по шагам"}';
+        ? '{"context":{"title":"название ситуации","description":"текст контекста со всеми данными","table":{"caption":"название","head":["столбец 1","столбец 2"],"rows":[["знач 1","знач 2"]]}},"question":"один вопрос к контексту","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"hint":"подсказка","solution":"решение по шагам"}'
+        : '{"question":"условие новой задачи","answer":"точный числовой или короткий ответ","answerIndex":null,"options":[],"table":{"caption":"название","head":["столбец 1","столбец 2"],"rows":[["знач 1","знач 2"]]},"hint":"подсказка","solution":"решение по шагам"}';
     const rules = {
-        ru: 'Правила. Верни JSON вида: ' + schema + '. Если нужны данные, помести их в table (для PISA — в context.table): таблица показывается ученику отдельно, поэтому в вопросе не дублируй её целиком, а сослись на неё. Если даёшь options (3–4 варианта), укажи answerIndex — номер правильного варианта, начиная с 0; иначе options — пустой массив. Ответ обязан следовать из данных: проверь вычисления перед ответом. Если ответ нужно округлить, напиши об этом в вопросе (например: округлите до сотых). solution — решение по шагам с подставленными числами; hint — короткая подсказка без готового ответа. Вопрос, контекст и ответ — на языке интерфейса ученика.',
-        en: 'Rules. Return JSON of this shape: ' + schema + '. If data are needed, put them into table (for PISA, into context.table): the table is shown to the student separately, so do not repeat it in the question, refer to it. If you give options (3–4 of them), set answerIndex to the number of the correct option, counting from 0; otherwise options is an empty array. The answer must follow from the data: check the calculations before answering. If the answer has to be rounded, say so in the question (for example: round to hundredths). solution is a step-by-step solution with the numbers put in; hint is a short hint without the finished answer.',
-        kk: 'Ережелер. Мына түрдегі JSON қайтарыңыз: ' + schema + '. Деректер керек болса, оларды table ішіне (PISA үшін — context.table ішіне) салыңыз: кесте оқушыға бөлек көрсетіледі, сондықтан оны сұрақта толық қайталамаңыз, оған сілтеме жасаңыз. options берсеңіз (3–4 нұсқа), answerIndex ішіне 0-ден бастап дұрыс нұсқаның нөмірін жазыңыз; әйтпесе options — бос массив. Жауап деректерден шығуы керек: жауап берер алдында есептеулерді тексеріңіз. Жауапты дөңгелектеу керек болса, оны сұрақта жазыңыз (мысалы: жүздікке дейін дөңгелектеңіз). solution — сандар қойылған қадамдық шешім; hint — дайын жауапсыз қысқа кеңес.'
+        ru: 'Правила. Верни JSON вида: ' + schema + '. Если нужны данные, помести их в table (для PISA — в context.table, иначе table: null): таблица показывается ученику отдельно, поэтому в вопросе не дублируй её целиком, а сослись на неё. Если даёшь options (3–4 варианта), укажи answerIndex — номер правильного варианта, начиная с 0; иначе options — пустой массив, а answer — чистое число без единиц измерения. Ответ обязан следовать из данных: проверь вычисления перед ответом. Если ответ нужно округлить, напиши об этом в вопросе (например: округлите до сотых). solution — решение по шагам с подставленными числами; hint — короткая подсказка без готового ответа. Вопрос, контекст и ответ — на языке интерфейса ученика.',
+        en: 'Rules. Return JSON of this shape: ' + schema + '. If data are needed, put them into table (for PISA, into context.table, otherwise table: null): the table is shown to the student separately, so do not repeat it in the question, refer to it. If you give options (3–4 of them), set answerIndex to the number of the correct option, counting from 0; otherwise options is an empty array and answer is a pure number without units. The answer must follow from the data: check the calculations before answering. If the answer has to be rounded, say so in the question (for example: round to hundredths). solution is a step-by-step solution with the numbers put in; hint is a short hint without the finished answer.',
+        kk: 'Ережелер. Мына түрдегі JSON қайтарыңыз: ' + schema + '. Деректер керек болса, оларды table ішіне (PISA үшін — context.table ішіне, әйтпесе table: null) салыңыз: кесте оқушыға бөлек көрсетіледі, сондықтан оны сұрақта толық қайталамаңыз, оған сілтеме жасаңыз. options берсеңіз (3–4 нұсқа), answerIndex ішіне 0-ден бастап дұрыс нұсқаның нөмірін жазыңыз; әйтпесе options — бос массив, ал answer — өлшем бірлігінсіз таза сан. Жауап деректерден шығуы керек: жауап берер алдында есептеулерді тексеріңіз. Жауапты дөңгелектеу керек болса, оны сұрақта жазыңыз (мысалы: жүздікке дейін дөңгелектеңіз). solution — сандар қойылған қадамдық шешім; hint — дайын жауапсыз қысқа кеңес.'
     }[lang] || '';
     const parts = [head, AI_LEVEL_PROMPTS[level][lang] || AI_LEVEL_PROMPTS[level].ru, rules];
     if (o.baseTask) parts.push(aiContextPrompt({task: o.baseTask}));
@@ -1559,13 +1722,15 @@ function aiContextPrompt(ctx) {
             const problem = (COURSE.bankProblems || []).find(x => x.id === t.problemId || (x.tasks || []).some(y => y.id === t.id));
             if (problem && problem.statement) contextData = {title: problem.title, description: problem.statement, tables: problem.tables || undefined}
         }
+        const correctOption = t.type === 'single' && Array.isArray(t.options) && typeof t.answer === 'number' && t.options[t.answer] !== undefined
+            ? (t.answer + 1) + ') ' + t.options[t.answer] : undefined;
         return 'Current task data (JSON): ' + JSON.stringify({
             id: t.id, topic: t.sectionTitle || t.sectionId, type: t.type,
             question: t.question, options: t.options || undefined,
             context: contextData,
             tables: t.inputTables || undefined,
             chart: t.chart ? {xs: t.chart.xs, ys: t.chart.ys, yLabel: t.chart.yLabel} : undefined,
-            answer: t.answer, hint: t.hint, solution: t.solution
+            answer: t.answer, correctOption: correctOption, hint: t.hint, solution: t.solution
         }).slice(0, 3500)
     }
     if (ctx.section) {
@@ -1702,7 +1867,8 @@ async function aiSend(text, ctx) {
     const question = String(text || '').trim();
     if (!question) return;
     if (aiBusy) { toast(ait('ai.err.busy')); return }
-    const previous = aiHistory().slice(-6).map(item => ({
+    const isSimilar = !!(ctx && ctx.kind === 'similar');
+    const previous = isSimilar ? [] : aiHistory().slice(-6).map(item => ({
         role: item.role === 'user' ? 'user' : 'assistant',
         content: aiPlainText(item.html)
     })).filter(item => item.content);
@@ -1733,7 +1899,12 @@ async function aiSend(text, ctx) {
     const messages = [{role: 'system', content: aiSystemMessage(ctx)}, ...previous, {role: 'user', content: question}];
     let streamed = '';
     try {
-        const answer = await aiExternalChat(messages, {
+        let answer = await aiExternalChat(messages, isSimilar ? {
+            stream: false,
+            maxTokens: 3000,
+            temperature: 0.7,
+            registerAbort: controller => { aiAbort = controller }
+        } : {
             registerAbort: controller => { aiAbort = controller },
             onDelta: partial => {
                 streamed = partial;
@@ -1743,6 +1914,19 @@ async function aiSend(text, ctx) {
                 }
             }
         });
+        if (isSimilar && typeof aiTaskFromModelAnswer === 'function') {
+            const checkSec = (ctx && ctx.section) || (ctx && ctx.task && SECTIONS.find(s => s.id === ctx.task.sectionId)) || SECTIONS[0];
+            const firstTry = aiTaskFromModelAnswer(answer, checkSec, {kind: ctx.genKind, level: ctx.level, baseTask: ctx.baseTask || ctx.task || null});
+            if (!firstTry || (typeof aiTaskProblem === 'function' && aiTaskProblem(firstTry))) {
+                try {
+                    const retryPrompt = question + ' Output strictly valid JSON object only.';
+                    const retryAnswer = await aiExternalChat([{role: 'system', content: aiSystemMessage(ctx)}, {role: 'user', content: retryPrompt}], {
+                        stream: false, maxTokens: 3000, temperature: 0.6, registerAbort: controller => { aiAbort = controller }
+                    });
+                    if (retryAnswer) answer = retryAnswer;
+                } catch (e) { /* keep first answer if retry fails */ }
+            }
+        }
         finish(typeof aiFormatAnswer === 'function' ? aiFormatAnswer(answer, ctx) : aiRichHtml(aiLocalize(answer)));
         for (const log of ['ai-chat-log', 'ai-drawer-log'].map(id => $(id)).filter(Boolean)) math(log)
     } catch (error) {
@@ -1888,7 +2072,13 @@ function aiRefreshChrome() {
     if (label) label.textContent = ait('ai.assistant');
     const fab = $('ai-fab');
     if (fab) fab.setAttribute('aria-label', ait('ai.open'));
-    aiDrawerChrome()
+    const chatMode = $('ai-chat-mode');
+    if (chatMode) chatMode.textContent = aiConfigured() ? ait('ai.setup.ready') : ait('ai.mode.local');
+    const enabled = $('ai-enabled');
+    if (enabled) enabled.checked = !!aiSettings().aiEnabled;
+    aiDrawerChrome();
+    if ($('ai-chat-log')) aiRenderHistory();
+    if ($('ai-task-list') && typeof aiRenderStudio === 'function') aiRenderStudio()
 }
 
 function aiMountDrawer() {
@@ -1966,16 +2156,23 @@ function aiDrawerSend() {
 
 /* Кнопки в карточках заданий и в теории: помощник отвечает в панели. */
 function aiAskAboutCurrentTopic() {
-    const section = SECTIONS.find(s => s.id === route.id) || SECTIONS[0];
+    const topicEl = $('ai-gen-topic');
+    const section = (topicEl && SECTIONS.find(s => s.id === topicEl.value)) || SECTIONS.find(s => s.id === route.id) || SECTIONS[0];
     if (!section) return;
     aiDrawerOpen({kind: 'topic', section: section});
     aiSend(ait('ai.q.topic', {topic: section.title}), {kind: 'topic', section: section})
 }
 
 function aiGenerateForCurrentTopic() {
-    const section = SECTIONS.find(s => s.id === route.id) || SECTIONS[0];
+    const topicEl = $('ai-gen-topic');
+    const section = (topicEl && SECTIONS.find(s => s.id === topicEl.value)) || SECTIONS.find(s => s.id === route.id) || SECTIONS[0];
     if (!section) return;
-    spAiGenerateSimilar({section: section})
+    const kindEl = $('ai-gen-kind'), levelEl = $('ai-gen-level');
+    spAiGenerateSimilar({
+        section: section,
+        genKind: kindEl ? kindEl.value : undefined,
+        level: levelEl ? levelEl.value : undefined
+    })
 }
 
 /* ---- Рекомендации ----------------------------------------------------- */
@@ -2038,7 +2235,7 @@ function renderAI() {
             <button class="btn primary" id="ai-send" onclick="aiAsk()">${esc(ait('ai.ask'))}</button>
             <button class="btn ghost hidden" id="ai-stop-page" onclick="aiStop()">${esc(ait('ai.stop'))}</button>
           </div>
-          <p class="small muted" style="margin-top:8px">${esc(aiConfigured() ? ait('ai.setup.ready') : ait('ai.mode.local'))}</p>
+          <p class="small muted" id="ai-chat-mode" style="margin-top:8px">${esc(aiConfigured() ? ait('ai.setup.ready') : ait('ai.mode.local'))}</p>
         </div>
         <div class="card">
           <h3 style="margin-top:0">${esc(ait('ai.studio.title'))}</h3>
@@ -2085,7 +2282,7 @@ function renderAI() {
       <div class="card" style="margin-top:18px">
         <h3 style="margin-top:0">${esc(ait('ai.setup.title'))}</h3>
         <div class="profile-grid">
-          <div class="profile-row"><label><input type="checkbox" id="ai-enabled" ${s.aiEnabled ? 'checked' : ''}> ${esc(ait('ai.setup.enabled'))}</label></div>
+          <div class="profile-row"><label><input type="checkbox" id="ai-enabled" ${s.aiEnabled ? 'checked' : ''} onchange="aiToggleEnabled(this.checked)"> ${esc(ait('ai.setup.enabled'))}</label></div>
           ${aiSiteAvailable ? `<div class="profile-row"><label class="small muted" for="ai-key-source">${esc(ait('ai.setup.keySource'))}</label>
             <select id="ai-key-source" onchange="aiKeySourceChanged()">
               <option value="site" ${aiUsingSite(s) ? 'selected' : ''}>${esc(ait('ai.setup.siteKey'))}</option>
@@ -2099,7 +2296,7 @@ function renderAI() {
             <input id="ai-model" class="field" list="ai-model-list" value="${esc(s.aiModel)}" ${aiUsingSite(s) ? 'disabled' : ''} style="width:100%">
             <datalist id="ai-model-list">${aiModelOptions().map(m => `<option value="${esc(m)}"></option>`).join('')}</datalist></div>
           <div class="profile-row"><label class="small muted" for="ai-key">${esc(ait('ai.setup.key'))}</label>
-            <input id="ai-key" class="field" type="password" value="${aiUsingSite(s) ? '' : esc(s.aiApiKey)}" ${aiUsingSite(s) ? 'disabled' : ''} style="width:100%" placeholder="${esc(ait('ai.setup.keyHint'))}"></div>
+            <input id="ai-key" class="field" type="password" value="${aiUsingSite(s) ? '' : esc(s.aiApiKey)}" ${aiUsingSite(s) ? 'disabled' : ''} oninput="aiKeyInput()" style="width:100%" placeholder="${esc(ait('ai.setup.keyHint'))}"></div>
           <div class="profile-row"><label><input type="checkbox" id="ai-stream" ${s.aiStream ? 'checked' : ''}> ${esc(ait('ai.setup.stream'))}</label></div>
         </div>
         <div class="row wrap" style="gap:8px;margin-top:12px">

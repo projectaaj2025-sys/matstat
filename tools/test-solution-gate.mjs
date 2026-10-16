@@ -1147,5 +1147,128 @@ check('потоковый ответ Gemini собирается из SSE', stre
 ev("progress.settings.aiKeySource='site';progress.settings.aiApiKey='';aiSiteAvailable=false");
 check('без сервера сайт не притворяется подключённым', !ev('aiConfigured()'));
 
+// --- 26. Ввод ключа без предварительного сохранения и работа всех функций с ключом ---
+ev("progress.settings={};aiSettings();go('ai')");
+await wait(250);
+aiCalls = [];
+w.fetch = async (url, options = {}) => {
+    aiCalls.push({url, options});
+    if (url.endsWith('/models')) return {
+        ok: true,
+        json: async () => ({models: [
+            {name: 'models/text-embedding-004', supportedGenerationMethods: ['embedContent']},
+            {name: 'models/imagen-3.0-generate-002', supportedGenerationMethods: ['predict']},
+            {name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent']}
+        ]})
+    };
+    return {
+        ok: true,
+        json: async () => ({candidates: [{content: {parts: [
+            {text: 'Черновик рассуждений', thought: true},
+            {text: 'Чистый ответ Gemini'}
+        ]}}]})
+    };
+};
+// Пользователь вставляет ключ AQ./AIza с пробелами и Bearer и сразу жмёт «Проверить подключение», не нажав «Сохранить».
+ev("document.getElementById('ai-key').value='  \"Bearer AQ.Ab8RN6K_test_gemini_key_12345\"  ';aiKeyInput()");
+check('ввод ключа AQ. автоматически выбирает Gemini и включает галочку',
+    ev("document.getElementById('ai-provider').value==='gemini' && document.getElementById('ai-enabled').checked===true"));
+const directTest = await ev("aiTestConnection()");
+check('проверка подключения работает сразу после ввода ключа без кнопки «Сохранить»',
+    !!directTest && directTest.ok === true && ev("aiConfigured() && aiSettings().aiApiKey==='AQ.Ab8RN6K_test_gemini_key_12345'"));
+check('фильтр моделей Gemini отсекает embedding и imagen',
+    JSON.stringify(directTest.models) === JSON.stringify(['gemini-2.5-flash']),
+    JSON.stringify(directTest.models));
+check('проверка подключения с моделями не тратит лишний запрос generateContent',
+    aiCalls.length === 1 && aiCalls[0].url === 'https://generativelanguage.googleapis.com/v1beta/models',
+    String(aiCalls.length));
+check('статус чата на странице сразу переключается на внешнюю модель',
+    ev("document.getElementById('ai-chat-mode').textContent === ait('ai.setup.ready')"));
+
+// Выключение и повторное включение галочки пользователем.
+ev("document.getElementById('ai-enabled').checked=false;aiToggleEnabled(false)");
+check('снятие галочки отключает внешнюю модель при сохранённом ключе',
+    ev("!aiConfigured() && aiSettings().aiDisabledByUser===true"));
+ev("document.getElementById('ai-enabled').checked=true;aiToggleEnabled(true)");
+check('возврат галочки снова включает внешнюю модель',
+    ev("aiConfigured() && !aiSettings().aiDisabledByUser"));
+
+// Мысли модели (thought:true) не попадают в видимый текст ответа, а подряд идущие роли склеиваются.
+const cleanedTurnPayload = ev("aiGeminiBody([{role:'assistant',content:'Приветствие'},{role:'user',content:'Часть 1'},{role:'user',content:'Часть 2'}], {})");
+check('aiGeminiBody убирает начальный ход model и склеивает соседние ходы одной роли',
+    cleanedTurnPayload.contents.length === 1
+    && cleanedTurnPayload.contents[0].role === 'user'
+    && cleanedTurnPayload.contents[0].parts[0].text === 'Часть 1\n\nЧасть 2');
+const thoughtFiltered = await ev("aiExternalChat([{role:'user',content:'Проверка'}],{stream:false})");
+check('aiGeminiContent отфильтровывает внутренние блоки thought:true',
+    thoughtFiltered === 'Чистый ответ Gemini', thoughtFiltered);
+
+// Загрузка моделей без предварительного сохранения для Groq-ключа и обновление выбранной модели.
+ev("progress.settings={};aiSettings();go('ai')");
+await wait(200);
+w.fetch = async (url, options = {}) => {
+    aiCalls.push({url, options});
+    return {ok: true, json: async () => ({data: [{id: 'llama-3.3-70b-versatile'}, {id: 'mixtral-8x7b-32768'}]})};
+};
+ev("document.getElementById('ai-key').value='gsk_testGroqKey1234567890';document.getElementById('ai-model').value='old-removed-model'");
+await ev("aiLoadModels()");
+check('aiLoadModels автоопределяет Groq по ключу gsk_, включает модель и подставляет актуальную модель из списка',
+    ev("aiConfigured() && aiSettings().aiProvider==='groq' && aiSettings().aiModel==='llama-3.3-70b-versatile' && document.getElementById('ai-model').value==='llama-3.3-70b-versatile'"));
+
+// Разбор JSON с одиночными LaTeX-слэшами и нестандартными форматами таблиц от внешней модели.
+const latexJson = '{"question":"Найдите $\\bar{x}$ и $\\sigma$, если $\\frac{10}{2}=5$ и $a \\times b \\neq 0$","answer":"5 баллов","options":[],"table":[["Значение","Частота"],[4,2],[6,2]],"hint":"Используйте $\\bar{x}$","solution":"По формуле $\\bar{x}=\\frac{4\\cdot 2+6\\cdot 2}{4}=5$."}';
+const parsedLatexTask = ev(`aiTaskFromModelAnswer(${JSON.stringify(latexJson)}, SECTIONS[0], {kind:'task', level:'standard'})`);
+check('JSON с одиночными LaTeX-слэшами (\\frac, \\bar, \\times, \\neq, \\sigma) и 2D-таблицей разбирается без ошибок',
+    !!parsedLatexTask && !parsedLatexTask._invalid
+    && parsedLatexTask.answer === 5
+    && parsedLatexTask.inputTables?.[0]?.head?.join(',') === 'Значение,Частота'
+    && parsedLatexTask.inputTables?.[0]?.rows?.length === 2,
+    JSON.stringify(parsedLatexTask).slice(0, 140));
+
+// «Похожая задача» с подключённым ключом не засоряется историей чата и создаёт проверяемую карточку.
+ev("progress.settings.aiChat=[{role:'user',html:'Старый вопрос'},{role:'assistant',html:'Старый ответ'}]");
+aiCalls = [];
+w.fetch = async (url, options = {}) => {
+    aiCalls.push({url, options});
+    return {
+        ok: true,
+        json: async () => ({choices: [{message: {content: JSON.stringify({
+            question: 'В выборке 5 измерений: 2, 4, 6, 8, 10. Найдите среднее арифметическое.',
+            answer: 6,
+            options: [],
+            table: null,
+            hint: 'Сложите все числа и разделите на 5.',
+            solution: '(2+4+6+8+10)/5 = 6.'
+        })}}]})
+    };
+};
+const countBeforeSimilar = ev("progress.settings.aiTasks.length");
+ev("spAiGenerateSimilar({section: SECTIONS[0]})");
+await wait(350);
+const similarSentMessages = JSON.parse(aiCalls[0].options.body).messages;
+check('«Похожая задача» с ключом отправляет чистый запрос без старой переписки чата',
+    similarSentMessages.length === 2 && similarSentMessages[0].role === 'system' && similarSentMessages[1].role === 'user',
+    similarSentMessages.map(m => m.role).join(','));
+check('«Похожая задача» с ключом добавляет задачу от модели в «Мои задачи» и рисует карточку',
+    ev("progress.settings.aiTasks.length") === countBeforeSimilar + 1
+    && ev("progress.settings.aiTasks[0].source === 'model'")
+    && /ai-task-card/.test(ev("document.getElementById('ai-drawer-log').innerHTML")));
+
+// Проверка ответа ученика с ключом: для тестового задания передаётся текст выбранного варианта, а не индекс 0.
+const checkSingleTask = ev("allTasks.find(t=>t.type==='single' && Array.isArray(t.options) && t.options.length>=2)");
+ev(`progress.answers[${JSON.stringify(checkSingleTask.id)}]=0`);
+aiCalls = [];
+w.fetch = async (url, options = {}) => {
+    aiCalls.push({url, options});
+    return {ok: true, json: async () => ({choices: [{message: {content: 'Ответ проверен.'}}]})};
+};
+ev(`spAiCheckMyWork(${JSON.stringify(checkSingleTask.id)}, '')`);
+await wait(300);
+const checkSentBody = JSON.parse(aiCalls[0].options.body);
+check('при проверке тестового задания модель видит номер с 1 и текст выбранного варианта',
+    checkSentBody.messages[checkSentBody.messages.length - 1].content.includes('1) ' + checkSingleTask.options[0])
+    && checkSentBody.messages[0].content.includes('correctOption'),
+    checkSentBody.messages[checkSentBody.messages.length - 1].content);
+
 console.log(`\nИтог с регрессиями: ${pass} пройдено, ${fail} провалено`);
 process.exit(fail ? 1 : 0);

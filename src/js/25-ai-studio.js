@@ -236,10 +236,45 @@ function aiGenerateTask(topicId, options) {
 /* ---- Задача от модели: строгий JSON превращаем в карточку ------------ */
 
 function aiNormalizeTable(raw) {
-    if (!raw || typeof raw !== 'object') return null;
-    if (Array.isArray(raw)) return null;
+    if (!raw) return null;
+    if (typeof raw === 'string') {
+        const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => /^\|.*\|$/.test(l));
+        if (lines.length >= 2) {
+            const splitRow = l => l.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+            const head = splitRow(lines[0]);
+            const bodyStart = /^[\s|:-]+$/.test(lines[1]) ? 2 : 1;
+            const rows = lines.slice(bodyStart).map(splitRow).filter(r => r.some(Boolean));
+            if (head.length && rows.length) return {caption: ait('ai.table.caption'), head: head.map(String), rows: rows.map(r => r.map(c => String(c ?? '')))};
+        }
+        return null;
+    }
+    if (Array.isArray(raw)) {
+        if (raw.length >= 2 && Array.isArray(raw[0])) {
+            const head = raw[0];
+            const rows = raw.slice(1).filter(r => Array.isArray(r) && r.some(c => String(c ?? '').trim() !== ''));
+            if (head.length && rows.length) return {caption: ait('ai.table.caption'), head: head.map(String), rows: rows.map(r => r.map(c => String(c ?? '')))};
+        }
+        if (raw.length >= 1 && raw[0] && typeof raw[0] === 'object' && !Array.isArray(raw[0])) {
+            const head = Object.keys(raw[0]);
+            const rows = raw.map(obj => head.map(k => obj && obj[k] !== undefined ? obj[k] : '')).filter(r => r.some(c => String(c ?? '').trim() !== ''));
+            if (head.length && rows.length) return {caption: ait('ai.table.caption'), head: head.map(String), rows: rows.map(r => r.map(c => String(c ?? '')))};
+        }
+        return null
+    }
+    if (typeof raw !== 'object') return null;
     let head = raw.head || raw.headers || raw.columns || raw.header || [];
     let rows = raw.rows || raw.data || raw.body || [];
+    if ((!Array.isArray(head) || !head.length) && Array.isArray(rows) && rows.length && rows[0] && typeof rows[0] === 'object' && !Array.isArray(rows[0])) {
+        head = Object.keys(rows[0]);
+    }
+    if ((!Array.isArray(head) || !head.length) && (!Array.isArray(rows) || !rows.length)) {
+        const keys = Object.keys(raw).filter(k => !['caption', 'title'].includes(k) && Array.isArray(raw[k]) && raw[k].length);
+        if (keys.length >= 2) {
+            head = keys;
+            const len = Math.max(...keys.map(k => raw[k].length));
+            rows = Array.from({length: len}, (_, idx) => keys.map(k => raw[k][idx] !== undefined ? raw[k][idx] : ''));
+        }
+    }
     if (!Array.isArray(head) || !head.length) return null;
     if (!Array.isArray(rows) || !rows.length) return null;
     rows = rows.map(row => Array.isArray(row) ? row : head.map(key => row && row[key] !== undefined ? row[key] : ''));
@@ -248,14 +283,68 @@ function aiNormalizeTable(raw) {
     return {caption: String(raw.caption || raw.title || ait('ai.table.caption')), head: head.map(String), rows: rows.map(row => row.map(cell => String(cell ?? '')))}
 }
 
+/* Чиним одиночные обратные слэши LaTeX внутри JSON-строк (\frac, \bar, \times, \sigma и т.д.). */
+function aiRepairJsonString(raw) {
+    let out = '';
+    let inStr = false;
+    for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (!inStr) {
+            if (ch === '"') inStr = true;
+            out += ch;
+            continue;
+        }
+        if (ch === '"') {
+            inStr = false;
+            out += ch;
+            continue;
+        }
+        if (ch === '\n') { out += '\\n'; continue }
+        if (ch === '\r') { out += '\\r'; continue }
+        if (ch === '\t') { out += '\\t'; continue }
+        if (ch === '\\') {
+            const next = raw[i + 1] || '';
+            const rest = raw.slice(i + 1);
+            if (next === '"' || next === '\\' || next === '/') {
+                out += '\\' + next;
+                i++;
+                continue;
+            }
+            if (next === 'u' && /^[0-9a-fA-F]{4}/.test(raw.slice(i + 2, i + 6))) {
+                out += raw.slice(i, i + 6);
+                i += 5;
+                continue;
+            }
+            if (/^(?:frac|bar|overline|underline|times|text|textbf|textit|neq|ne|notin|nabla|nu|right|Rightarrow|rho|beta|binom|boxed|begin|bm|bigl|bigr|not|natural|le|ge|leq|geq|pm|mp|cdot|cdots|ldots|sqrt|sum|prod|int|approx|sim|infty|alpha|gamma|delta|epsilon|varepsilon|zeta|eta|theta|iota|kappa|lambda|mu|xi|pi|sigma|varsigma|tau|upsilon|phi|varphi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega|left|ll|gg|subset|supset|in|cup|cap|emptyset|forall|exists|partial|hat|tilde|vec|dot|ddot|mathrm|mathbf|mathcal|mathbb|mathsf|operatorname|sin|cos|tan|cot|sec|csc|ln|log|exp|lim|max|min|sup|inf|det|dim|ker|hom|arg|deg|gcd|Pr|quad|qquad|enspace|thinspace|hspace|vspace|end|item|hline|multicolumn|centering|label|ref|cite)(?![a-zA-Z])/.test(rest)) {
+                out += '\\\\';
+                continue;
+            }
+            if ('bfnrt'.includes(next)) {
+                out += '\\' + next;
+                i++;
+                continue;
+            }
+            out += '\\\\';
+            continue;
+        }
+        out += ch;
+    }
+    return out
+}
+
 /* Модель возвращает JSON (возможно, в ```-блоке или с пояснением вокруг). */
 function aiParseJsonBlock(content) {
     const text = String(content || '').replace(/```json/gi, '').replace(/```/g, '').trim();
-    try { return JSON.parse(text) } catch (e) { /* ниже пробуем найти объект в тексте */ }
+    const tryParse = candidate => {
+        try { return JSON.parse(candidate) } catch (e) { /* пробуем починить LaTeX-слэши */ }
+        try { return JSON.parse(aiRepairJsonString(candidate)) } catch (e) { return null }
+    };
+    const direct = tryParse(text);
+    if (direct) return direct;
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
     if (start >= 0 && end > start) {
-        try { return JSON.parse(text.slice(start, end + 1)) } catch (e) { return null }
+        return tryParse(text.slice(start, end + 1))
     }
     return null
 }
@@ -332,22 +421,30 @@ function aiTaskFromModelAnswer(content, section, opts) {
     }
     if (inputTables && !inputTables.length) inputTables = undefined;
     const chart = aiNormalizeChart(data.chart || data.graph);
-    const optionList = Array.isArray(data.options) ? data.options.map(x => String(x).trim()).filter(Boolean) : undefined;
+    const stripOptionPrefix = s => String(s || '').trim().replace(/^(?:[\(\[]?\d+[\)\].:]|[A-Da-dА-Гa-г][\)\].:])\s*/, '').trim();
+    const optionList = Array.isArray(data.options) ? data.options.map(x => stripOptionPrefix(x) || String(x).trim()).filter(Boolean) : undefined;
     const rawAnswer = data.answer !== undefined && data.answer !== null ? data.answer : (data.a !== undefined ? data.a : '');
     let answer = '';
     if (optionList && optionList.length) {
         /* Эталон выбора — номер варианта, как в заданиях курса. Модель может
            дать номер (answerIndex), число или сам текст варианта. */
         let index = -1;
+        const cleanRawAns = stripOptionPrefix(rawAnswer);
+        const byText = optionList.findIndex(option => aiNormalizeAnswer(option) === aiNormalizeAnswer(cleanRawAns) || aiNormalizeAnswer(option) === aiNormalizeAnswer(rawAnswer));
         for (const key of ['answerIndex', 'correctIndex', 'answer_index', 'correct']) {
             const value = data[key];
-            if (value !== undefined && value !== null && String(value).trim() !== '' && Number.isInteger(Number(value))
-                && Number(value) >= 0 && Number(value) < optionList.length) { index = Number(value); break }
+            if (value !== undefined && value !== null && String(value).trim() !== '' && Number.isInteger(Number(value))) {
+                const n = Number(value);
+                if (n >= 0 && n < optionList.length) { index = n; break }
+                if (n === optionList.length && byText === n - 1) { index = n - 1; break }
+            }
         }
-        if (index < 0) index = optionList.findIndex(option => aiNormalizeAnswer(option) === aiNormalizeAnswer(rawAnswer));
+        if (byText >= 0 && index >= 0 && byText !== index) index = byText;
+        if (index < 0 && byText >= 0) index = byText;
         if (index < 0 && /^-?\d+$/.test(String(rawAnswer).trim())) {
-            const numeric = Number(rawAnswer);
-            if (numeric >= 0 && numeric < optionList.length) index = numeric
+            const numericVal = Number(rawAnswer);
+            if (numericVal >= 0 && numericVal < optionList.length) index = numericVal;
+            else if (numericVal === optionList.length) index = numericVal - 1;
         }
         answer = index >= 0 ? index : '';
     } else if (Array.isArray(rawAnswer)) {
@@ -358,8 +455,13 @@ function aiTaskFromModelAnswer(content, section, opts) {
     } else if (typeof rawAnswer === 'string' && rawAnswer.includes(';')) {
         const parts = rawAnswer.split(';').map(x => x.trim()).filter(Boolean);
         answer = parts.length > 1 && parts.every(x => numeric(x) !== null) ? parts.map(x => numeric(x)) : rawAnswer;
+    } else if (typeof rawAnswer === 'number') {
+        answer = rawAnswer;
     } else {
-        answer = typeof rawAnswer === 'number' ? rawAnswer : String(rawAnswer);
+        const strAns = String(rawAnswer ?? '').trim();
+        const cleanedNum = strAns.replace(/^[≈~=\s]+/, '').replace(/\s*[a-zA-Zа-яА-ЯёЁ%°₽$€₸.]+\s*$/, '').trim();
+        const numVal = numeric(cleanedNum);
+        answer = (numVal !== null && /^-?\d+(?:[.,]\d+)?(?:\s*\/\s*-?\d+(?:[.,]\d+)?)?$/.test(cleanedNum)) ? numVal : strAns;
     }
     const task = {
         id: 'model-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
@@ -640,25 +742,34 @@ function aiTaskMode(taskId, mode, cid) {
 
 /* Задание, о котором идёт речь: его данные уходят в системную инструкцию. */
 function spAiTaskContext(taskId) {
-    const task = taskMap[taskId];
+    const task = taskMap[taskId] || aiFindTask(taskId);
     if (!task) return null;
     return {kind: 'task', task: task}
 }
 
 function spAiExplainTask(taskId) {
-    const task = taskMap[taskId];
+    const task = taskMap[taskId] || aiFindTask(taskId);
     if (!task) return;
     aiDrawerOpen({kind: 'task', task: task});
     aiSend(ait('ai.q.explain', {question: String(task.question || '').slice(0, 140)}), {kind: 'explain', task: task})
 }
 
 function spAiCheckMyWork(taskId, cid) {
-    const task = taskMap[taskId];
+    const task = taskMap[taskId] || aiFindTask(taskId);
     if (!task) return;
     const card = cid ? $('card-' + cid) : null;
-    let answer = progress.answers[taskId];
-    if ((answer === undefined || answer === '' || (Array.isArray(answer) && !answer.length)) && card && typeof getTaskAnswer === 'function') {
-        answer = getTaskAnswer(card)
+    let answer = card && typeof getTaskAnswer === 'function' ? getTaskAnswer(card) : undefined;
+    if (answer === undefined || answer === '' || (Array.isArray(answer) && !answer.length)) {
+        answer = progress.answers[taskId];
+    }
+    if (task.type === 'single' && Array.isArray(task.options) && answer !== undefined && answer !== '' && Number.isInteger(Number(answer))) {
+        const idx = Number(answer);
+        if (task.options[idx] !== undefined) answer = (idx + 1) + ') ' + task.options[idx];
+    } else if (task.type === 'multi' && Array.isArray(task.options) && Array.isArray(answer)) {
+        answer = answer.map(idx => {
+            const n = Number(idx);
+            return Number.isInteger(n) && task.options[n] !== undefined ? (n + 1) + ') ' + task.options[n] : idx;
+        });
     }
     if (Array.isArray(answer)) answer = answer.join(', ');
     const value = String(answer ?? '').trim();
@@ -668,7 +779,7 @@ function spAiCheckMyWork(taskId, cid) {
 }
 
 function spAiSimilarTask(taskId) {
-    const task = taskMap[taskId];
+    const task = taskMap[taskId] || aiFindTask(taskId);
     if (!task) return;
     const section = SECTIONS.find(s => s.id === task.sectionId) || SECTIONS[0];
     spAiGenerateSimilar({section: section, baseTask: task})
@@ -679,11 +790,13 @@ function spAiGenerateSimilar(options) {
     const section = opts.section || SECTIONS.find(s => s.id === route.id) || SECTIONS[0];
     if (!section) return;
     const baseTask = opts.baseTask || null;
-    const kind = baseTask && (baseTask.genKind === 'pisa' || baseTask.aiContext || baseTask.context) ? 'pisa'
-        : (section.id === 'pisa-tests' ? 'pisa' : aiSettings().aiGenKind);
+    const kind = opts.genKind ? (opts.genKind === 'pisa' ? 'pisa' : 'task')
+        : (baseTask && (baseTask.genKind === 'pisa' || baseTask.aiContext || baseTask.context) ? 'pisa'
+        : (section.id === 'pisa-tests' ? 'pisa' : aiSettings().aiGenKind));
+    const level = aiGenLevelKey(opts.level || aiSettings().aiGenLevel);
     aiDrawerOpen(baseTask ? {kind: 'task', task: baseTask, section: section} : {kind: 'topic', section: section});
     aiSend(ait('ai.q.similar', {topic: section.title}),
-        {kind: 'similar', section: section, baseTask: baseTask, task: baseTask || undefined, genKind: kind, level: aiSettings().aiGenLevel})
+        {kind: 'similar', section: section, baseTask: baseTask, task: baseTask || undefined, genKind: kind, level: level})
 }
 
 /* Кнопка в теории: «спросить помощника об этой теме». */
@@ -729,7 +842,7 @@ async function aiGenerate() {
     if (aiConfigured()) {
         /* С ключом задачи придумывает внешняя модель: совсем новые, не из курса.
            Непроверяемый ответ модели карточкой не становится. */
-        const avoid = [];
+        const avoid = aiTaskStore().slice(0, 8).map(item => String((item.task && item.task.question) || '').slice(0, 90)).filter(Boolean);
         for (let i = 0; i < count; i++) {
             let task = null;
             try {
