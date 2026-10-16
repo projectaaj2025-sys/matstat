@@ -13,3 +13,4 @@ function spBoot() {
 }
 spBoot();
 renderRoute();loadAdditions();
+aiDetectSiteKey();

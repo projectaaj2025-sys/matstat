@@ -963,5 +963,76 @@ ev("setLanguage('ru')");
 await wait(250);
 ev("progress.settings.aiEnabled=false;progress.settings.aiApiKey='';progress.settings.aiChat=[];progress.settings.aiTasks=[];progress.settings.aiSwapNumbers=true;persist()");
 
+// --- Серверный Gemini-ключ: он никогда не попадает в браузерную сборку ---
+let aiCalls = [];
+w.fetch = async (url, options = {}) => {
+    aiCalls.push({url, options});
+    if (url === '/api/ai/config') return {
+        ok: true, headers: {get: () => 'application/json'}, json: async () => ({geminiAvailable: true})
+    };
+    if (url.endsWith('/models')) return {
+        ok: true, json: async () => ({models: [{name: 'models/gemini-2.5-flash'}]})
+    };
+    return {
+        ok: true,
+        json: async () => ({candidates: [{content: {parts: [{text: 'Ответ модели'}]}}]})
+    };
+};
+ev('progress.settings={};aiSettings()');
+await ev('aiDetectSiteKey()');
+check('при доступном сервере Gemini включён по умолчанию',
+    ev("aiConfigured() && aiSettings().aiProvider==='gemini' && aiSettings().aiKeySource==='site' && aiSettings().aiApiKey===''"));
+check('ключ сайта не виден в HTML и поле заблокировано',
+    ev("document.getElementById('ai-key').disabled && document.getElementById('ai-key').value===''"));
+aiCalls = [];
+const siteAnswer = await ev("aiExternalChat([{role:'user',content:'ping'}],{stream:false})");
+check('запрос идёт через сервер без заголовка Authorization',
+    siteAnswer === 'Ответ модели' && aiCalls[0]?.url === '/api/ai/gemini/generateContent'
+    && !('Authorization' in aiCalls[0].options.headers)
+    && JSON.parse(aiCalls[0].options.body).contents[0].parts[0].text === 'ping');
+aiCalls = [];
+const siteModels = await ev('aiFetchModels()');
+check('список моделей идёт через сервер без личного ключа',
+    siteModels.includes('gemini-2.5-flash') && aiCalls[0]?.url === '/api/ai/models'
+    && !('Authorization' in aiCalls[0].options.headers));
+ev("document.getElementById('ai-key-source').value='own';aiKeySourceChanged()");
+check('пользователь может разблокировать поле своего ключа',
+    ev("!document.getElementById('ai-key').disabled"));
+ev("document.getElementById('ai-key').value='personal-test-key';aiSaveSettings()");
+aiCalls = [];
+await ev("aiExternalChat([{role:'user',content:'ping'}],{stream:false})");
+check('личный ключ заменяет ключ сайта и идёт напрямую провайдеру',
+    ev("aiSettings().aiKeySource==='own'")
+    && aiCalls[0]?.url === 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+    && aiCalls[0].options.headers['x-goog-api-key'] === 'personal-test-key'
+    && !('Authorization' in aiCalls[0].options.headers));
+aiCalls = [];
+const personalModels = await ev('aiFetchModels()');
+check('личный Gemini-ключ запрашивает модели через нативный API',
+    personalModels.includes('gemini-2.5-flash')
+    && aiCalls[0]?.url === 'https://generativelanguage.googleapis.com/v1beta/models'
+    && aiCalls[0].options.headers['x-goog-api-key'] === 'personal-test-key');
+ev("progress.settings.aiBaseUrl='https://generativelanguage.googleapis.com/v1beta/openai'");
+check('старый адрес Gemini из браузера переносится на нативный API',
+    ev("aiSettings().aiBaseUrl === 'https://generativelanguage.googleapis.com/v1beta'"));
+const geminiPayload = ev("aiGeminiBody([{role:'system',content:'You are helpful'},{role:'user',content:'Привет'},{role:'assistant',content:'Здравствуйте'},{role:'user',content:'Вопрос'}], {maxTokens:128})");
+check('контекст диалога и системное сообщение переведены в формат Gemini',
+    geminiPayload.systemInstruction.parts[0].text === 'You are helpful'
+    && geminiPayload.contents.map(c => c.role).join(',') === 'user,model,user'
+    && geminiPayload.generationConfig.maxOutputTokens === 128);
+const encoder = new TextEncoder();
+w.TextDecoder = TextDecoder;
+w.fetch = async () => ({
+    ok: true, body: {getReader: () => {
+        const chunks = ['data: {"candidates":[{"content":{"parts":[{"text":"Привет"}]}}]}\n\n',
+                        'data: {"candidates":[{"content":{"parts":[{"text":" мир"}]}}]}\n\n'];
+        return {read: async () => chunks.length ? {done:false,value:encoder.encode(chunks.shift())} : {done:true}};
+    }}
+});
+const streamed = await ev("aiExternalChat([{role:'user',content:'ping'}],{stream:true})");
+check('потоковый ответ Gemini собирается из SSE', streamed === 'Привет мир');
+ev("progress.settings.aiKeySource='site';progress.settings.aiApiKey='';aiSiteAvailable=false");
+check('без сервера сайт не притворяется подключённым', !ev('aiConfigured()'));
+
 console.log(`\nИтог с регрессиями: ${pass} пройдено, ${fail} провалено`);
 process.exit(fail ? 1 : 0);

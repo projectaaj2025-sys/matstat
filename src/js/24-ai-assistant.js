@@ -1,8 +1,7 @@
 /* ---- ИИ-помощник: локальный движок, провайдеры и внешняя модель ------- */
-/* Внешняя модель подключается по OpenAI-совместимому API: DeepSeek, OpenAI,
-   OpenRouter, Groq, Gemini, Mistral, Together, локальные Ollama и LM Studio или
-   свой адрес. Ключ хранится только в этом браузере (localStorage) и уходит
-   напрямую выбранному провайдеру: страница работает без сервера-посредника. */
+/* Внешняя модель подключается по OpenAI-совместимому API, Gemini — нативно. Личный ключ
+   хранится в localStorage и отправляется напрямую выбранному провайдеру.
+   Если сайт запущен с серверным Gemini-прокси, ключ сайта остаётся на сервере. */
 
 /* ---- Строки помощника ------------------------------------------------ */
 /* Подсказки о провайдерах содержат адреса, шаги и пояснения, поэтому их удобнее
@@ -92,6 +91,7 @@ const AI_TEXT = {
     'ai.check.teacher': {ru: 'Проверка выполнена локально по данным курса.', en: 'The check was done locally against the course data.', kk: 'Тексеру курс деректері бойынша жергілікті орындалды.'},
     'ai.err.busy': {ru: 'Запрос уже выполняется.', en: 'A request is already running.', kk: 'Сұраныс орындалып жатыр.'},
     'ai.err.nokey': {ru: 'Сначала введите API-ключ.', en: 'Enter the API key first.', kk: 'Алдымен API кілтін енгізіңіз.'},
+    'ai.err.400': {ru: 'Некорректный запрос (400). Проверьте модель и тип ключа Gemini.', en: 'Bad request (400). Check the Gemini model and key type.', kk: 'Сұрау қате (400). Gemini моделі мен кілт түрін тексеріңіз.'},
     'ai.err.401': {ru: 'Провайдер отклонил ключ (код 401). Проверьте, что ключ скопирован целиком и не удалён в кабинете провайдера.', en: 'The provider rejected the key (401). Check that the key was copied in full and is still active in the provider dashboard.', kk: 'Провайдер кілтті қабылдамады (401). Кілттің толық көшірілгенін және кабинетте жойылмағанын тексеріңіз.'},
     'ai.err.402': {ru: 'Провайдер сообщает, что на балансе нет средств (код 402). Пополните баланс в кабинете провайдера.', en: 'The provider reports an empty balance (402). Top up the balance in the provider dashboard.', kk: 'Провайдер баланста қаражат жоқ деп хабарлайды (402). Кабинетте балансты толтырыңыз.'},
     'ai.err.403': {ru: 'Доступ запрещён (код 403). Проверьте, что ключ подходит для выбранной модели и адреса.', en: 'Access denied (403). Check that the key is allowed for the chosen model and address.', kk: 'Қатынауға тыйым салынды (403). Кілттің таңдалған модель мен мекенжайға сәйкестігін тексеріңіз.'},
@@ -195,10 +195,18 @@ const AI_TEXT = {
     /* ---- Подключение провайдера ---- */
     'ai.setup.title': {ru: 'Подключение внешней модели (необязательно)', en: 'Connect an external model (optional)', kk: 'Сыртқы модельді қосу (міндетті емес)'},
     'ai.setup.provider': {ru: 'Провайдер', en: 'Provider', kk: 'Провайдер'},
-    'ai.setup.base': {ru: 'Базовый адрес API (OpenAI-совместимый)', en: 'API base URL (OpenAI-compatible)', kk: 'API базалық мекенжайы (OpenAI-үйлесімді)'},
+    'ai.setup.base': {ru: 'Базовый адрес API', en: 'API base URL', kk: 'API базалық мекенжайы'},
     'ai.setup.model': {ru: 'Модель', en: 'Model', kk: 'Модель'},
     'ai.setup.key': {ru: 'API-ключ', en: 'API key', kk: 'API кілті'},
     'ai.setup.keyHint': {ru: 'вставьте ключ вида sk-… из кабинета провайдера', en: 'paste the key such as sk-… from the provider dashboard', kk: 'провайдер кабинетінен sk-… түріндегі кілтті қойыңыз'},
+    'ai.setup.keySource': {ru: 'Какой ключ использовать', en: 'Which key to use', kk: 'Қай кілтті қолдану керек'},
+    'ai.setup.siteKey': {ru: 'Ключ сайта · Gemini', en: 'Site key · Gemini', kk: 'Сайт кілті · Gemini'},
+    'ai.setup.ownKey': {ru: 'Мой ключ', en: 'My own key', kk: 'Менің кілтім'},
+    'ai.setup.siteNote': {
+        ru: 'Ключ сайта хранится на сервере и работает с Gemini 2.5 Flash. Для своего ключа выберите «Мой ключ», затем сохраните настройки.',
+        en: 'The site key stays on the server and uses Gemini 2.5 Flash. To use your own, select “My own key” and save the settings.',
+        kk: 'Сайт кілті серверде сақталады және Gemini 2.5 Flash моделін қолданады. Өз кілтіңіз үшін «Менің кілтім» тармағын таңдап, параметрлерді сақтаңыз.'
+    },
     'ai.setup.enabled': {ru: 'Использовать внешнюю модель', en: 'Use an external model', kk: 'Сыртқы модельді қолдану'},
     'ai.setup.stream': {ru: 'Показывать ответ по мере появления', en: 'Show the answer as it arrives', kk: 'Жауапты пайда болған сайын көрсету'},
     'ai.setup.save': {ru: 'Сохранить настройки', en: 'Save the settings', kk: 'Параметрлерді сақтау'},
@@ -212,11 +220,11 @@ const AI_TEXT = {
     'ai.setup.modelsOk': {ru: 'Список моделей обновлён: {n} названий. Выберите подходящее.', en: 'The model list is updated: {n} names. Choose one.', kk: 'Модельдер тізімі жаңартылды: {n} атау. Біреуін таңдаңыз.'},
     'ai.setup.modelsFail': {ru: 'Список моделей недоступен, но запросы могут работать: впишите название модели вручную.', en: 'The model list is unavailable, but requests may still work: type the model name manually.', kk: 'Модельдер тізімі қолжетімсіз, бірақ сұраныстар жұмыс істеуі мүмкін: модель атауын қолмен жазыңыз.'},
     'ai.setup.noKey': {ru: 'Ключ не задан — работает локальный режим.', en: 'No key yet — the local mode works.', kk: 'Кілт жоқ — жергілікті режим жұмыс істейді.'},
-    'ai.setup.ready': {ru: 'Ключ сохранён: вопросы и генерация задач идут во внешнюю модель.', en: 'The key is saved: questions and task generation go to the external model.', kk: 'Кілт сақталды: сұрақтар мен тапсырма құрастыру сыртқы модельге жіберіледі.'},
+    'ai.setup.ready': {ru: 'Внешняя модель подключена: вопросы и генерация задач идут к провайдеру.', en: 'The external model is connected: questions and task generation go to the provider.', kk: 'Сыртқы модель қосылды: сұрақтар мен тапсырма құрастыру провайдерге жіберіледі.'},
     'ai.setup.storage': {
-        ru: 'Ключ хранится только в localStorage этого браузера и отправляется напрямую на выбранный адрес. Для класса берите отдельный ключ с небольшим балансом и удаляйте его в кабинете провайдера после занятий.',
-        en: 'The key is kept only in this browser’s localStorage and goes straight to the chosen address. For a class, use a separate key with a small balance and delete it in the provider dashboard after the lesson.',
-        kk: 'Кілт тек осы браузердің localStorage қоймасында сақталады және тікелей таңдалған мекенжайға жіберіледі. Сынып үшін шағын балансы бар бөлек кілт алыңыз да, сабақтан кейін провайдер кабинетінде жойыңыз.'
+        ru: 'Ваш личный ключ хранится в localStorage браузера и отправляется напрямую выбранному провайдеру. Для класса берите отдельный ключ с небольшим лимитом.',
+        en: 'Your personal key is kept in this browser’s localStorage and sent directly to the selected provider. For a class, use a separate key with a low quota.',
+        kk: 'Сіздің жеке кілтіңіз браузердің localStorage қоймасында сақталады және таңдалған провайдерге тікелей жіберіледі. Сынып үшін лимиті төмен бөлек кілт алыңыз.'
     },
     'ai.setup.offlineNote': {
         ru: 'При офлайн-работе внешняя модель недоступна: курс продолжает отвечать локально. Во время контрольной работы кнопки ИИ скрыты.',
@@ -480,10 +488,10 @@ const AI_PROVIDERS = [
     },
     {
         id: 'gemini', name: 'Google AI Studio (Gemini)',
-        base: 'https://generativelanguage.googleapis.com/v1beta/openai',
+        base: 'https://generativelanguage.googleapis.com/v1beta',
         models: ['gemini-2.5-flash'],
         keyUrl: 'https://aistudio.google.com/apikey',
-        docsUrl: 'https://ai.google.dev/gemini-api/docs/openai',
+        docsUrl: 'https://ai.google.dev/gemini-api/docs/api-key',
         priceUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
         browser: true, paid: false, free: true,
         guide: {
@@ -491,8 +499,8 @@ const AI_PROVIDERS = [
                 steps: [
                     'Откройте https://aistudio.google.com/apikey и войдите в аккаунт Google.',
                     'Нажмите «Create API key» и выберите проект Google Cloud (или создайте новый).',
-                    'Скопируйте ключ AIza… и вставьте в поле «API-ключ».',
-                    'Проверьте базовый адрес: для Gemini он заканчивается на /v1beta/openai.',
+                    'Скопируйте ключ AQ.… или AIza… и вставьте в поле «API-ключ».',
+                    'Проверьте базовый адрес: для Gemini он заканчивается на /v1beta.',
                     'Нажмите «Загрузить список моделей», затем «Проверить подключение».'
                 ],
                 tips: [
@@ -505,8 +513,8 @@ const AI_PROVIDERS = [
                 steps: [
                     'Open https://aistudio.google.com/apikey and sign in with a Google account.',
                     'Press “Create API key” and choose a Google Cloud project (or create one).',
-                    'Copy the AIza… key and paste it into the “API key” field.',
-                    'Check the base URL: for Gemini it ends with /v1beta/openai.',
+                    'Copy the AQ.… or AIza… key and paste it into the “API key” field.',
+                    'Check the base URL: for Gemini it ends with /v1beta.',
                     'Press “Load the model list”, then “Test the connection”.'
                 ],
                 tips: [
@@ -519,8 +527,8 @@ const AI_PROVIDERS = [
                 steps: [
                     'https://aistudio.google.com/apikey ашып, Google аккаунтымен кіріңіз.',
                     '«Create API key» түймесін басып, Google Cloud жобасын таңдаңыз (немесе жаңасын жасаңыз).',
-                    'AIza… кілтін көшіріп, «API кілті» өрісіне қойыңыз.',
-                    'Базалық мекенжайды тексеріңіз: Gemini үшін ол /v1beta/openai болып аяқталады.',
+                    'AQ.… немесе AIza… кілтін көшіріп, «API кілті» өрісіне қойыңыз.',
+                    'Базалық мекенжайды тексеріңіз: Gemini үшін ол /v1beta болып аяқталады.',
                     '«Модельдер тізімін жүктеу», содан кейін «Қосылымды тексеру» түймесін басыңыз.'
                 ],
                 tips: [
@@ -801,8 +809,59 @@ function aiNormalizeBase(url) {
 
 function aiChatUrl(base) { return aiNormalizeBase(base) + '/chat/completions' }
 function aiModelsUrl(base) { return aiNormalizeBase(base) + '/models' }
+function aiGeminiContent(data) {
+    return ((data && data.candidates && data.candidates[0] && data.candidates[0].content || {}).parts || [])
+        .map(part => part && part.text || '').join('')
+}
+function aiGeminiBody(messages, options) {
+    const system = messages.filter(m => m.role === 'system').map(m => String(m.content || '')).join('\n\n');
+    const contents = messages.filter(m => m.role !== 'system').map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user', parts: [{text: String(m.content || '')}]
+    }));
+    const body = {contents, generationConfig: {
+        temperature: options.temperature ?? 0.4, maxOutputTokens: options.maxTokens || 1200
+    }};
+    if (system) body.systemInstruction = {parts: [{text: system}]};
+    return body
+}
+function aiGeminiUrl(settings, stream) {
+    if (aiUsingSite(settings)) return '/api/ai/gemini/' + (stream ? 'streamGenerateContent?alt=sse' : 'generateContent');
+    const model = encodeURIComponent(settings.aiModel.replace(/^models\//, ''));
+    return aiNormalizeBase(settings.aiBaseUrl) + '/models/' + model + ':'
+        + (stream ? 'streamGenerateContent?alt=sse' : 'generateContent')
+}
+
 
 /* ---- Настройки ------------------------------------------------------- */
+
+let aiSiteAvailable = false;
+function aiUsingSite(s) {
+    return aiSiteAvailable && s.aiKeySource === 'site' && s.aiProvider === 'gemini'
+}
+function aiHasKey(s) { return s.aiKeySource === 'site' ? aiUsingSite(s) : !!s.aiApiKey }
+
+/* A static/offline copy has no server key. Never infer one from the HTML. */
+async function aiDetectSiteKey() {
+    if (typeof fetch !== 'function') return;
+    try {
+        const res = await fetch('/api/ai/config', {cache: 'no-store'});
+        if (!res.ok || !res.headers.get('Content-Type')?.includes('application/json')) return;
+        const config = await res.json();
+        if (!config || config.geminiAvailable !== true) return;
+        aiSiteAvailable = true;
+        const s = aiSettings();
+        if (!s.aiKeySource && !s.aiApiKey && !s.aiEnabled) {
+            s.aiKeySource = 'site';
+            s.aiProvider = 'gemini';
+            s.aiBaseUrl = aiProviderInfo('gemini').base;
+            s.aiModel = aiProviderInfo('gemini').models[0];
+            s.aiEnabled = true;
+            persist()
+        }
+        aiRefreshChrome();
+        if (route.id === 'ai') renderAI()
+    } catch (e) { /* offline or static site: keep personal-key mode */ }
+}
 
 function aiSettings() {
     if (!progress.settings || typeof progress.settings !== 'object') progress.settings = {};
@@ -810,13 +869,15 @@ function aiSettings() {
     if (typeof s.aiProvider !== 'string' || !AI_PROVIDERS.some(p => p.id === s.aiProvider)) s.aiProvider = 'deepseek';
     const provider = aiProviderInfo(s.aiProvider);
     if (typeof s.aiBaseUrl !== 'string' || !s.aiBaseUrl.trim()) s.aiBaseUrl = provider.base;
+    /* Existing browsers saved Gemini's former OpenAI-compatible base. */
+    if (s.aiProvider === 'gemini') s.aiBaseUrl = aiNormalizeBase(s.aiBaseUrl).replace(/\/openai$/i, '');
     if (typeof s.aiModel !== 'string' || !s.aiModel.trim()) s.aiModel = provider.models[0] || '';
     if (typeof s.aiApiKey !== 'string') s.aiApiKey = '';
     if (typeof s.aiEnabled !== 'boolean') s.aiEnabled = false;
     /* Настройки прежних версий хранили полный адрес /chat/completions. */
     if (!s.aiBaseMigrated) {
         const legacy = aiNormalizeBase(typeof s.aiEndpoint === 'string' ? s.aiEndpoint : '');
-        if (legacy && legacy !== provider.base) {
+        if (legacy && legacy !== provider.base && !(s.aiProvider === 'gemini' && legacy === provider.base + '/openai')) {
             s.aiBaseUrl = legacy;
             s.aiProvider = 'custom'
         }
@@ -838,7 +899,13 @@ function aiSaveSettings() {
     if (provider && AI_PROVIDERS.some(p => p.id === provider.value)) s.aiProvider = provider.value;
     if (base) s.aiBaseUrl = aiNormalizeBase(base.value) || aiProviderInfo(s.aiProvider).base;
     if (model) s.aiModel = model.value.trim() || aiProviderInfo(s.aiProvider).models[0] || '';
-    if (key) s.aiApiKey = key.value.trim();
+    const source = $('ai-key-source');
+    s.aiKeySource = source && source.value === 'site' && aiSiteAvailable && s.aiProvider === 'gemini' ? 'site' : 'own';
+    if (key && s.aiKeySource !== 'site') s.aiApiKey = key.value.trim();
+    if (s.aiKeySource === 'site') {
+        s.aiBaseUrl = aiProviderInfo('gemini').base;
+        s.aiModel = aiProviderInfo('gemini').models[0];
+    }
     if (enabled) s.aiEnabled = !!enabled.checked;
     if (stream) s.aiStream = !!stream.checked;
     const swap = $('ai-swap-numbers');
@@ -851,12 +918,12 @@ function aiSaveSettings() {
 
 function aiConfigured() {
     const s = aiSettings();
-    return !!(s.aiEnabled && s.aiApiKey && s.aiBaseUrl && s.aiModel)
+    return !!(s.aiEnabled && aiHasKey(s) && s.aiBaseUrl && s.aiModel)
 }
 
 function aiProviderReady() {
     const s = aiSettings();
-    return !!(s.aiApiKey && s.aiBaseUrl && s.aiModel)
+    return !!(aiHasKey(s) && s.aiBaseUrl && s.aiModel)
 }
 
 /* ---- Подсказка «где взять ключ» -------------------------------------- */
@@ -894,6 +961,27 @@ function aiProviderGuideHtml(provider) {
       </div>`
 }
 
+function aiKeySourceChanged() {
+    const source = $('ai-key-source'), provider = $('ai-provider');
+    if (!source) return;
+    if (source.value === 'site' && provider && provider.value !== 'gemini') {
+        provider.value = 'gemini';
+        aiProviderChanged()
+    }
+    const site = source.value === 'site' && aiSiteAvailable;
+    const key = $('ai-key'), base = $('ai-base'), model = $('ai-model');
+    if (key) {
+        if (key.disabled && !site) key.value = aiSettings().aiApiKey;
+        if (site) key.value = '';
+        key.disabled = site;
+    }
+    if (base) base.disabled = site;
+    if (model) {
+        if (site) model.value = aiProviderInfo('gemini').models[0];
+        model.disabled = site;
+    }
+}
+
 /* Перерисовка подсказки и полей при смене провайдера. */
 function aiProviderChanged() {
     const select = $('ai-provider');
@@ -904,6 +992,8 @@ function aiProviderChanged() {
     if (model) model.value = provider.models[0] || '';
     if (list) list.innerHTML = aiModelOptions().map(m => `<option value="${esc(m)}"></option>`).join('');
     if (help) help.innerHTML = aiProviderGuideHtml(provider);
+    if (provider.id !== 'gemini' && $('ai-key-source')) $('ai-key-source').value = 'own';
+    aiKeySourceChanged();
     aiStatusLine(provider.local ? ait('ai.setup.noKey') : ait('ai.how.step2'), 'info')
 }
 
@@ -928,6 +1018,7 @@ function aiRequestError(code, detail) {
 
 function aiErrorReason(error) {
     const code = error && error.code;
+    if (code === 400) return ait('ai.err.400');
     if (code === 401) return ait('ai.err.401');
     if (code === 402) return ait('ai.err.402');
     if (code === 403) return ait('ai.err.403');
@@ -951,7 +1042,7 @@ async function aiFetchError(res) {
 /* Возвращает текст ответа. onDelta(text) вызывается по мере появления текста. */
 async function aiExternalChat(messages, options) {
     const s = aiSettings();
-    if (!s.aiApiKey) throw aiRequestError('nokey', ait('ai.err.nokey'));
+    if (!aiHasKey(s)) throw aiRequestError('nokey', ait('ai.err.nokey'));
     const opts = options || {};
     const base = aiNormalizeBase(s.aiBaseUrl);
     if (!base) throw aiRequestError('network', ait('ai.err.network'));
@@ -959,12 +1050,15 @@ async function aiExternalChat(messages, options) {
     const timer = controllers ? setTimeout(() => controllers.abort(), opts.timeout || 90000) : null;
     if (opts.registerAbort) opts.registerAbort(controllers);
     const wantStream = opts.stream !== false && s.aiStream;
+    const gemini = s.aiProvider === 'gemini';
     let res;
     try {
-        res = await fetch(aiChatUrl(base), {
+        res = await fetch(gemini ? aiGeminiUrl(s, wantStream) : aiChatUrl(base), {
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.aiApiKey},
-            body: JSON.stringify({
+            headers: gemini
+                ? (aiUsingSite(s) ? {'Content-Type': 'application/json'} : {'Content-Type': 'application/json', 'x-goog-api-key': s.aiApiKey})
+                : {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.aiApiKey},
+            body: JSON.stringify(gemini ? aiGeminiBody(messages, opts) : {
                 model: s.aiModel,
                 messages: messages,
                 temperature: opts.temperature ?? 0.4,
@@ -987,7 +1081,8 @@ async function aiExternalChat(messages, options) {
         if (!canStream) {
             const data = await res.json();
             if (timer) clearTimeout(timer);
-            const content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+            const content = gemini ? aiGeminiContent(data)
+                : data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
             if (!content) throw aiRequestError('nocontent', '');
             return content
         }
@@ -1008,7 +1103,7 @@ async function aiExternalChat(messages, options) {
                 let parsed = null;
                 try { parsed = JSON.parse(payload) } catch (e) { continue }
                 const delta = parsed && parsed.choices && parsed.choices[0] && (parsed.choices[0].delta || {});
-                const piece = delta && (delta.content || delta.reasoning_content);
+                const piece = gemini ? aiGeminiContent(parsed) : delta && (delta.content || delta.reasoning_content);
                 if (piece) {
                     text += piece;
                     if (opts.onDelta) opts.onDelta(text)
@@ -1026,12 +1121,13 @@ async function aiExternalChat(messages, options) {
 
 async function aiFetchModels() {
     const s = aiSettings();
-    if (!s.aiApiKey) throw aiRequestError('nokey', ait('ai.err.nokey'));
+    if (!aiHasKey(s)) throw aiRequestError('nokey', ait('ai.err.nokey'));
     let res;
     try {
-        res = await fetch(aiModelsUrl(s.aiBaseUrl), {
+        res = await fetch(aiUsingSite(s) ? '/api/ai/models' : aiModelsUrl(s.aiBaseUrl), {
             method: 'GET',
-            headers: {'Authorization': 'Bearer ' + s.aiApiKey}
+            headers: aiUsingSite(s) ? {} : s.aiProvider === 'gemini'
+                ? {'x-goog-api-key': s.aiApiKey} : {'Authorization': 'Bearer ' + s.aiApiKey}
         })
     } catch (error) {
         throw aiRequestError('network', error && error.message)
@@ -1040,7 +1136,8 @@ async function aiFetchModels() {
     let data = null;
     try { data = await res.json() } catch (e) { throw aiRequestError('nocontent', '') }
     const list = (data && (data.data || data.models)) || [];
-    const names = list.map(item => typeof item === 'string' ? item : (item && (item.id || item.name))).filter(Boolean);
+    const names = list.map(item => typeof item === 'string' ? item : (item && (item.id || item.name)))
+        .filter(Boolean).map(name => s.aiProvider === 'gemini' ? name.replace(/^models\//, '') : name);
     if (!names.length) throw aiRequestError('nocontent', '');
     return names
 }
@@ -1048,7 +1145,7 @@ async function aiFetchModels() {
 /* Проверка: сначала список моделей (бесплатно), затем пробный запрос. */
 async function aiTestConnection(button) {
     const s = aiSettings();
-    if (!s.aiApiKey) {
+    if (!aiHasKey(s)) {
         aiStatusLine(ait('ai.err.nokey'), 'error');
         toast(ait('ai.err.nokey'), true);
         return {ok: false, reason: ait('ai.err.nokey')}
@@ -1058,15 +1155,18 @@ async function aiTestConnection(button) {
     try {
         const names = await aiFetchModels();
         aiFillModelList(names);
+        if (s.aiProvider === 'gemini') {
+            await aiExternalChat([{role: 'user', content: 'Reply with OK'}], {stream: false, maxTokens: 512});
+        }
         aiStatusLine(ait('ai.setup.testOk', {n: names.length}), 'ok');
         return {ok: true, models: names}
     } catch (error) {
         try {
-            const answer = await aiExternalChat([{role: 'user', content: 'ping'}], {stream: false, maxTokens: 5});
+            const answer = await aiExternalChat([{role: 'user', content: 'Reply with OK'}], {stream: false, maxTokens: 512});
             aiStatusLine(ait('ai.setup.testOkChat'), 'ok');
             return {ok: true, answer: answer}
         } catch (inner) {
-            const reason = aiErrorReason(error);
+            const reason = aiErrorReason(inner);
             aiStatusLine(ait('ai.setup.testFail', {reason: reason}), 'error');
             return {ok: false, reason: reason}
         }
@@ -1096,7 +1196,7 @@ function aiModelOptions(settings) {
 
 async function aiLoadModels() {
     const s = aiSettings();
-    if (!s.aiApiKey) { toast(ait('ai.err.nokey'), true); return }
+    if (!aiHasKey(s)) { toast(ait('ai.err.nokey'), true); return }
     aiStatusLine(ait('ai.setup.testing'), 'info');
     try {
         const names = await aiFetchModels();
@@ -1830,15 +1930,20 @@ function renderAI() {
         <h3 style="margin-top:0">${esc(ait('ai.setup.title'))}</h3>
         <div class="profile-grid">
           <div class="profile-row"><label><input type="checkbox" id="ai-enabled" ${s.aiEnabled ? 'checked' : ''}> ${esc(ait('ai.setup.enabled'))}</label></div>
+          ${aiSiteAvailable ? `<div class="profile-row"><label class="small muted" for="ai-key-source">${esc(ait('ai.setup.keySource'))}</label>
+            <select id="ai-key-source" onchange="aiKeySourceChanged()">
+              <option value="site" ${aiUsingSite(s) ? 'selected' : ''}>${esc(ait('ai.setup.siteKey'))}</option>
+              <option value="own" ${!aiUsingSite(s) ? 'selected' : ''}>${esc(ait('ai.setup.ownKey'))}</option>
+            </select></div>` : ''}
           <div class="profile-row"><label class="small muted" for="ai-provider">${esc(ait('ai.setup.provider'))}</label>
             <select id="ai-provider" onchange="aiProviderChanged()">${AI_PROVIDERS.map(p => `<option value="${p.id}" ${p.id === s.aiProvider ? 'selected' : ''}>${esc(aiProviderName(p))}</option>`).join('')}</select></div>
           <div class="profile-row"><label class="small muted" for="ai-base">${esc(ait('ai.setup.base'))}</label>
-            <input id="ai-base" class="field" value="${esc(s.aiBaseUrl)}" style="width:100%"></div>
+            <input id="ai-base" class="field" value="${esc(s.aiBaseUrl)}" ${aiUsingSite(s) ? 'disabled' : ''} style="width:100%"></div>
           <div class="profile-row"><label class="small muted" for="ai-model">${esc(ait('ai.setup.model'))}</label>
-            <input id="ai-model" class="field" list="ai-model-list" value="${esc(s.aiModel)}" style="width:100%">
+            <input id="ai-model" class="field" list="ai-model-list" value="${esc(s.aiModel)}" ${aiUsingSite(s) ? 'disabled' : ''} style="width:100%">
             <datalist id="ai-model-list">${aiModelOptions().map(m => `<option value="${esc(m)}"></option>`).join('')}</datalist></div>
           <div class="profile-row"><label class="small muted" for="ai-key">${esc(ait('ai.setup.key'))}</label>
-            <input id="ai-key" class="field" type="password" value="${esc(s.aiApiKey)}" style="width:100%" placeholder="${esc(ait('ai.setup.keyHint'))}"></div>
+            <input id="ai-key" class="field" type="password" value="${aiUsingSite(s) ? '' : esc(s.aiApiKey)}" ${aiUsingSite(s) ? 'disabled' : ''} style="width:100%" placeholder="${esc(ait('ai.setup.keyHint'))}"></div>
           <div class="profile-row"><label><input type="checkbox" id="ai-stream" ${s.aiStream ? 'checked' : ''}> ${esc(ait('ai.setup.stream'))}</label></div>
         </div>
         <div class="row wrap" style="gap:8px;margin-top:12px">
@@ -1847,6 +1952,7 @@ function renderAI() {
           <button class="btn ghost" onclick="aiLoadModels()">${esc(ait('ai.setup.models'))}</button>
         </div>
         <p class="ai-status" id="ai-status">${esc(aiConfigured() ? ait('ai.setup.ready') : ait('ai.setup.noKey'))}</p>
+        ${aiSiteAvailable ? `<p class="small muted" style="margin-top:8px">${esc(ait('ai.setup.siteNote'))}</p>` : ''}
         <p class="small muted" style="margin-top:8px">${esc(ait('ai.setup.storage'))}</p>
         <p class="small muted" style="margin-top:6px">${esc(ait('ai.setup.offlineNote'))}</p>
       </div>
