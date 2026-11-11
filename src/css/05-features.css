@@ -117,3 +117,5 @@
 .ball-stage svg{max-height:none;touch-action:none}.ball-stage #ball-object{cursor:grab}.ball-stage #ball-object:active{cursor:grabbing}
 .worked-example{margin-top:22px;padding:24px;border-left:4px solid var(--accent)}.worked-example h3{margin:8px 0 16px}.worked-example p:last-child{margin-bottom:0}
 .urn-lab{padding:24px;margin-bottom:28px}.urn-lab h2{margin:8px 0}.urn-lab input[type=number]{width:75px}.urn-lab select{width:auto;max-width:100%}.urn-last{display:flex;align-items:center;gap:12px;margin-top:18px}.urn-ball{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;color:white;font-weight:bold;box-shadow:inset -6px -7px 12px #0003}.urn-ball.red{background:#d55548}.urn-ball.blue{background:#4278b0}
+.ball-manual{margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}
+.ball-manual h3{margin:0 0 8px}.ball-manual p{margin:8px 0 12px}.ball-manual label{display:block;font-weight:650;margin:12px 0 6px}.ball-manual textarea{width:100%;margin-bottom:12px}.ball-manual .lab-result-error:empty{display:none}
