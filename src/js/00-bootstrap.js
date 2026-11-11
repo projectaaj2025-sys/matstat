@@ -1,7 +1,8 @@
 'use strict';
 const courseRaw=JSON.parse(document.getElementById('course-data').textContent);
 if(!courseRaw.sections.some(s=>s.id===PROBABILITY_LESSON.id))courseRaw.sections.splice(4,0,PROBABILITY_LESSON);
-for(const lang of ['en','kk'])Object.assign(courseRaw.i18n.content[lang],PROBABILITY_TRANSLATIONS[lang]);
+if(!courseRaw.sections.some(s=>s.id===MATSTAT_INTRO_LESSON.id)){const i=courseRaw.sections.findIndex(s=>s.id==='random-variables');courseRaw.sections.splice(i<0?courseRaw.sections.length:i,0,MATSTAT_INTRO_LESSON)}
+for(const lang of ['en','kk'])Object.assign(courseRaw.i18n.content[lang],PROBABILITY_TRANSLATIONS[lang],MATSTAT_INTRO_TRANSLATIONS[lang]);
 const COURSE_SOURCE=JSON.stringify(courseRaw);
 // Course content is translated from the data itself, so a sentence with a formula inside
 // is translated as one whole sentence. The Russian original always stays in COURSE_BASE.

@@ -1,0 +1,16 @@
+import { readFileSync } from 'node:fs';
+import { JSDOM, VirtualConsole } from 'jsdom';
+import assert from 'node:assert/strict';
+const errors=[];
+const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!String(e.message).includes('Not implemented'))errors.push(e.message)});
+const dom=new JSDOM(readFileSync(process.argv[2]||'index.html','utf8'),{runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,url:'https://example.org/#mathematical-statistics-introduction',beforeParse(w){w.scrollTo=()=>{}}});
+const w=dom.window;await new Promise(r=>setTimeout(r,1000));const ev=x=>w.eval(x);
+assert.equal(ev("SECTIONS.findIndex(s=>s.id==='mathematical-statistics-introduction')+1"),ev("SECTIONS.findIndex(s=>s.id==='random-variables')"));
+assert(w.document.querySelector('.ms-directions'));assert(w.document.querySelector('.theory-card table'));assert(w.document.body.textContent.includes('Этапы статистического исследования'));
+const panel=w.document.getElementById('topic-panel');const lesson=ev("SECTIONS.find(s=>s.id==='mathematical-statistics-introduction')");
+ev('renderPractice')(lesson,panel);assert(panel.querySelector('.live-activity'));assert.equal(panel.querySelectorAll('[data-task]').length,6);
+ev('renderLab')(lesson,panel);assert(w.document.getElementById('series-data'));
+w.document.getElementById('series-data').value='2; 1; 2; 3; 1; 2; 4; 3; 2; 1';ev('updateSeries()');
+assert.deepEqual(Array.from(ev('labState.data')),[2,1,2,3,1,2,4,3,2,1]);assert(panel.querySelector('#series-result').textContent.includes('0,4'));
+ev("seriesMode('interval')");assert(panel.querySelector('#series-result').textContent.includes('Гистограмма'));
+assert.deepEqual(errors,[]);dom.window.close();console.log('OK: вводный урок, порядок, задания и лаборатория рядов');
