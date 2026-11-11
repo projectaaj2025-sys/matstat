@@ -28,6 +28,7 @@ CSS_BLOCKS = (
 )
 # Joiners preserve the original blank lines between sections in the standalone file.
 JS_PARTS = (
+    ("src/js/00-probability-data.js", "\n"),
     ("src/js/00-bootstrap.js", "\n"),
     ("src/js/01-course-navigation.js", ""),
     ("src/js/02-practice-and-checking.js", ""),
