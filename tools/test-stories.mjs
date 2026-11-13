@@ -54,6 +54,18 @@ assert.equal(years.length,ids.length);assert.deepEqual(years,[...years].sort((a,
 ev("spStoriesSet('comics')");assert.equal(doc.querySelectorAll('.cx-comic').length,withImage.length);
 ev("spStoriesSet('memo')");assert.equal(doc.querySelectorAll('.memo-note').length,Object.values(stories.ru).reduce((n,s)=>n+s.memo.length,0));
 assert.equal(doc.querySelectorAll('.story-books li').length,4);
+assert.equal(doc.querySelectorAll('.story-books li a[href^="https://"]').length,4);
+
+// Every topic names the book chapters behind its comic, and the library links to the four books.
+const refs=ev('SP_COMIC_REFS'),urls=ev('SP_BOOK_URLS');
+for(const id of ids){assert(refs[id]&&refs[id].length,`нет ссылки на книгу: ${id}`);for(const [key] of refs[id])assert(urls[key],`неизвестная книга: ${key}`)}
+ev("go('math-expectation','theory')");await wait(20);
+let refLine=doc.querySelector('#story-block .cx-refs');assert(refLine&&refLine.textContent.includes('Орлин')&&refLine.textContent.includes('гл. 11'));assert.equal(refLine.querySelector('a').href,urls.orlin);
+ev("location.hash='#materials'");await wait(50);
+assert.equal(doc.querySelectorAll('.source-card').length,7);assert.equal(doc.querySelectorAll('.source-card[href*="alpinabook.ru"]').length,1);
+ev("setLanguage('en')");await wait(50);
+assert(doc.querySelector('.source-card[href*="alpinabook.ru"]').textContent.includes('Math with Bad Drawings'));assert(!cyr.test(doc.querySelector('.source-card[href*="dmkpress.com"]').textContent));
+ev("setLanguage('ru')");await wait(50);
 
 // Content follows the interface language and returns to Russian intact.
 ev("setLanguage('en');go('central-tendency','theory')");await wait(50);
