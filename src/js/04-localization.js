@@ -1,5 +1,6 @@
 const LANGUAGES=(COURSE.i18n&&COURSE.i18n.languages)||[{id:'ru',label:'Русский',short:'Рус',htmlLang:'ru'}];
 const DICTS={ru:{},en:(COURSE.i18n&&COURSE.i18n.en)||{},kk:(COURSE.i18n&&COURSE.i18n.kk)||{}};
+DICTS.en['ДОПОЛНИТЕЛЬНО · 11 КЛАСС']='SUPPLEMENTARY · GRADE 11';DICTS.kk['ДОПОЛНИТЕЛЬНО · 11 КЛАСС']='ҚОСЫМША · 11 СЫНЫП';
 const PATTERNS=((COURSE.i18n&&COURSE.i18n.patterns)||[]).map(p=>({re:new RegExp('^'+p.re+'$'),en:p.en,kk:p.kk}));
 const LANG_KEY='statpracticum-lang';
 let LANG=(()=>{const saved=readStore(LANG_KEY,'ru');return LANGUAGES.some(l=>l.id===saved)?saved:'ru'})();

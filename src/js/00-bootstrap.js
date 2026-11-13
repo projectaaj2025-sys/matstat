@@ -2,6 +2,10 @@
 const courseRaw=JSON.parse(document.getElementById('course-data').textContent);
 if(!courseRaw.sections.some(s=>s.id===PROBABILITY_LESSON.id))courseRaw.sections.splice(4,0,PROBABILITY_LESSON);
 if(!courseRaw.sections.some(s=>s.id===MATSTAT_INTRO_LESSON.id)){const i=courseRaw.sections.findIndex(s=>s.id==='random-variables');courseRaw.sections.splice(i<0?courseRaw.sections.length:i,0,MATSTAT_INTRO_LESSON)}
+// Единый порядок уроков: от описания данных к вероятности, случайным величинам, моделям и практике.
+// Номер темы — её место в этом списке; урок, которого здесь нет, остаётся в конце.
+const LESSON_ORDER=['intro-stats','variation-series','frequency','advanced-variation-series','central-tendency','probability-foundations','mathematical-statistics-introduction','random-variables','distribution-law','math-expectation','variance-std','binomial-distribution','geometric-distribution','hypergeometric-distribution','other-distributions','law-of-large-numbers','continuous-rv','cognitive-biases','research-tasks','combined-problems','pisa-tests'];
+{const place=s=>{const i=LESSON_ORDER.indexOf(s.id);return i<0?LESSON_ORDER.length:i};courseRaw.sections=courseRaw.sections.map((s,i)=>[s,i]).sort((a,b)=>place(a[0])-place(b[0])||a[1]-b[1]).map(x=>x[0]);courseRaw.sections.forEach((s,i)=>{s.number=i+1;if(s.additional){const prev=courseRaw.sections[i-1];if(prev)s.group=prev.group}})}
 for(const lang of ['en','kk'])Object.assign(courseRaw.i18n.content[lang],PROBABILITY_TRANSLATIONS[lang],MATSTAT_INTRO_TRANSLATIONS[lang]);
 const COURSE_SOURCE=JSON.stringify(courseRaw);
 // Course content is translated from the data itself, so a sentence with a formula inside
