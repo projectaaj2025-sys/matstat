@@ -191,3 +191,7 @@ The **For teachers** page holds a 45-minute lesson plan per topic, source tables
 - Automatic grading is a formal check (criterion words, sample numbers and coverage), not an assessment of meaning: it never marks an answer wrong, and the threshold can be lowered in the teacher profile.
 - Published data snapshots are dated and are not forecasts.
 - The labs are teaching models: a simulation does not prove a real-world claim on its own.
+
+## Comics, history and memory hooks
+
+Under the theory of every topic there is a block with a three-panel comic (Aisha, Timur and Sigma the cat), a true episode from the history of science and a few mnemonic phrases. The **“Stories and memory hooks”** page in the side menu gathers them into a timeline, a comics list and a mnemonics list. The drawings are built into the page and work offline. The story texts are in Russian for now; interface captions are translated.

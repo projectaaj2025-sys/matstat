@@ -56,6 +56,8 @@ JS_PARTS = (
     ("src/js/20-task-search.js", "\n"),
     ("src/js/21-exam.js", "\n"),
     ("src/js/22-lesson-notes.js", "\n"),
+    ("src/js/22-stories-data.js", "\n"),
+    ("src/js/22-stories-comics.js", "\n"),
     ("src/js/23-ai-task-numbers.js", "\n"),
     ("src/js/24-ai-assistant.js", "\n"),
     ("src/js/25-ai-studio.js", "\n"),

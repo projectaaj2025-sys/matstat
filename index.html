@@ -335,6 +335,46 @@ ul.casino-check li span{font-size:12.5px;color:var(--muted)}
 .ball-manual h3{margin:0 0 8px}.ball-manual p{margin:8px 0 12px}.ball-manual label{display:block;font-weight:650;margin:12px 0 6px}.ball-manual textarea{width:100%;margin-bottom:12px}.ball-manual .lab-result-error:empty{display:none}
 .ball-autoset{align-items:center;margin:12px 0}.ball-autoset .small{flex:1 1 240px}.ball-stage{border:1px solid #c6ded1;box-shadow:inset 0 1px 0 #fff8}
 .ball-stage svg{touch-action:pan-y}.ball-stage #ball-hit-area{touch-action:none;cursor:grab}.ball-stage #ball-hit-area:active{cursor:grabbing}
+
+/* --- Комиксы, исторические сюжеты и запоминалки --- */
+.story-card{margin-top:22px;padding:26px;display:flex;flex-direction:column;gap:26px;min-width:0}
+.story-top{gap:14px;flex-wrap:wrap}.story-top h2{font-size:21px;margin:4px 0 0}
+.story-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.story-head h3{margin:0;font-size:17px;line-height:1.35}
+.story-kind{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;border-radius:6px;padding:4px 8px;color:#19313d}
+.cx-kind-comic{background:#ffd98a}.cx-kind-history{background:#bfe3d6}.cx-kind-memo{background:#f8c9d3}
+.cx-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.cx-panel{position:relative;margin:0;display:flex;flex-direction:column;min-height:300px;border:2.5px solid #19313d;border-radius:10px;overflow:hidden;color:#19313d;box-shadow:4px 4px 0 #19313d2e}
+.dark .cx-panel{border-color:#0b161c;box-shadow:4px 4px 0 #0008}
+.cx-bg1{background:#fdf1d7}.cx-bg2{background:#dff1ea}.cx-bg3{background:#fde4dc}.cx-bg4{background:#e2ecf8}
+.cx-n{position:absolute;right:7px;bottom:5px;font-size:10px;font-weight:800;opacity:.45}
+.cx-cap{background:#ffe9a8;border-bottom:2px solid #19313d;padding:6px 11px;font-size:11.5px;font-weight:700;line-height:1.4}
+.cx-bubbles{flex:1;display:flex;flex-direction:column;gap:13px;padding:12px 11px 4px}
+.cx-b{position:relative;margin:0;max-width:92%;background:#fff;border:2px solid #19313d;border-radius:15px;padding:7px 11px 8px;font-size:12.5px;line-height:1.42;overflow-wrap:anywhere}
+.cx-b::after{content:'';position:absolute;bottom:-8px;width:12px;height:12px;background:#fff;border:solid #19313d;border-width:0 2px 2px 0}
+.cx-l{align-self:flex-start}.cx-l::after{left:22px;transform:rotate(45deg)}
+.cx-r{align-self:flex-end}.cx-r::after{right:22px;transform:rotate(45deg)}
+.cx-who{display:block;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;line-height:1.3}
+.cx-by-aisha .cx-who{color:#0c7868}.cx-by-timur .cx-who{color:#b9601f}.cx-by-cat .cx-who{color:#56677a}
+.cx-stage{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;padding:6px 12px 0}
+.cx-actor{width:78px;height:97px;flex-shrink:0;display:block}.cx-prop{width:62px;height:62px;flex-shrink:1;min-width:0;margin-bottom:8px;display:block}
+.story-history{display:grid;grid-template-columns:118px minmax(0,1fr);gap:20px;background:var(--warm);border:1px solid var(--line);border-radius:14px;padding:20px}
+.story-year{display:flex;flex-direction:column;gap:6px;border-right:2px dashed var(--line);padding-right:14px}
+.story-year strong{font-size:25px;line-height:1.1;color:var(--accent-dark);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.story-year span{font-size:11px;line-height:1.45;color:var(--muted)}
+.story-history p{margin:0 0 10px;font-size:14px}.story-history .story-moral{margin:14px 0 0;padding:10px 13px;background:var(--surface);border-left:3px solid var(--accent);border-radius:0 9px 9px 0}
+.memo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:15px;padding:4px 3px}
+.memo-note{display:flex;flex-direction:column;gap:7px;padding:15px 15px 16px;border-radius:3px 3px 14px 3px;background:#fff3b8;color:#3a3210;box-shadow:2px 3px 0 #19313d1f}
+.memo-note strong{font-size:14.5px;line-height:1.4}.memo-note span{font-size:12px;line-height:1.5;color:#5a5126}
+.memo-tilt0{transform:rotate(-.7deg)}.memo-tilt1{transform:rotate(.6deg);background:#d9f2e6;color:#123a2f}.memo-tilt1 span{color:#2f5c4f}.memo-tilt2{transform:rotate(-.3deg);background:#fde0e6;color:#44202a}.memo-tilt2 span{color:#6b3f4a}
+.story-topic{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-top:12px}.story-topic .ico{width:14px}
+.story-timeline{display:flex;flex-direction:column;gap:14px;margin-top:20px}.stories-page .stack{margin-top:20px}.stories-page .story-card{margin-top:0;gap:6px}
+.cx-cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:16px;margin:20px 0}
+.cx-cast-item{display:flex;align-items:center;gap:12px}.cx-cast-item .cx-actor{width:62px;height:77px}.cx-cast-item strong{display:block}.cx-cast-item span{font-size:12px;color:var(--muted);line-height:1.45;display:block}
+.story-books{margin-top:26px}.story-books ul{margin:12px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:9px}.story-books li span{display:block;font-size:12.5px;color:var(--muted)}
+.story-teaser{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:22px;margin-top:29px;background:var(--warm)}
+.story-teaser h2{font-size:21px;margin:4px 0 6px}.story-teaser p{margin:0;font-size:13.5px;color:var(--muted)}
+.story-teaser-cast{display:flex;align-items:flex-end}.story-teaser-cast .cx-actor{width:58px;height:72px;margin-right:-8px}
+@media(max-width:760px){.story-card{padding:17px}.story-history{grid-template-columns:1fr;gap:12px;padding:15px}.story-year{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:2px dashed var(--line);padding:0 0 9px}.story-teaser{grid-template-columns:1fr}.story-teaser-cast{justify-content:flex-start}}
+@media print{.cx-panel,.memo-note,.story-history{break-inside:avoid;box-shadow:none}.memo-note{transform:none;border:1px solid #999}}
 </style>
 </head>
 <body>
@@ -548,15 +588,15 @@ function toast(message,error=false){$('toast').textContent=message;$('toast').cl
 function go(id,tab){const h='#'+id+(tab&&(tab!=='theory'||id==='teacher')?'/'+tab:'');if(location.hash===h)renderRoute();else location.hash=h}
 function closeSidebar(){$('sidebar').classList.remove('open');$('sidebar-backdrop').classList.add('hidden');$('menu-toggle').setAttribute('aria-expanded','false')}
 function toggleSidebar(){const open=!$('sidebar').classList.contains('open');$('sidebar').classList.toggle('open',open);$('sidebar-backdrop').classList.toggle('hidden',!open);$('menu-toggle').setAttribute('aria-expanded',String(open))}
-function renderNav(){const q=$('topic-search').value.trim().toLocaleLowerCase('ru');let g='';let html=`<a class="nav-item ${route.id==='home'?'active':''}" href="#home">${ico('home')}<span class="nav-label">Обзор курса</span></a><a class="nav-item ${route.id==='bank'?'active':''}" href="#bank">${ico('pen')}<span class="nav-label">Банк задач</span><span class="nav-bank-count">${BANK_PROBLEMS.length}</span></a><a class="nav-item ${route.id==='search'?'active':''}" href="#search">${ico('pen')}<span class="nav-label">Поиск заданий</span></a><a class="nav-item ${route.id==='ai'?'active':''}" href="#ai">${ico('bot')}<span class="nav-label">ИИ-наставник</span></a><a class="nav-item ${route.id==='trainer'?'active':''}" href="#trainer">${ico('check')}<span class="nav-label">Тренажёр ошибок</span></a><a class="nav-item ${route.id==='exam'?'active':''}" href="#exam">${ico('clock')}<span class="nav-label">Контрольная работа</span></a>`;html+=`<a class="nav-item ${route.id==='reflection'?'active':''}" href="#reflection">${ico('heart')}<span class="nav-label">Рефлексия · напутствие</span></a>`;let count=0;for(const s of SECTIONS){if(q&&!`${s.title} ${s.subtitle} ${s.group}`.toLocaleLowerCase('ru').includes(q))continue;count++;if(s.group!==g){g=s.group;html+=`<div class="nav-group">${esc(g)}</div>`}const n=sectionDone(s);html+=`<a class="nav-item ${route.id===s.id?'active':''}" href="#${s.id}" ${route.id===s.id?'aria-current="page"':''}><span class="nav-num">${sectionNumber(s)}</span><span class="nav-label">${esc(s.title)}</span>${n?'<span class="nav-dot" title="Задание зачтено"></span>':''}</a>`}if(!count)html+='<p class="small muted" style="padding:12px">По этому запросу тем нет.</p>';$('course-nav').innerHTML=html;updateProgressUI();document.querySelectorAll('[data-top="bank"]').forEach(a=>a.textContent='Банк задач');document.querySelectorAll('[data-top]').forEach(a=>a.classList.toggle('active',a.dataset.top===route.id))}
+function renderNav(){const q=$('topic-search').value.trim().toLocaleLowerCase('ru');let g='';let html=`<a class="nav-item ${route.id==='home'?'active':''}" href="#home">${ico('home')}<span class="nav-label">Обзор курса</span></a><a class="nav-item ${route.id==='bank'?'active':''}" href="#bank">${ico('pen')}<span class="nav-label">Банк задач</span><span class="nav-bank-count">${BANK_PROBLEMS.length}</span></a><a class="nav-item ${route.id==='search'?'active':''}" href="#search">${ico('pen')}<span class="nav-label">Поиск заданий</span></a><a class="nav-item ${route.id==='stories'?'active':''}" href="#stories">${ico('book')}<span class="nav-label">Истории и запоминалки</span></a><a class="nav-item ${route.id==='ai'?'active':''}" href="#ai">${ico('bot')}<span class="nav-label">ИИ-наставник</span></a><a class="nav-item ${route.id==='trainer'?'active':''}" href="#trainer">${ico('check')}<span class="nav-label">Тренажёр ошибок</span></a><a class="nav-item ${route.id==='exam'?'active':''}" href="#exam">${ico('clock')}<span class="nav-label">Контрольная работа</span></a>`;html+=`<a class="nav-item ${route.id==='reflection'?'active':''}" href="#reflection">${ico('heart')}<span class="nav-label">Рефлексия · напутствие</span></a>`;let count=0;for(const s of SECTIONS){if(q&&!`${s.title} ${s.subtitle} ${s.group}`.toLocaleLowerCase('ru').includes(q))continue;count++;if(s.group!==g){g=s.group;html+=`<div class="nav-group">${esc(g)}</div>`}const n=sectionDone(s);html+=`<a class="nav-item ${route.id===s.id?'active':''}" href="#${s.id}" ${route.id===s.id?'aria-current="page"':''}><span class="nav-num">${sectionNumber(s)}</span><span class="nav-label">${esc(s.title)}</span>${n?'<span class="nav-dot" title="Задание зачтено"></span>':''}</a>`}if(!count)html+='<p class="small muted" style="padding:12px">По этому запросу тем нет.</p>';$('course-nav').innerHTML=html;updateProgressUI();document.querySelectorAll('[data-top="bank"]').forEach(a=>a.textContent='Банк задач');document.querySelectorAll('[data-top]').forEach(a=>a.classList.toggle('active',a.dataset.top===route.id))}
 function updateProgressUI(){const n=done();$('sidebar-progress').innerHTML=`<strong>${n}</strong> из ${total} заданий проверено`;$('sidebar-progress-bar').style.width=100*n/total+'%';const count=$('current-count');if(count){const s=SECTIONS.find(s=>s.id===route.id);if(s){count.textContent=`${sectionDone(s)} / ${s.tasks.length}`;$('current-progress').style.width=100*sectionDone(s)/s.tasks.length+'%'}}if($('bank-progress'))$('bank-progress').textContent=`${bankDone()} / ${BANK_TASKS.length} проверено`}
-function renderRoute(){const parts=decodeURIComponent(location.hash.slice(1)).split('/');route={id:parts[0]||'home',tab:parts[1]||(parts[0]==='teacher'?'lesson':'theory')};if(route.id==='roulette-research'){route.id='research-tasks';if(route.tab==='lab')researchChoice='roulette'}const PAGE_ROUTES=['home','teacher','materials','progress','bank','reflection','trainer','exam','search','ai'];const s=SECTIONS.find(s=>s.id===route.id);if(!s&&!PAGE_ROUTES.includes(route.id)){route={id:'home',tab:'theory'}}if(s){lastTopic=s.id;teacherTopic=s.id;progress.visited[s.id]=true;persist()}
-closeSidebar();labState=null;llnState=null;const main=$('main-content');try{if(route.id==='home')renderHome();else if(route.id==='materials')renderLibrary();else if(route.id==='teacher')renderTeacher();else if(route.id==='progress')renderProgress();else if(route.id==='bank')renderBank();else if(route.id==='reflection')renderReflection();else if(route.id==='trainer')spRenderTrainer(route.tab&&route.tab!=='theory'?route.tab:'all');else if(route.id==='exam'){if(route.tab==='run')spRenderExamRun();else if(route.tab==='result')spRenderExamResult();else spRenderExamBuilder()}else if(route.id==='search')spRenderSearch();else if(route.id==='ai')renderAI();else renderSection(s)}catch(renderError){console.error(renderError);main.innerHTML=`<div class="page">${pageTop()}<article class="card"><h1 style="font-size:24px">${ui('Страница не открылась из-за старых данных на устройстве')}</h1><p>${ui('Обновите страницу. Если тема снова откроется пустой, зайдите в «Мой прогресс» и выберите «Очистить мой прогресс» — курс построится заново.')}</p><div class="row wrap"><button class="btn primary" onclick="location.reload()">${ui('Обновить страницу')}</button><a class="btn" href="#progress">${ui('Мой прогресс')}</a></div></article>${footer()}</div>`}renderNav();math(main);translateDocument();window.scrollTo({top:0,behavior:'instant'});document.title=(s?s.title:({home:'Обзор курса',materials:'Материалы',teacher:'Учителю',progress:'Мой прогресс',bank:bankTitle(),reflection:'Рефлексия',trainer:'Тренажёр ошибок',exam:'Контрольная работа',search:'Поиск заданий'})[route.id])+' · СтатПрактикум';}
+function renderRoute(){const parts=decodeURIComponent(location.hash.slice(1)).split('/');route={id:parts[0]||'home',tab:parts[1]||(parts[0]==='teacher'?'lesson':'theory')};if(route.id==='roulette-research'){route.id='research-tasks';if(route.tab==='lab')researchChoice='roulette'}const PAGE_ROUTES=['home','teacher','materials','progress','bank','reflection','trainer','exam','search','ai','stories'];const s=SECTIONS.find(s=>s.id===route.id);if(!s&&!PAGE_ROUTES.includes(route.id)){route={id:'home',tab:'theory'}}if(s){lastTopic=s.id;teacherTopic=s.id;progress.visited[s.id]=true;persist()}
+closeSidebar();labState=null;llnState=null;const main=$('main-content');try{if(route.id==='home')renderHome();else if(route.id==='materials')renderLibrary();else if(route.id==='teacher')renderTeacher();else if(route.id==='progress')renderProgress();else if(route.id==='bank')renderBank();else if(route.id==='reflection')renderReflection();else if(route.id==='trainer')spRenderTrainer(route.tab&&route.tab!=='theory'?route.tab:'all');else if(route.id==='exam'){if(route.tab==='run')spRenderExamRun();else if(route.tab==='result')spRenderExamResult();else spRenderExamBuilder()}else if(route.id==='search')spRenderSearch();else if(route.id==='ai')renderAI();else if(route.id==='stories')spRenderStories();else renderSection(s)}catch(renderError){console.error(renderError);main.innerHTML=`<div class="page">${pageTop()}<article class="card"><h1 style="font-size:24px">${ui('Страница не открылась из-за старых данных на устройстве')}</h1><p>${ui('Обновите страницу. Если тема снова откроется пустой, зайдите в «Мой прогресс» и выберите «Очистить мой прогресс» — курс построится заново.')}</p><div class="row wrap"><button class="btn primary" onclick="location.reload()">${ui('Обновить страницу')}</button><a class="btn" href="#progress">${ui('Мой прогресс')}</a></div></article>${footer()}</div>`}renderNav();math(main);translateDocument();window.scrollTo({top:0,behavior:'instant'});document.title=(s?s.title:({home:'Обзор курса',materials:'Материалы',teacher:'Учителю',progress:'Мой прогресс',bank:bankTitle(),reflection:'Рефлексия',trainer:'Тренажёр ошибок',exam:'Контрольная работа',search:'Поиск заданий'})[route.id])+' · СтатПрактикум';}
 function topicCard(s){return `<a class="topic-card" href="#${s.id}"><div class="between"><span class="num">${sectionNumber(s)}</span>${sectionDone(s)?'<span class="pill green">'+sectionDone(s)+' / '+s.tasks.length+'</span>':'<span class="pill">'+s.minutes+' мин</span>'}</div><h3>${esc(s.title)}</h3><p>${esc(s.subtitle)}</p><div class="topic-meta"><span>${s.tasks.length} заданий${s.lab?' · лаборатория':''}</span>${ico('arrow')}</div></a>`}
-function renderHome(){const labCount=SECTIONS.filter(s=>s.lab).length;const slideCount=INITIAL_MATERIALS.filter(m=>m.kind==='slides').reduce((n,m)=>n+m.pages,0);$('main-content').innerHTML=`<div class="page home-page">${pageTop()}<section class="hero"><div><span class="pill green">ИНТЕРАКТИВНЫЙ КУРС · 10 КЛАСС</span><h1>Понимать данные.<br><em>Принимать решения.</em></h1><p class="lead">Статистика помогает находить закономерности и проверять выводы. Разберёмся в теории, проведём эксперимент и применим знания на практике.</p><div class="row wrap"><a class="btn primary" href="#intro-stats">Начать с основ ${ico('arrow')}</a><a class="btn" href="#random-variables/lab">Открыть лабораторию</a></div><div class="hero-tags"><span class="row" style="gap:5px">${ico('check')} Теория с пояснениями</span><span>·</span><span>Практика с обратной связью</span></div></div><div class="hero-visual"><div class="hero-chart"><div class="between"><h3>Что говорят данные класса?</h3><span class="pill">n = 15</span></div><p class="small muted" style="margin:0">Распределение отметок по математике</p>${plot([3,4,5],[3,8,4],{bars:true,line:true,yLabel:'Число учеников',xLabel:'Отметка',height:230})}<div class="hero-chart-note">${ico('chart')}<div><strong>4</strong> <span>— самая частая отметка</span><div class="tiny muted">Один результат ≠ вся картина</div></div></div></div></div></section><div class="stats-grid"><div class="stat-tile">${ico('book')}<div><strong>${SECTIONS.length}</strong><span>тем · включая доп. 11 класса</span></div></div><div class="stat-tile">${ico('pen')}<div><strong>${total}</strong><span>проверяемых заданий · 8 форматов</span></div></div><div class="stat-tile">${ico('flask')}<div><strong>${labCount}</strong><span>лабораторий по темам</span></div></div><div class="stat-tile">${ico('slides')}<div><strong>${slideCount}</strong><span>слайдов · ${INITIAL_MATERIALS.filter(m=>m.kind==='slides').length} презентаций</span></div></div></div><section class="intro-strip"><div><p class="eyebrow">Сначала — главное</p><h2>Статистика — язык данных</h2><p><strong style="color:var(--text)">Статистика</strong> — наука о сборе, организации, анализе и интерпретации данных. Она помогает перейти от отдельных наблюдений к обоснованному выводу и не принимать случайность за закономерность.</p><a href="#intro-stats" class="text-btn arrow-link" style="margin-top:17px">Что такое выборка и зачем она нужна ${ico('arrow')}</a></div><div class="mini-steps"><div class="mini-step"><span class="step-number">01</span><div><h4>Наблюдаем</h4><p>Формулируем вопрос и собираем данные.</p></div></div><div class="mini-step"><span class="step-number">02</span><div><h4>Организуем</h4><p>Строим таблицу, ряд и понятный график.</p></div></div><div class="mini-step"><span class="step-number">03</span><div><h4>Объясняем</h4><p>Сравниваем результаты и проверяем вывод.</p></div></div></div></section><div class="between section-title"><h2>Начните с основ</h2><button class="text-btn arrow-link" onclick="document.getElementById('all-topics').scrollIntoView()">Все темы ${ico('arrow')}</button></div><div class="grid4">${SECTIONS.slice(0,4).map(topicCard).join('')}</div><div class="section-title"><h2>Где это пригодится?</h2></div><div class="grid3"><div class="card application"> <div class="icon-box">${ico('heart')}</div><h3>Понимать исследования</h3><p>Отличать надёжные данные от громких выводов и учитывать исходную частоту события.</p></div><div class="card application"><div class="icon-box">${ico('ball')}</div><h3>Сравнивать результаты</h3><p>Узнавать не только средний результат, но и его стабильность — в учёбе, спорте и работе.</p></div><div class="card application"><div class="icon-box">${ico('leaf')}</div><h3>Читать мир вокруг</h3><p>Разбираться в графиках температуры, измерениях и опросах, а не полагаться на впечатление.</p></div></div><section class="card bank-home"><div><span class="eyebrow">ОТДЕЛЬНЫЙ ПРАКТИКУМ</span><h2>${bankTitle()}</h2><p>${BANK_PROBLEMS.length} задач: полные условия, таблицы, расчёты и исследования. Отберите задачи для занятия или сформируйте рабочий лист.</p></div><a href="#bank" class="btn primary">${bankTitle()} ${ico('arrow')}</a></section><div class="between section-title" id="all-topics"><h2>Программа курса</h2><span class="small muted">От данных — к моделям и исследованиям</span></div>${[...new Set(SECTIONS.map(s=>s.group))].map(g=>`<p class="caps muted" style="margin:25px 0 12px">${esc(g)}</p><div class="grid3">${SECTIONS.filter(s=>s.group===g).map(topicCard).join('')}</div>`).join('')}<section class="card tint" style="margin-top:29px"><div class="between"><div><h3 style="font-size:18px;margin-bottom:8px">Проверьте идею экспериментом</h3><p class="small muted">Монеты, кубики, выборки и плотности — без установки программ.</p></div><a href="#law-of-large-numbers/lab" class="btn primary">К эксперименту ${ico('arrow')}</a></div></section>${footer()}</div>`}
+function renderHome(){const labCount=SECTIONS.filter(s=>s.lab).length;const slideCount=INITIAL_MATERIALS.filter(m=>m.kind==='slides').reduce((n,m)=>n+m.pages,0);$('main-content').innerHTML=`<div class="page home-page">${pageTop()}<section class="hero"><div><span class="pill green">ИНТЕРАКТИВНЫЙ КУРС · 10 КЛАСС</span><h1>Понимать данные.<br><em>Принимать решения.</em></h1><p class="lead">Статистика помогает находить закономерности и проверять выводы. Разберёмся в теории, проведём эксперимент и применим знания на практике.</p><div class="row wrap"><a class="btn primary" href="#intro-stats">Начать с основ ${ico('arrow')}</a><a class="btn" href="#random-variables/lab">Открыть лабораторию</a></div><div class="hero-tags"><span class="row" style="gap:5px">${ico('check')} Теория с пояснениями</span><span>·</span><span>Практика с обратной связью</span></div></div><div class="hero-visual"><div class="hero-chart"><div class="between"><h3>Что говорят данные класса?</h3><span class="pill">n = 15</span></div><p class="small muted" style="margin:0">Распределение отметок по математике</p>${plot([3,4,5],[3,8,4],{bars:true,line:true,yLabel:'Число учеников',xLabel:'Отметка',height:230})}<div class="hero-chart-note">${ico('chart')}<div><strong>4</strong> <span>— самая частая отметка</span><div class="tiny muted">Один результат ≠ вся картина</div></div></div></div></div></section><div class="stats-grid"><div class="stat-tile">${ico('book')}<div><strong>${SECTIONS.length}</strong><span>тем · включая доп. 11 класса</span></div></div><div class="stat-tile">${ico('pen')}<div><strong>${total}</strong><span>проверяемых заданий · 8 форматов</span></div></div><div class="stat-tile">${ico('flask')}<div><strong>${labCount}</strong><span>лабораторий по темам</span></div></div><div class="stat-tile">${ico('slides')}<div><strong>${slideCount}</strong><span>слайдов · ${INITIAL_MATERIALS.filter(m=>m.kind==='slides').length} презентаций</span></div></div></div><section class="intro-strip"><div><p class="eyebrow">Сначала — главное</p><h2>Статистика — язык данных</h2><p><strong style="color:var(--text)">Статистика</strong> — наука о сборе, организации, анализе и интерпретации данных. Она помогает перейти от отдельных наблюдений к обоснованному выводу и не принимать случайность за закономерность.</p><a href="#intro-stats" class="text-btn arrow-link" style="margin-top:17px">Что такое выборка и зачем она нужна ${ico('arrow')}</a></div><div class="mini-steps"><div class="mini-step"><span class="step-number">01</span><div><h4>Наблюдаем</h4><p>Формулируем вопрос и собираем данные.</p></div></div><div class="mini-step"><span class="step-number">02</span><div><h4>Организуем</h4><p>Строим таблицу, ряд и понятный график.</p></div></div><div class="mini-step"><span class="step-number">03</span><div><h4>Объясняем</h4><p>Сравниваем результаты и проверяем вывод.</p></div></div></div></section><div class="between section-title"><h2>Начните с основ</h2><button class="text-btn arrow-link" onclick="document.getElementById('all-topics').scrollIntoView()">Все темы ${ico('arrow')}</button></div><div class="grid4">${SECTIONS.slice(0,4).map(topicCard).join('')}</div><div class="section-title"><h2>Где это пригодится?</h2></div><div class="grid3"><div class="card application"> <div class="icon-box">${ico('heart')}</div><h3>Понимать исследования</h3><p>Отличать надёжные данные от громких выводов и учитывать исходную частоту события.</p></div><div class="card application"><div class="icon-box">${ico('ball')}</div><h3>Сравнивать результаты</h3><p>Узнавать не только средний результат, но и его стабильность — в учёбе, спорте и работе.</p></div><div class="card application"><div class="icon-box">${ico('leaf')}</div><h3>Читать мир вокруг</h3><p>Разбираться в графиках температуры, измерениях и опросах, а не полагаться на впечатление.</p></div></div>${spStoriesTeaser()}<section class="card bank-home"><div><span class="eyebrow">ОТДЕЛЬНЫЙ ПРАКТИКУМ</span><h2>${bankTitle()}</h2><p>${BANK_PROBLEMS.length} задач: полные условия, таблицы, расчёты и исследования. Отберите задачи для занятия или сформируйте рабочий лист.</p></div><a href="#bank" class="btn primary">${bankTitle()} ${ico('arrow')}</a></section><div class="between section-title" id="all-topics"><h2>Программа курса</h2><span class="small muted">От данных — к моделям и исследованиям</span></div>${[...new Set(SECTIONS.map(s=>s.group))].map(g=>`<p class="caps muted" style="margin:25px 0 12px">${esc(g)}</p><div class="grid3">${SECTIONS.filter(s=>s.group===g).map(topicCard).join('')}</div>`).join('')}<section class="card tint" style="margin-top:29px"><div class="between"><div><h3 style="font-size:18px;margin-bottom:8px">Проверьте идею экспериментом</h3><p class="small muted">Монеты, кубики, выборки и плотности — без установки программ.</p></div><a href="#law-of-large-numbers/lab" class="btn primary">К эксперименту ${ico('arrow')}</a></div></section>${footer()}</div>`}
 function sectionMaterials(s){return materials.filter(m=>m.topics?.includes(s.id)&&m.kind!=='method')}
 function renderSection(s){if(!['theory','practice','lab','slides'].includes(route.tab)||(!s.lab&&route.tab==='lab'))route.tab='theory';const sm=sectionMaterials(s),slides=sm.filter(m=>m.kind==='slides').reduce((n,m)=>n+(m.pages||1),0);$('main-content').innerHTML=`<div class="page">${pageTop(s.group,s.grade||10)}<header class="topic-head"><div class="row"><span class="pill green">${s.additional?'Д1 · 11 КЛАСС':'ТЕМА '+sectionNumber(s)}</span><span class="pill">${ico('clock')} ${s.minutes} мин</span><div class="topic-progress"><span id="current-count">${sectionDone(s)} / ${s.tasks.length}</span> проверено<div class="progress-track"><div class="progress-fill" id="current-progress" style="width:${100*sectionDone(s)/s.tasks.length}%"></div></div></div></div><h1>${esc(s.title)}</h1><p>${esc(s.subtitle)}</p></header><nav class="tabs" role="tablist" aria-label="Разделы темы">${[['theory','Теория','book',null],['practice','Практика','pen',s.tasks.length],...(s.lab?[['lab',s.lab==='roulette'?'Симулятор':'Лаборатория','flask',null]]:[]),['slides','Материалы','slides',slides||sm.length]].map(([id,title,icon,n])=>`<button class="tab ${route.tab===id?'active':''}" role="tab" aria-selected="${route.tab===id}" aria-controls="topic-panel" onclick="go('${s.id}','${id}')">${ico(icon)}${title}${n?`<span class="tab-count">${n}</span>`:''}</button>`).join('')}</nav><section id="topic-panel" role="tabpanel"></section>${footer()}</div>`;const panel=$('topic-panel');if(route.tab==='theory')renderTheory(s,panel);else if(route.tab==='practice')renderPractice(s,panel);else if(route.tab==='slides')renderTopicResources(s,panel);else renderLab(s,panel)}
-function renderTheory(s,panel){panel.innerHTML=`<div class="objectives"><span class="caps">После темы вы сможете</span><ul>${s.objectives.map(x=>`<li>${ico('check')}<span>${esc(x)}</span></li>`).join('')}</ul></div><div class="theory-grid"><div><article class="card theory-card prose">${s.theory}</article>${workedExample(s)}${referenceChart(s)}${sectionMaterials(s).filter(m=>m.kind==='theory').map(m=>m.mime?.startsWith('text/')?`<article class="card prose" style="margin-top:22px"><span class="pill green">Дополнение учителя</span><h3>${esc(m.title)}</h3>${markdown(m.data)}</article>`:`<div class="card" style="margin-top:22px"><h3>${esc(m.title)}</h3><button class="btn" onclick="openMaterial('${m.id}')">Открыть теоретический материал</button></div>`).join('')}<div class="theory-next"><button class="btn primary" onclick="go('${s.id}','practice')">Закрепить в заданиях ${ico('arrow')}</button><button class="btn" onclick="spAiAskTopic('${s.id}')">${ico('bot')} ${esc(ait('ai.quick.topic'))}</button>${s.lab?`<button class="btn" onclick="go('${s.id}','lab')">${ico('flask')} Проверить на модели</button>`:''}</div></div><aside class="card formula-card"><div><h3>${ico('book')} Коротко о главном</h3>${s.formulas.map(t=>`<div class="f">${F(t,true)}</div>`).join('')||'<p class="small muted">Прочитайте контекст → выберите модель → рассчитайте → объясните.</p>'}</div><div class="sep"></div><div class="mistake"><strong>Частая ошибка</strong>${esc(s.error)}${s.resources.length?`<button class="btn sm" style="margin-top:16px;width:100%" onclick="go('${s.id}','slides')">${ico('slides')} Слайды по теме</button>`:''}</div></aside></div>`}
+function renderTheory(s,panel){panel.innerHTML=`<div class="objectives"><span class="caps">После темы вы сможете</span><ul>${s.objectives.map(x=>`<li>${ico('check')}<span>${esc(x)}</span></li>`).join('')}</ul></div><div class="theory-grid"><div><article class="card theory-card prose">${s.theory}</article>${spStoryBlock(s)}${workedExample(s)}${referenceChart(s)}${sectionMaterials(s).filter(m=>m.kind==='theory').map(m=>m.mime?.startsWith('text/')?`<article class="card prose" style="margin-top:22px"><span class="pill green">Дополнение учителя</span><h3>${esc(m.title)}</h3>${markdown(m.data)}</article>`:`<div class="card" style="margin-top:22px"><h3>${esc(m.title)}</h3><button class="btn" onclick="openMaterial('${m.id}')">Открыть теоретический материал</button></div>`).join('')}<div class="theory-next"><button class="btn primary" onclick="go('${s.id}','practice')">Закрепить в заданиях ${ico('arrow')}</button><button class="btn" onclick="spAiAskTopic('${s.id}')">${ico('bot')} ${esc(ait('ai.quick.topic'))}</button>${s.lab?`<button class="btn" onclick="go('${s.id}','lab')">${ico('flask')} Проверить на модели</button>`:''}</div></div><aside class="card formula-card"><div><h3>${ico('book')} Коротко о главном</h3>${s.formulas.map(t=>`<div class="f">${F(t,true)}</div>`).join('')||'<p class="small muted">Прочитайте контекст → выберите модель → рассчитайте → объясните.</p>'}</div><div class="sep"></div><div class="mistake"><strong>Частая ошибка</strong>${esc(s.error)}${s.resources.length?`<button class="btn sm" style="margin-top:16px;width:100%" onclick="go('${s.id}','slides')">${ico('slides')} Слайды по теме</button>`:''}</div></aside></div>`}
 function referenceChart(s){let g='',tables=[],xs=[1,2,4],ys=[.2,.5,.3],opt={line:true,bars:true,yLabel:'Вероятность',xLabel:'Значение X'},tableCaption='Данные наглядного примера',rowLabel='P';switch(s.id){case'mathematical-statistics-introduction':return `<section class="card example-box"><h3>Исследуйте свои данные</h3><p>Введите наблюдения в лабораторию: она построит таблицу частот, полигон или гистограмму и покажет упорядоченный ряд.</p><button class="btn" onclick="go('mathematical-statistics-introduction','lab')">${ico('flask')} Построить ряд распределения</button></section>`;case'probability-foundations':return probabilityFormulaSheet();case'intro-stats':xs=[2,3,4,5];ys=[1,1,2,1];opt.yLabel='Частота';rowLabel='Частота';break;
 case'variation-series':return `<section class="card example-box"><div class="between"><h3>Сохраните все наблюдения</h3><span class="pill green">Вариационный ряд</span></div><p>До сортировки: 4; 3; 5; 2; 4.</p><div class="ordered-example" aria-label="После сортировки: 2, 3, 4, 4, 5"><span>2</span><span>3</span><span>4</span><span>4</span><span>5</span></div><p>Две четвёрки остались на своих отдельных позициях. n = 5, минимум 2, максимум 5, размах 3.</p></section>`;
 case'advanced-variation-series':tables=[{caption:'Дискретный ряд: шесть наблюдений 2; 2; 3; 3; 3; 5',head:['Значение xᵢ','2','3','5'],rows:[['Частота nᵢ','2','3','1']]},{caption:'Те же данные в трёх равных интервалах',head:['Интервал','[2; 3)','[3; 4)','[4; 5]'],rows:[['Частота nᵢ','2','3','1'],['Высота wᵢ/h','1/3','1/2','1/6']]}];g=`<div class="grid2">${plot([2,3,5],[2,3,1],{line:true,yLabel:'Абсолютная частота',xLabel:'Значение xᵢ'})}${plot([2.5,3.5,4.5],[1/3,1/2,1/6],{edges:[2,3,4,5],bars:true,hist:true,yLabel:'Относительная плотность',xLabel:'Границы интервалов'})}</div>`;break;
@@ -2042,6 +2082,573 @@ function spNotesBlock() {
     if (!notes.length) return '';
     return `<div class="card" style="margin-top:18px"><div class="between" style="margin-bottom:14px"><h3 style="margin:0">${ui('Конспекты уроков')}</h3><span class="pill green">${ui('на трёх языках')}</span></div><p class="small muted">${ui('Одностраничный конспект к каждому уроку и презентации: понятия, формулы, ход урока и вопросы для класса. Конспект открывается на выбранном языке интерфейса.')}</p><div class="notes-grid">${notes.map(n=>`<button class="note-card" onclick="spOpenNote('${esc(n.id)}')"><strong>${esc(spMaterialTitle(n))}</strong><span class="small muted">${esc(spNoteLesson(n))}</span></button>`).join('')}</div></div>`
 }
+
+/* ---- 13а. Данные: комиксы, исторические сюжеты и запоминалки ------------ */
+// Ключ — id темы. Кадр комикса: cap — подпись, l/r — «герой:настроение» слева и справа
+// (aisha, timur, cat; ok, lol, wow, hm, sad), prop — предмет, say — реплики [сторона, текст].
+// Исторические сюжеты написаны для курса; числа и даты сверены с первоисточниками.
+const SP_STORIES = {
+    'probability-foundations': {
+        comic: {title: 'Ставка шевалье', panels: [
+            {cap: 'Перемена. Тимур достаёт кубик.', l: 'timur:lol', r: 'aisha:hm', prop: 'dice', say: [['l', 'Спорим, за четыре броска выпадет хотя бы одна шестёрка?'], ['r', 'А шансы точно в твою пользу?']]},
+            {l: 'aisha:hm', r: 'cat:ok', prop: 'ask', say: [['l', 'Перебирать все варианты с шестёркой — долго…'], ['r', 'Считай наоборот: ни одной шестёрки — это (5/6)⁴ ≈ 0,482.']]},
+            {l: 'timur:wow', r: 'cat:lol', say: [['l', 'Значит, я выигрываю с вероятностью 1 − 0,482 ≈ 0,518!'], ['r', 'Чуть больше половины. На этом когда-то зарабатывал один шевалье — пока не сменил игру.']]}
+        ]},
+        history: {year: '1654', who: 'Блез Паскаль и Пьер Ферма', title: 'Письма, с которых началась теория вероятностей', text: [
+            'Шевалье де Мере, азартный игрок, по преданию заметил странность: ставка «хотя бы одна шестёрка за 4 броска кубика» приносит выигрыш, а похожая — «хотя бы одна пара шестёрок за 24 броска двух кубиков» — убыток. Заодно он спросил Блеза Паскаля, как честно разделить ставку, если игру пришлось прервать.',
+            'Летом 1654 года Паскаль и Пьер Ферма обсуждали эти задачи в письмах и разными путями пришли к одним ответам. Расчёт объяснил и наблюдение игрока: 1 − (5/6)⁴ ≈ 0,518, а 1 − (35/36)²⁴ ≈ 0,491. Разница всего в пару процентов, но в долгой игре она решает всё.'
+        ], moral: 'вероятность события «хотя бы один раз» удобнее считать через противоположное — «ни разу».'},
+        memo: [
+            ['«ИЛИ» — складываем, «И» — умножаем', 'Складывать можно вероятности несовместных событий, умножать — независимых. В остальных случаях нужны поправки: P(A∪B) = P(A) + P(B) − P(A∩B).'],
+            ['Хотя бы один? Считай «ни одного»', 'P(хотя бы один) = 1 − P(ни одного). Так решается задача шевалье.'],
+            ['Сочетания — салат, размещения — пьедестал', 'В салате порядок продуктов не важен. На пьедестале важно, кто первый, а кто третий.'],
+            ['∪ — чаша, ∩ — арка', 'В чашу ∪ собирают всё подряд: A или B. Под аркой ∩ проходит только общее: A и B.']
+        ]
+    },
+    'intro-stats': {
+        comic: {title: 'Суп и ложка', panels: [
+            {cap: 'Школьная столовая.', l: 'timur:hm', r: 'aisha:ok', prop: 'pot', say: [['l', 'Чтобы узнать, солёный ли суп, надо съесть всю кастрюлю?'], ['r', 'Хватит одной ложки. Это и есть выборка!']]},
+            {l: 'timur:sad', r: 'cat:ok', prop: 'pot', say: [['l', 'Зачерпнул сверху — совсем пресно.'], ['r', 'Соль на дне. Сначала перемешай: у каждой капли должен быть шанс попасть в ложку.']]},
+            {l: 'aisha:hm', r: 'cat:lol', say: [['l', 'А если взять половник побольше?'], ['r', 'Из неперемешанной кастрюли большой половник ошибается так же. Только увереннее.']]}
+        ]},
+        history: {year: '1936', who: 'Журнал «Литерари дайджест» и Джордж Гэллап', title: 'Десять миллионов писем и одна ошибка', text: [
+            'Перед выборами президента США журнал «Литерари дайджест» разослал около 10 миллионов бюллетеней. Адреса взяли из телефонных справочников и списков автовладельцев. Вернулось примерно 2,4 миллиона ответов — и журнал уверенно предсказал победу Альфа Лэндона.',
+            'Джордж Гэллап опросил в десятки раз меньше людей — около 50 тысяч, но подобрал их так, чтобы они представляли всех избирателей, и назвал победителем Франклина Рузвельта. Рузвельт выиграл в 46 штатах из 48.',
+            'В чём ошибка? В разгар Великой депрессии телефон и автомобиль были у более обеспеченных семей, а отвечали на письма далеко не все. Огромная выборка оказалась перекошенной.'
+        ], moral: 'объём выборки не исправляет неверный способ отбора.'},
+        memo: [
+            ['Суп пробуют ложкой — но сначала перемешивают', 'Выборка может быть маленькой, если у каждого объекта есть шанс в неё попасть.'],
+            ['Генеральная совокупность — как генерал: отвечает за всех', 'Совокупность — все объекты, о которых делаем вывод. Выборка — те, кого действительно наблюдали.'],
+            ['Размах: от самого малого до самого большого', 'R = x max − x min. Одно вычитание — и видно, насколько растянуты данные.']
+        ]
+    },
+    'variation-series': {
+        comic: {title: 'Становись по порядку!', panels: [
+            {cap: 'Оценки за контрольную.', l: 'timur:sad', r: 'aisha:hm', say: [['l', '4, 2, 5, 3, 4, 2, 4… В глазах рябит!'], ['r', 'Потому что они стоят как попало.']]},
+            {l: 'aisha:ok', r: 'cat:ok', prop: 'rows', say: [['l', 'Построим их, как на физкультуре: 2, 2, 3, 4, 4, 4, 5.'], ['r', 'Это вариационный ряд. Сразу видны наименьшее и наибольшее значения.']]},
+            {l: 'timur:wow', r: 'cat:ok', say: [['l', 'И четвёрка встречается три раза!'], ['r', 'Значение — варианта, число повторений — частота. Порядок превращает шум в картину.']]}
+        ]},
+        history: {year: '1662', who: 'Джон Граунт', title: 'Галантерейщик, который посчитал Лондон', text: [
+            'Джон Граунт торговал тканями и пуговицами, а на досуге изучал «бюллетени смертности» — еженедельные списки умерших в лондонских приходах. Десятилетиями эти листки читали и выбрасывали.',
+            'Граунт свёл записи в таблицы, упорядочил их по годам и причинам и увидел закономерности: мальчиков рождается немного больше, чем девочек, а смертность зависит от возраста и времени года. В 1662 году он издал «Естественные и политические наблюдения над бюллетенями смертности», оценил население Лондона примерно в 384 тысячи человек и был принят в Королевское общество.'
+        ], moral: 'пока данные не упорядочены, закономерностей в них не видно.'},
+        memo: [
+            ['Сначала в ряд — потом считать', 'Упорядочите наблюдения по возрастанию: минимум, максимум и повторы найдутся сами.'],
+            ['Варианта — «что», частота — «сколько раз»', 'В таблице ряда верхняя строка — значения, нижняя — сколько раз каждое встретилось.'],
+            ['Сумма частот = объём выборки', 'Проверка таблицы: если сложить все частоты, должно получиться n. Никто не потерялся и не посчитан дважды.']
+        ]
+    },
+    'frequency': {
+        comic: {title: 'Среди кого?', panels: [
+            {cap: 'Кружок робототехники.', l: 'timur:lol', r: 'aisha:hm', prop: 'robot', say: [['l', 'В кружке 12 мальчиков и 8 девочек. Мальчики любят роботов больше!'], ['r', 'Подожди. Мальчиков в параллели 60, а девочек 20.']]},
+            {l: 'aisha:ok', r: 'cat:ok', say: [['r', 'Абсолютная частота отвечает на вопрос «сколько?», относительная — «какая часть?».'], ['l', '12 из 60 — это 20 %. А 8 из 20 — уже 40 %!']]},
+            {l: 'timur:wow', r: 'cat:lol', say: [['l', 'Среди девочек доля вдвое выше…'], ['r', 'Условная частота всегда начинается с вопроса «среди кого?».']]}
+        ]},
+        history: {year: '1973', who: 'Калифорнийский университет в Беркли', title: 'Парадокс приёмной комиссии', text: [
+            'Осенью 1973 года в аспирантуру Беркли приняли около 44 % подавших заявления мужчин и только 35 % женщин. Университет заподозрили в дискриминации.',
+            'Статистики Питер Бикел, Юджин Хаммел и Уильям О’Коннелл разобрали данные по отдельным факультетам — и картина перевернулась: на большинстве факультетов заметного перекоса против женщин не было, а кое-где охотнее принимали именно их. Просто женщины чаще подавали заявления туда, где конкурс огромный, а мужчины — туда, где принимали почти всех.',
+            'Такой переворот называют парадоксом Симпсона.'
+        ], moral: 'общая доля и доли внутри групп могут говорить противоположное — всегда уточняйте, среди кого считали.'},
+        memo: [
+            ['Сколько? Какая часть? Среди кого?', 'Три вопроса — три частоты: абсолютная, относительная и условная.'],
+            ['Относительная = часть / всё', 'Делим частоту значения на объём выборки. Сумма всех относительных частот равна 1, или 100 %.'],
+            ['Процент без «от чего» — дробь без знаменателя', 'Прежде чем сравнивать проценты, найдите, от какого числа каждый из них посчитан.']
+        ]
+    },
+    'central-tendency': {
+        comic: {title: 'Миллиардер в автобусе', panels: [
+            {cap: 'В автобусе 9 пассажиров. У каждого с собой 2000 тенге.', l: 'timur:ok', r: 'aisha:ok', prop: 'bus', say: [['l', 'В среднем на пассажира — 2000 тенге. Всё честно.']]},
+            {cap: 'На остановке входит миллиардер.', l: 'timur:sad', r: 'aisha:wow', prop: 'bus', say: [['r', 'Теперь «в среднем» в автобусе едут одни миллионеры!'], ['l', 'Но я-то богаче не стал…']]},
+            {l: 'aisha:lol', r: 'cat:ok', say: [['r', 'Среднее убежало за выбросом. А медиана — пассажир посередине — осталась на месте: 2000.'], ['l', 'И мода, самая частая сумма, — тоже 2000!']]}
+        ]},
+        history: {year: '1907', who: 'Фрэнсис Гальтон', title: 'Сколько весит бык?', text: [
+            'В 1906 году на сельской ярмарке в английском Плимуте посетители за небольшую плату угадывали, сколько будет весить туша быка после разделки. Учёный Фрэнсис Гальтон выпросил билетики — 787 годных ответов — и упорядочил их.',
+            'Медиана догадок оказалась равна 1207 фунтам, а настоящий вес — 1198 фунтам: ошибка меньше одного процента. Каждый по отдельности мог сильно промахнуться, но «серединное» мнение толпы попало почти в цель. В 1907 году Гальтон рассказал об этом в журнале Nature в заметке «Vox populi» — «Глас народа».'
+        ], moral: 'центр большого набора независимых наблюдений бывает точнее отдельного наблюдения.'},
+        memo: [
+            ['Мода — то, что «в моде»', 'Значение, которое встречается чаще всего. Мод может быть несколько.'],
+            ['Медиана — посередине', 'Упорядочьте ряд и возьмите середину; при чётном числе значений — полусумму двух средних.'],
+            ['Среднее — поровну на всех', 'Сложите всё и разделите на количество: столько досталось бы каждому при равном дележе.'],
+            ['Есть выброс — смотри на медиану', 'Среднее тянется за редкими огромными значениями, медиана к ним устойчива.']
+        ]
+    },
+    'mathematical-statistics-introduction': {
+        comic: {title: 'Монета под подозрением', panels: [
+            {l: 'timur:wow', r: 'aisha:hm', prop: 'coin', say: [['l', '7 орлов из 10! Монета жульничает!'], ['r', 'Или тебе просто повезло?']]},
+            {l: 'aisha:ok', r: 'cat:ok', say: [['r', 'Теория вероятностей идёт от модели к данным: честная монета даёт ровно 7 орлов из 10 примерно в 12 % серий.'], ['l', 'А статистика — обратно: по данным судим о монете.']]},
+            {l: 'timur:hm', r: 'cat:lol', prop: 'coin', say: [['r', 'Вердикт: улик мало. Подозреваемая свободна — до новых бросков.'], ['l', 'Тогда бросаю ещё сто раз!']]}
+        ]},
+        history: {year: '1920-е', who: 'Рональд Фишер и Мюриэл Бристоль', title: 'Леди, которая пробовала чай', text: [
+            'На чаепитии на опытной станции Ротамстед биолог Мюриэл Бристоль заявила: по вкусу она отличит, что налили в чашку сначала — чай или молоко. Статистик Рональд Фишер предложил не спорить, а проверить.',
+            'Нужно приготовить 8 чашек — 4 одним способом и 4 другим — и подать их в случайном порядке. Выбрать четыре чашки из восьми можно C(8, 4) = 70 способами, значит, угадать все наугад удаётся в одном случае из 70 — это около 1,4 %. По воспоминаниям очевидца, леди назвала все чашки верно.',
+            'Фишер описал этот опыт в книге «Планирование экспериментов» (1935). Из него выросла идея проверки гипотез.'
+        ], moral: 'чтобы отличить умение от везения, сначала выясните, как часто такой результат получается случайно.'},
+        memo: [
+            ['Вероятность: модель → данные. Статистика: данные → модель', 'Одна и та же монета, но вопросы задаются в разные стороны.'],
+            ['Весёлый Пингвин Собрал Полную Охапку Апельсинов — Поделится!', 'Этапы исследования по первым буквам: Вопрос, План, Сбор, Подготовка, Описание, Анализ, Представление.'],
+            ['Выборка — оценка, совокупность — параметр', 'Число, посчитанное по выборке, лишь оценивает неизвестный параметр всей совокупности.']
+        ]
+    },
+    'random-variables': {
+        comic: {title: 'Считаем или измеряем?', panels: [
+            {l: 'timur:ok', r: 'aisha:ok', prop: 'dice', say: [['l', 'Число очков на кубике — случайная величина: заранее не знаю, что выпадет.'], ['r', 'Время, пока я жду автобус, — тоже!']]},
+            {l: 'timur:hm', r: 'cat:ok', prop: 'dice', say: [['r', 'У кубика значения 1, 2, 3… — их можно пересчитать. Это дискретная величина.']]},
+            {l: 'aisha:wow', r: 'cat:ok', prop: 'bus', say: [['l', 'А ждать можно 3,5 минуты. Или 3,517…'], ['r', 'Значения заполняют целый промежуток: величина непрерывная. Дискретную считают, непрерывную измеряют.']]}
+        ]},
+        history: {year: '1933', who: 'Андрей Колмогоров', title: 'Случай получает аксиомы', text: [
+            'До XX века вероятность считали скорее искусством, чем строгой математикой: что такое «случайно», каждый объяснял по-своему.',
+            'В 1933 году тридцатилетний московский математик Андрей Колмогоров издал небольшую книгу «Основные понятия теории вероятностей» — сначала на немецком языке. Всё здание он построил на трёх аксиомах: вероятность неотрицательна; вероятность достоверного события равна 1; вероятности несовместных событий складываются.',
+            'Случайная величина получила точное определение: это функция, которая каждому исходу опыта ставит в соответствие число.'
+        ], moral: 'случайная величина — не «случайное число», а правило «исход → число».'},
+        memo: [
+            ['Дискретную считают, непрерывную измеряют', 'Число голов, очков, ошибок — счёт. Время, рост, масса — измерение.'],
+            ['Большая X — величина, маленькая x — её значение', 'X — «число очков на кубике», x = 3 — то, что выпало в конкретном броске.'],
+            ['Исход → число', 'Чтобы задать случайную величину, скажите, какое число соответствует каждому исходу опыта.']
+        ]
+    },
+    'distribution-law': {
+        comic: {title: 'На какую сумму ставить?', panels: [
+            {l: 'timur:lol', r: 'aisha:hm', prop: 'dice', say: [['l', 'Бросаю два кубика. Сумма от 2 до 12 — одиннадцать вариантов, шансы равны!'], ['r', 'Совсем не равны.']]},
+            {l: 'aisha:ok', r: 'timur:wow', say: [['l', 'Двойка получается одним способом: 1 + 1. А семёрка — шестью: 1 + 6, 2 + 5, 3 + 4 и наоборот.'], ['r', 'P(2) = 1/36, а P(7) = 6/36!']]},
+            {l: 'timur:ok', r: 'cat:ok', prop: 'chart', say: [['r', 'Запиши для каждого значения его вероятность — получится закон распределения. Проверка: в сумме ровно 1.'], ['l', 'Ставлю на семёрку!']]}
+        ]},
+        history: {year: 'около 1620', who: 'Галилео Галилей', title: 'Загадка трёх кубиков', text: [
+            'Игроки в кости задали Галилею вопрос. Суммы 9 и 10 на трёх кубиках раскладываются на слагаемые одинаковым числом способов — по шесть. Почему же десятка выпадает чуть чаще?',
+            'Галилей объяснил: наборы надо считать с учётом порядка. Комбинация 3 + 3 + 3 получается единственным способом, а 1 + 2 + 6 — шестью. Из 216 равновозможных исходов сумму 10 дают 27, а сумму 9 — только 25.',
+            'Разница вероятностей меньше одного процента — и опытные игроки сумели заметить её за игровым столом.'
+        ], moral: 'закон распределения строят по равновозможным исходам, а не по «похожим» вариантам.'},
+        memo: [
+            ['Пирог один — делим его весь', 'Сумма всех вероятностей в законе распределения равна 1. Не сошлось — ищите ошибку.'],
+            ['Закон распределения — паспорт величины', 'В нём две строки: все возможные значения и вероятность каждого.'],
+            ['Полигон: точки (x; p) соединяем отрезками', 'По горизонтали — значения, по вертикали — вероятности.']
+        ]
+    },
+    'math-expectation': {
+        comic: {title: 'Лотерея на качелях', panels: [
+            {l: 'timur:lol', r: 'aisha:hm', prop: 'ticket', say: [['l', 'Лотерея! Билет — 200 тенге, приз — 10 000!'], ['r', 'А сколько билетов выигрывает?'], ['l', 'Один из ста…']]},
+            {l: 'aisha:ok', r: 'cat:ok', prop: 'scale', say: [['r', 'Считаем средний выигрыш: 10 000 · 0,01 + 0 · 0,99 = 100 тенге.'], ['l', 'Платишь 200, в среднем возвращаешь 100.']]},
+            {l: 'timur:sad', r: 'cat:ok', say: [['l', 'То есть каждый билет — минус 100 тенге?'], ['r', 'В среднем — да. Ожидание — это точка равновесия, а не обещание на один билет.']]}
+        ]},
+        history: {year: '1713–1738', who: 'Николай и Даниил Бернулли', title: 'Игра, за которую не жалко любых денег?', text: [
+            'Монету бросают до первого орла. Выпал сразу — получаете 2 дуката, на втором броске — 4, на третьем — 8: приз каждый раз удваивается. Сколько стоит заплатить за участие?',
+            'Математическое ожидание равно 2 · ½ + 4 · ¼ + 8 · ⅛ + … = 1 + 1 + 1 + … — оно бесконечно! Но никто не отдаст за такую игру больше нескольких монет.',
+            'Задачу придумал Николай Бернулли в 1713 году, а его двоюродный брат Даниил в 1738 году напечатал решение в трудах Петербургской академии наук — отсюда название «петербургский парадокс». Даниил предположил, что людям важна не сама сумма, а её полезность: лишний дукат радует богача меньше, чем бедняка.'
+        ], moral: 'ожидание — главный, но не единственный ориентир: редкие огромные значения могут сделать его обманчивым.'},
+        memo: [
+            ['Значение умножь на шанс — и всё сложи', 'E(X) = x₁p₁ + x₂p₂ + … + xₙpₙ.'],
+            ['Ожидание — точка равновесия качелей', 'Если развесить вероятности как грузики на линейке значений, она уравновесится в точке E(X).'],
+            ['Ожидаемое — не значит самое вероятное', 'Для кубика E(X) = 3,5, а такой грани вообще нет.']
+        ]
+    },
+    'variance-std': {
+        comic: {title: 'Одинаковое среднее', panels: [
+            {cap: 'Турнир по дартсу, пять бросков.', l: 'timur:lol', r: 'aisha:ok', say: [['l', 'У нас с Айшой в среднем по 7 очков за бросок. Ничья!']]},
+            {l: 'aisha:ok', r: 'timur:hm', prop: 'target', say: [['l', 'Мои броски: 7, 7, 6, 8, 7.'], ['r', 'А мои: 1, 10, 12, 3, 9… Зато весело.']]},
+            {l: 'timur:ok', r: 'cat:ok', prop: 'scatter', say: [['r', 'Среднее одно, разброс разный. Дисперсия — средний квадрат отклонения от среднего, а σ — корень из неё.'], ['l', 'У Айши σ маленькая — она стабильнее. Пошёл тренироваться.']]}
+        ]},
+        history: {year: '1894', who: 'Карл Пирсон и Рональд Фишер', title: 'Кто придумал сигму?', text: [
+            'Измерять разброс умели ещё астрономы начала XIX века: Гаусс называл такую меру «средней ошибкой». Но привычные нам слова появились позже.',
+            'В 1893–1894 годах английский статистик Карл Пирсон ввёл термин «стандартное отклонение» и обозначил его греческой буквой σ. А слово «дисперсия» в нынешнем смысле (по-английски variance) предложил в 1918 году Рональд Фишер в статье о наследственности: дисперсии независимых причин просто складываются, и считать с ними оказалось удобнее.'
+        ], moral: 'дисперсию удобно складывать, а стандартное отклонение — понимать: оно измеряется в тех же единицах, что и данные.'},
+        memo: [
+            ['Отклони → возведи в квадрат → усредни → извлеки корень', 'Четыре шага от данных до σ. Без последнего шага получится дисперсия.'],
+            ['Средний квадрат минус квадрат среднего', 'D(X) = E(X²) − (E(X))². Не перепутайте порядок: сначала квадрат, потом среднее — и наоборот.'],
+            ['Сигма — в тех же единицах, дисперсия — в квадратных', 'Рост в сантиметрах: σ — в сантиметрах, D — в «квадратных сантиметрах».']
+        ]
+    },
+    'binomial-distribution': {
+        comic: {title: 'Пять штрафных', panels: [
+            {cap: 'Тимур попадает в среднем 6 раз из 10.', l: 'timur:ok', r: 'aisha:ok', prop: 'ball', say: [['l', 'Бью пять штрафных. Какова вероятность забить ровно три?']]},
+            {l: 'aisha:ok', r: 'cat:ok', prop: 'clip', say: [['l', 'Проверяем: бросков ровно 5, исходов два, шанс 0,6 не меняется, броски независимы.'], ['r', 'Схема Бернулли. Можно считать!']]},
+            {l: 'aisha:lol', r: 'cat:ok', say: [['r', 'Выбираем, какие три броска удачные: C(5, 3) = 10. У каждой такой серии вероятность 0,6³ · 0,4².'], ['l', '10 · 0,216 · 0,16 ≈ 0,35.']]}
+        ]},
+        history: {year: '1713', who: 'Якоб Бернулли', title: 'Книга, которая ждала восемь лет', text: [
+            'Швейцарский математик Якоб Бернулли около двадцати лет обдумывал, как связаны вероятность и частота в длинной серии одинаковых опытов. Закончить главную книгу — «Искусство предположений» — он не успел: умер в 1705 году.',
+            'Рукопись напечатали только в 1713-м. В ней — формула для числа успехов в n независимых испытаниях и первое в истории доказательство закона больших чисел. Сам Якоб называл его своей «золотой теоремой». С тех пор опыт с двумя исходами называют испытанием Бернулли.'
+        ], moral: 'биномиальная формула верна, только если испытания независимы, а вероятность успеха не меняется.'},
+        memo: [
+            ['Два Независимых Философа Посчитали', 'Условия схемы Бернулли по первым буквам: Два исхода, Независимость, Фиксированное n, Постоянная p.'],
+            ['Какие места × успехи × неудачи', 'P(X = k) = C(n, k) · pᵏ · qⁿ⁻ᵏ: выбираем места для успехов, затем перемножаем шансы.'],
+            ['E = np, D = npq', 'Ожидание — число испытаний на вероятность успеха; для дисперсии домножьте ещё на q = 1 − p.']
+        ]
+    },
+    'geometric-distribution': {
+        comic: {title: 'Когда же шестёрка?', panels: [
+            {cap: 'Настольная игра: фишка выходит только с шестёркой.', l: 'timur:sad', r: 'aisha:ok', prop: 'dice', say: [['l', 'Пять бросков — и ни одной шестёрки! Ну уж в шестой точно выпадет!']]},
+            {l: 'aisha:ok', r: 'cat:ok', say: [['r', 'Кубик не помнит твоих неудач. Шанс шестёрки — снова 1/6.'], ['l', 'Число бросков до первого успеха — геометрическое распределение.']]},
+            {l: 'timur:hm', r: 'cat:lol', prop: 'dice', say: [['l', 'P(X = k) = qᵏ⁻¹ · p: сначала k − 1 неудача, потом успех.'], ['r', 'А ждать в среднем 1/p = 6 бросков. «В среднем» — не значит «не дольше».']]}
+        ]},
+        history: {year: '1913', who: 'Казино Монте-Карло', title: 'Двадцать шесть чёрных подряд', text: [
+            '18 августа 1913 года в казино Монте-Карло шарик рулетки раз за разом останавливался на чёрном. После десятого, пятнадцатого раза игроки бросились ставить на красное: «Оно уже обязано выпасть!»',
+            'Чёрное выпало 26 раз подряд, и проигравшие оставили в казино миллионы франков. Но у рулетки нет памяти: перед каждым запуском шансы прежние.',
+            'Число попыток до первого успеха описывает геометрическое распределение, и у него есть редкое свойство — отсутствие памяти: сколько бы ни длилась серия неудач, ожидание как будто начинается заново.'
+        ], moral: 'если испытания независимы, прошлые неудачи не приближают успех.'},
+        memo: [
+            ['Геометрическое — ждём первого успеха', 'Случайная величина — номер попытки, на которой впервые повезло.'],
+            ['Неудачи, неудачи… успех!', 'P(X = k) = qᵏ⁻¹ · p: k − 1 неудача подряд и один успех в конце.'],
+            ['Шанс 1 из 6 — жди около 6 попыток', 'E(X) = 1/p. Чем реже успех, тем дольше ожидание.'],
+            ['У кубика нет памяти', 'Вероятность успеха в следующей попытке не зависит от длины серии неудач.']
+        ]
+    },
+    'hypergeometric-distribution': {
+        comic: {title: 'Вынул — не вернул', panels: [
+            {cap: 'В коробке 10 конфет: 4 шоколадные и 6 карамелек.', l: 'timur:lol', r: 'aisha:ok', prop: 'box', say: [['l', 'Беру три не глядя. Хочу ровно две шоколадные!']]},
+            {l: 'aisha:hm', r: 'cat:ok', prop: 'box', say: [['l', 'Съеденную конфету обратно не кладут. Состав коробки меняется — это не схема Бернулли.'], ['r', 'Выбор без возвращения — гипергеометрическая модель.']]},
+            {l: 'timur:ok', r: 'aisha:ok', say: [['r', 'Считаем сочетаниями: C(4, 2) · C(6, 1) / C(10, 3) = 6 · 6 / 120 = 0,3.'], ['l', 'Тридцать процентов. Иду проверять опытным путём!']]}
+        ]},
+        history: {year: '1896', who: 'Карл Петерсен', title: 'Как пересчитать рыбу в море?', text: [
+            'Датский биолог Карл Петерсен хотел узнать, сколько камбалы живёт в заливе Лим-фьорд. Выловить всю рыбу нельзя. Тогда он поймал часть рыб, пометил их и отпустил, а позже посмотрел, какая доля рыб в новых уловах несёт метку.',
+            'Рассуждение простое. Пусть в залив выпущено 200 меченых рыб, а во втором улове из 100 рыб меченых оказалось 10. Значит, меченые составляют около 10 % всех рыб — и всего их примерно 2000.',
+            'Улов — это выборка без возвращения, поэтому число меченых рыб в нём подчиняется гипергеометрическому распределению. Метод «мечение — повторный отлов» биологи применяют до сих пор.'
+        ], moral: 'когда из небольшой совокупности берут без возвращения, состав меняется после каждого шага — и модель нужна другая.'},
+        memo: [
+            ['Гипер — без возврата: вынул — не вернул', 'Гипергеометрическая модель описывает выбор из конечной совокупности без возвращения.'],
+            ['С возвратом — бином, без возврата — гипер', 'Главный вопрос при выборе модели: меняется ли состав после каждого извлечения?'],
+            ['Нужные из нужных × остальные из остальных', 'И всё это делим на число способов выбрать «все из всех»: C(K, k) · C(N − K, n − k) / C(N, n).']
+        ]
+    },
+    'other-distributions': {
+        comic: {title: 'Тихая минута', panels: [
+            {cap: 'Чат класса: в среднем 2 сообщения в минуту.', l: 'timur:hm', r: 'aisha:ok', prop: 'phone', say: [['l', 'Какова вероятность, что за минуту не придёт ни одного сообщения?']]},
+            {l: 'aisha:hm', r: 'cat:ok', prop: 'phone', say: [['l', 'Написать может кто угодно, но каждый пишет редко и независимо…'], ['r', 'Поток редких событий — это Пуассон. Нужен один параметр: среднее λ = 2.']]},
+            {l: 'timur:ok', r: 'cat:ok', say: [['r', 'P(X = 0) = e⁻² ≈ 0,135.'], ['l', 'Тихая минута — примерно одна из семи. Маловато!']]}
+        ]},
+        history: {year: '1898', who: 'Владислав Борткевич', title: 'Статистика лягающихся лошадей', text: [
+            'Экономист и статистик Владислав Борткевич родился в Петербурге и работал в Берлине. Он изучил мрачные отчёты: сколько солдат прусской кавалерии погибало за год от удара копытом.',
+            'По 10 корпусам за 20 лет — это 200 «корпусо-лет» — набралось 122 случая, в среднем 0,61 за год на корпус. Формула Пуассона предсказывала: без несчастий пройдёт около 109 корпусо-лет, с одним случаем — 66, с двумя — 20. В отчётах оказалось 109, 65 и 22!',
+            'Саму формулу Симеон Пуассон напечатал ещё в 1837 году, но именно книга Борткевича «Закон малых чисел» показала, как точно она описывает редкие события.'
+        ], moral: 'редкие независимые события в большом потоке подчиняются общему закону, даже если каждое из них непредсказуемо.'},
+        memo: [
+            ['Пуассон — редкие события в большом потоке', 'Звонки, опечатки, метеоры: возможностей много, вероятность каждой мала.'],
+            ['У Пуассона одна буква на всё', 'E(X) = D(X) = λ: и ожидание, и дисперсия равны среднему числу событий.'],
+            ['Много испытаний, маленькая p — бери λ = np', 'Так биномиальную модель заменяют пуассоновской.']
+        ]
+    },
+    'law-of-large-numbers': {
+        comic: {title: 'Монета без долгов', panels: [
+            {l: 'timur:wow', r: 'aisha:ok', prop: 'coin', say: [['l', '10 бросков — 8 орлов. Частота 0,8! А обещали 0,5…'], ['r', 'Мало бросков. Давай ещё.']]},
+            {cap: 'Через тысячу бросков…', l: 'aisha:lol', r: 'timur:hm', prop: 'line', say: [['l', '517 орлов. Частота 0,517 — уже совсем рядом с 0,5.'], ['r', 'Значит, теперь решки обязаны навёрстывать?']]},
+            {l: 'timur:ok', r: 'cat:ok', prop: 'coin', say: [['r', 'Монета никому ничего не должна. Перекос не возвращают — он растворяется в большом числе новых бросков.']]}
+        ]},
+        history: {year: '1940-е', who: 'Джон Керрич', title: 'Десять тысяч бросков в плену', text: [
+            'Английский математик Джон Керрич в 1940 году оказался в Дании, когда её заняли немецкие войска, и был интернирован. Чтобы не терять времени, он решил проверить теорию опытом: подбросил монету 10 000 раз и аккуратно записал результаты.',
+            'Орёл выпал 5067 раз — частота 0,5067. После первых десяти бросков она равнялась 0,4, после сотни — 0,44, а дальше всё теснее прижималась к 0,5.',
+            'Раньше похожие опыты ставили Жорж Бюффон (4040 бросков, 2048 орлов) и Карл Пирсон (24 000 бросков, 12 012 орлов). Теорему о таком поведении частоты доказал Якоб Бернулли, а название «закон больших чисел» придумал Симеон Пуассон.'
+        ], moral: 'частота приближается к вероятности только в длинной серии; короткая серия может показать что угодно.'},
+        memo: [
+            ['Больше опытов — частота ближе к вероятности', 'Закон работает «в длинную»: для десяти бросков он ничего не обещает.'],
+            ['У монеты нет ни памяти, ни долгов', 'После серии орлов вероятность решки по-прежнему 0,5.'],
+            ['Близко — не значит равно', 'Закон обещает сближение частоты с вероятностью, а не точное совпадение.']
+        ]
+    },
+    'continuous-rv': {
+        comic: {title: 'Площадь, а не высота', panels: [
+            {cap: 'Автобус приходит в случайный момент в течение 10 минут.', l: 'timur:ok', r: 'aisha:ok', prop: 'bus', say: [['l', 'Какова вероятность, что ждать придётся ровно 3 минуты?']]},
+            {l: 'timur:wow', r: 'cat:ok', say: [['r', 'Ровно 3,000000… минуты? Ноль. Точек бесконечно много, и на отдельную точку ничего не приходится.'], ['l', 'Ноль?!']]},
+            {l: 'aisha:ok', r: 'cat:ok', prop: 'stop', say: [['l', 'Зато для промежутка ответ есть. От 2 до 5 минут: 3 · 0,1 = 0,3 — площадь под плотностью.'], ['r', 'Вероятность — это площадь. А вся площадь под кривой равна 1.']]}
+        ]},
+        history: {year: '1801', who: 'Карл Фридрих Гаусс', title: 'Как нашли потерянную планету', text: [
+            '1 января 1801 года итальянский астроном Джузеппе Пиацци открыл новое светило — Цереру. Он наблюдал её шесть недель, а потом она скрылась в лучах Солнца. Где искать её снова? Измерений мало, и в каждом — небольшая ошибка.',
+            'Двадцатичетырёхлетний Карл Фридрих Гаусс придумал, как извлечь из неточных данных самую правдоподобную орбиту, и указал место на небе. 31 декабря 1801 года Цереру нашли почти точно там.',
+            'В 1809 году Гаусс опубликовал свой метод и описал, как распределяются ошибки измерений: колоколообразная кривая плотности, которую теперь называют гауссовой, или нормальной. Саму кривую ещё в 1733 году нашёл Абрахам де Муавр.'
+        ], moral: 'непрерывную величину описывают плотностью: чем выше кривая над промежутком, тем чаще значения попадают в него.'},
+        memo: [
+            ['Вероятность — площадь, а не высота', 'P(a ≤ X ≤ b) — площадь под графиком плотности над отрезком [a; b].'],
+            ['В точке — ноль', 'P(X = a) = 0, поэтому знаки < и ≤ для непрерывной величины дают один ответ.'],
+            ['Вся площадь под плотностью равна 1', 'Плотность не бывает отрицательной, а её значение может быть больше 1 — это не вероятность.']
+        ]
+    },
+    'cognitive-biases': {
+        comic: {title: 'Отзывы выживших', panels: [
+            {l: 'timur:lol', r: 'aisha:hm', prop: 'stars', say: [['l', 'Смотри: у курса «Миллион за месяц» одни восторженные отзывы!'], ['r', 'А кто их пишет?']]},
+            {l: 'aisha:ok', r: 'timur:hm', say: [['l', 'Отзывы оставляют те, у кого получилось. Остальные просто молчат.'], ['r', 'Или их отзывы не показывают…']]},
+            {l: 'timur:wow', r: 'cat:ok', say: [['r', 'Ты видишь только «выживших». Спроси себя: каких данных здесь нет — и почему?'], ['l', 'Невидимые данные — тоже данные!']]}
+        ]},
+        history: {year: '1943', who: 'Абрахам Вальд', title: 'Самолёты, которые не вернулись', text: [
+            'В годы Второй мировой войны американские военные изучали пробоины на бомбардировщиках, вернувшихся с заданий. Больше всего отметин было на крыльях и фюзеляже — туда и предлагали добавить броню.',
+            'Математик Абрахам Вальд из Группы статистических исследований при Колумбийском университете возразил: с пробоинами в этих местах самолёты как раз смогли долететь до базы. А вот попаданий в двигатели на вернувшихся машинах почти нет — потому что такие самолёты не возвращались.',
+            'Бронировать нужно там, где у вернувшихся пробоин нет.'
+        ], moral: 'прежде чем делать вывод, спросите, какие данные до вас не дошли. Это называют ошибкой выжившего.'},
+        memo: [
+            ['Не видишь проигравших — не верь победителям', 'Ошибка выжившего: в выборку попали только те, кто прошёл отбор.'],
+            ['После — не значит вследствие', 'Два события идут рядом или друг за другом — это ещё не причина и следствие.'],
+            ['Редкое остаётся редким', 'Оценивая результат теста или «точную примету», вспомните базовую частоту: как часто событие встречается вообще.']
+        ]
+    },
+    'research-tasks': {
+        comic: {title: 'Опрос в два часа ночи', panels: [
+            {l: 'timur:lol', r: 'aisha:hm', prop: 'phone', say: [['l', 'Исследование готово! Вывод: десятиклассники мало спят.'], ['r', 'А кого ты спросил?'], ['l', 'Троих друзей в сети. В два часа ночи.']]},
+            {l: 'aisha:lol', r: 'cat:lol', say: [['r', 'Отличная выборка: из тех, кто не спит в два часа ночи.']]},
+            {l: 'aisha:ok', r: 'cat:ok', prop: 'clip', say: [['l', 'Сначала вопрос и план: кого спрашиваем, как отбираем, что измеряем.'], ['r', 'Потом сбор, проверка, описание — и только затем вывод. С оговорками!']]}
+        ]},
+        history: {year: '1854', who: 'Джон Сноу', title: 'Карта, которая остановила холеру', text: [
+            'В конце лета 1854 года в лондонском районе Сохо вспыхнула холера: за несколько дней умерли сотни людей. Считалось, что болезнь разносит «дурной воздух».',
+            'Врач Джон Сноу думал иначе — и собрал данные: обошёл дома и отметил на карте каждый случай смерти. Отметки сгустились вокруг водоразборной колонки на Брод-стрит. Сноу проверил и исключения: рабочие соседней пивоварни пили воду из собственного колодца — и почти не болели.',
+            '8 сентября по его настоянию с колонки сняли рукоятку. Сбор данных, карта и проверка других объяснений положили начало эпидемиологии.'
+        ], moral: 'хорошее исследование — это вопрос, аккуратно собранные данные и честная проверка других объяснений.'},
+        memo: [
+            ['Вопрос Придумал — Данные Аккуратно Взвесь', 'Порядок работы по первым буквам: Вопрос, План, Данные, Анализ, Вывод.'],
+            ['Кого спросил — о тех и вывод', 'Результат нельзя переносить на тех, кто не мог попасть в выборку.'],
+            ['Исключения проверяй первыми', 'Они либо ломают гипотезу, либо становятся её лучшим подтверждением — как пивоварня у Сноу.']
+        ]
+    },
+    'combined-problems': {
+        comic: {title: 'Три двери', panels: [
+            {cap: 'За одной из трёх дверей — приз.', l: 'timur:lol', r: 'cat:ok', prop: 'doors', say: [['l', 'Выбираю первую!'], ['r', 'Я знаю, где приз, и открываю пустую третью. Поменяешь первую на вторую?']]},
+            {l: 'timur:hm', r: 'aisha:hm', prop: 'doors', say: [['l', 'Осталось две двери — шансы 50 на 50. Какая разница?'], ['r', 'Давай по шагам. Твоя первая дверь выигрывает в 1 случае из 3.']]},
+            {l: 'aisha:lol', r: 'cat:ok', say: [['l', 'Значит, в 2 случаях из 3 приз за другой закрытой дверью!'], ['r', 'Сложная задача — это цепочка простых шагов. А ответ «50 на 50» всегда стоит проверить.']]}
+        ]},
+        history: {year: '1990', who: 'Мэрилин вос Савант', title: 'Десять тысяч писем о трёх дверях', text: [
+            'В сентябре 1990 года читатель спросил колумнистку журнала Parade Мэрилин вос Савант, выгодно ли менять дверь в игре с тремя дверями. Она ответила: да, шанс вырастает с 1/3 до 2/3.',
+            'В редакцию пришло около 10 000 писем, почти тысяча — от людей с учёной степенью, и большинство уверяло, что она ошиблась. Даже знаменитый математик Пал Эрдёш поверил ответу только после компьютерной симуляции.',
+            'Школьные учителя по всей стране поставили опыт с классами, и частоты подтвердили расчёт. Задачу называют парадоксом Монти Холла — по имени ведущего телеигры.'
+        ], moral: 'интуиция в вероятности ошибается даже у профессионалов; расчёт по шагам и опыт надёжнее.'},
+        memo: [
+            ['Событие → модель → формула → проверка', 'Сложную задачу разбирайте на простые шаги и отвечайте на каждый отдельно.'],
+            ['Не уверен в расчёте — проверь симуляцией', 'Сто розыгрышей в лаборатории быстро покажут, похож ли ответ на правду.'],
+            ['Сначала два вопроса: с возвратом? важен порядок?', 'От ответов зависит и модель, и формула подсчёта.']
+        ]
+    },
+    'pisa-tests': {
+        comic: {title: 'График с подвохом', panels: [
+            {l: 'timur:wow', r: 'aisha:hm', prop: 'trick', say: [['l', 'Продажи мороженого взлетели в разы! Смотри, какой столбик!'], ['r', 'Посмотри на ось.']]},
+            {l: 'aisha:ok', r: 'timur:sad', prop: 'trick', say: [['l', 'Она начинается не с нуля, а с 95. Было 96, стало 98.'], ['r', 'Рост на два процента…']]},
+            {l: 'aisha:ok', r: 'cat:ok', say: [['r', 'Читай график в три шага: оси и единицы, затем значения, затем вывод.'], ['l', 'И спрашивай: откуда данные и что осталось за кадром?']]}
+        ]},
+        history: {year: '1858', who: 'Флоренс Найтингейл', title: 'Леди с диаграммой', text: [
+            'Флоренс Найтингейл знают как основательницу сестринского дела, но она была и блестящим статистиком. Во время Крымской войны она вела учёт в британском госпитале и увидела: гораздо больше солдат умирает не от ран, а от болезней, которых можно избежать, — из-за грязи и тесноты.',
+            'Министры таблиц не читали. Тогда в 1858 году она нарисовала круговую диаграмму из клиньев — «розу»: площадь клина показывала число смертей за месяц, цвет — причину. Рисунок подействовал сильнее отчётов, и в армии начались санитарные реформы.',
+            'В том же году Найтингейл стала первой женщиной, принятой в Лондонское статистическое общество.'
+        ], moral: 'хороший график превращает данные в довод — поэтому графики надо уметь и строить, и читать критически.'},
+        memo: [
+            ['Оси → единицы → значения → вывод', 'Порядок чтения любого графика или таблицы в контекстной задаче.'],
+            ['Проверь, с нуля ли начинается ось', 'Обрезанная ось превращает маленькую разницу в огромную.'],
+            ['Сначала вопрос, потом числа', 'В длинном условии найдите, что именно спрашивают, и только потом выбирайте нужные данные.']
+        ]
+    },
+    'advanced-variation-series': {
+        comic: {title: 'Сколько нужно корзин?', panels: [
+            {cap: 'Рост 32 учеников: почти все числа разные.', l: 'timur:sad', r: 'aisha:ok', say: [['l', 'В таблице частот одни единицы. Никакого толку!']]},
+            {l: 'aisha:ok', r: 'cat:ok', say: [['l', 'Разложим значения по корзинам-интервалам: 150–155, 155–160…'], ['r', 'Сколько корзин? Ориентир Стерджеса: k ≈ 1 + log₂ 32 = 6.']]},
+            {l: 'timur:lol', r: 'cat:ok', prop: 'hist', say: [['l', 'Шесть столбиков — и сразу видно, какого роста нас больше всего!'], ['r', 'Мало корзин — картина смазана, много — рассыпалась. И заранее реши, куда попадает граница.']]}
+        ]},
+        history: {year: '1891', who: 'Карл Пирсон и Герберт Стерджес', title: 'Кто придумал гистограмму?', text: [
+            'Столбики для данных рисовали ещё в XVIII веке, но слово «гистограмма» ввёл Карл Пирсон: в лекциях 1891 года он назвал так диаграмму, где частоты показаны прямоугольниками над интервалами.',
+            'Остался вопрос, знакомый каждому, кто строил гистограмму: сколько интервалов взять? В 1926 году американский статистик Герберт Стерджес предложил в короткой заметке простое правило: k = 1 + log₂ n. Для 32 наблюдений это 6 интервалов, для 1000 — около 11.'
+        ], moral: 'правило Стерджеса — ориентир, а не закон: окончательное число интервалов зависит от данных и от того, что нужно показать.'},
+        memo: [
+            ['Мало разных значений — считай по значениям, много — по интервалам', 'Дискретный ряд — для повторяющихся значений, интервальный — когда почти все значения разные.'],
+            ['k ≈ 1 + log₂ n', 'То же самое через десятичный логарифм: k ≈ 1 + 3,322 · lg n.'],
+            ['Граница идёт в одну сторону', 'Заранее договоритесь, в какой интервал попадает значение на границе, — и не меняйте правило.']
+        ]
+    }
+};
+
+// Книги, которыми вдохновлён раздел; страницы из них в курс не включены.
+const SP_STORY_BOOKS = [
+    ['Син Такахаси. «Занимательная статистика. Манга»', 'История школьницы Руи, которая шаг за шагом осваивает данные, среднее, разброс и проверку гипотез.'],
+    ['Бен Орлин. «Математика с дурацкими рисунками»', 'Вероятность, статистика и лотереи — в нарочито неумелых, но очень точных картинках.'],
+    ['Ларри Гоник. «Алгебра. Естественная наука в комиксах»', 'Основа для формул курса: выражения, уравнения и графики в рисованных историях.'],
+    ['Зияуддин Сардар, Джерри Рейвиц, Борин ван Лун. «Математика в комиксах»', 'Зачем нужна математика и как её идеи появлялись в разных культурах — от счёта до теории хаоса.']
+];
+
+/* ---- 13. Комиксы, исторические сюжеты и запоминалки ---------------------- */
+// Рисунки собираются из SVG-деталей прямо на странице: без внешних картинок,
+// поэтому блок работает офлайн, печатается и остаётся лёгким.
+
+const SP_CX_INK = '#19313d', SP_CX_SKIN = '#f6cfa6';
+const SP_CX_CAST = {aisha: 'Айша', timur: 'Тимур', cat: 'кот Сигма'};
+
+function spCxFace(mood, cat) {
+    const y = cat ? 39 : 37, dx = cat ? 9 : 8, ink = SP_CX_INK;
+    const eye = (x, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${ink}"/>`;
+    const arc = x => `<path d="M${x - 4} ${y + 1} Q${x} ${y - 5} ${x + 4} ${y + 1}" fill="none" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`;
+    const brow = (x, a, b) => `<path d="M${x - 5} ${y - 9 + a} L${x + 5} ${y - 9 + b}" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>`;
+    const l = 45 - dx, r = 45 + dx, my = cat ? 0 : y + 10;
+    let eyes, mouth;
+    switch (mood) {
+        case 'lol': eyes = arc(l) + arc(r); mouth = `<path d="M37 ${my - 1} Q45 ${my + 11} 53 ${my - 1} Z" fill="#8a2f3b" stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"/>`; break;
+        case 'wow': eyes = eye(l, 3.4) + eye(r, 3.4) + brow(l, -4, -5) + brow(r, -5, -4); mouth = `<ellipse cx="45" cy="${my + 2}" rx="3.4" ry="4.6" fill="#8a2f3b" stroke="${ink}" stroke-width="1.4"/>`; break;
+        case 'hm': eyes = eye(l, 2.6) + eye(r, 2.6) + brow(l, -2, 1) + brow(r, -3, -3); mouth = `<path d="M38 ${my + 3} L52 ${my}" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`; break;
+        case 'sad': eyes = eye(l, 2.6) + eye(r, 2.6) + brow(l, 1, -2) + brow(r, -2, 1); mouth = `<path d="M38 ${my + 4} Q45 ${my - 3} 52 ${my + 4}" fill="none" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`; break;
+        default: eyes = eye(l, 2.6) + eye(r, 2.6); mouth = `<path d="M37 ${my} Q45 ${my + 8} 53 ${my}" fill="none" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`;
+    }
+    return {eyes, mouth}
+}
+
+function spCxActor(who, mood) {
+    const ink = SP_CX_INK, skin = SP_CX_SKIN, f = spCxFace(mood, who === 'cat');
+    const open = `<svg class="cx-actor" viewBox="0 0 90 112" role="img" aria-label="${SP_CX_CAST[who] || ''}">`;
+    if (who === 'cat') {
+        const glasses = `<circle cx="36" cy="39" r="8" fill="#fff" fill-opacity=".75" stroke="${ink}" stroke-width="1.8"/><circle cx="54" cy="39" r="8" fill="#fff" fill-opacity=".75" stroke="${ink}" stroke-width="1.8"/><path d="M44 39h2" stroke="${ink}" stroke-width="1.8"/>`;
+        const muzzle = mood === 'lol' || mood === 'wow'
+            ? `<ellipse cx="45" cy="54" rx="3.6" ry="${mood === 'wow' ? 4 : 3}" fill="#8a2f3b" stroke="${ink}" stroke-width="1.3"/>`
+            : `<path d="M45 51 Q41 56 37 53 M45 51 Q49 56 53 53" fill="none" stroke="${ink}" stroke-width="1.8" stroke-linecap="round"/>`;
+        return `${open}<path d="M64 100 Q86 98 80 72" fill="none" stroke="${ink}" stroke-width="10" stroke-linecap="round"/><path d="M64 100 Q86 98 80 72" fill="none" stroke="#9aa7b4" stroke-width="6.5" stroke-linecap="round"/>
+<ellipse cx="45" cy="88" rx="24" ry="22" fill="#9aa7b4" stroke="${ink}" stroke-width="2"/><ellipse cx="45" cy="95" rx="13" ry="14" fill="#edf1f4"/>
+<path d="M23 32 L26 8 L43 20 Z M67 32 L64 8 L47 20 Z" fill="#9aa7b4" stroke="${ink}" stroke-width="2" stroke-linejoin="round"/><path d="M28 24 L29 14 L36 20 Z M62 24 L61 14 L54 20 Z" fill="#f3a6b4"/>
+<ellipse cx="45" cy="41" rx="25" ry="21" fill="#9aa7b4" stroke="${ink}" stroke-width="2"/>${glasses}${f.eyes}
+<path d="M42.5 47.5h5L45 51z" fill="#e2788d" stroke="${ink}" stroke-width="1"/>${muzzle}
+<path d="M20 47l-12-3M20 51l-12 2M70 47l12-3M70 51l12 2" stroke="${ink}" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="45" cy="69" r="6.5" fill="#f2c14e" stroke="${ink}" stroke-width="1.6"/><text x="45" y="72.6" text-anchor="middle" font-size="9.5" font-weight="700" fill="${ink}" font-family="Georgia,serif">σ</text></svg>`
+    }
+    const girl = who === 'aisha', hair = girl ? '#2b2a3a' : '#6b4226', top = girl ? '#17a08c' : '#ee9a5d';
+    const back = girl
+        ? `<path d="M23 38 Q13 62 19 84" fill="none" stroke="${hair}" stroke-width="8.5" stroke-linecap="round"/><path d="M67 38 Q77 62 71 84" fill="none" stroke="${hair}" stroke-width="8.5" stroke-linecap="round"/><circle cx="19" cy="86" r="5" fill="#ef6a8d" stroke="${ink}" stroke-width="1.4"/><circle cx="71" cy="86" r="5" fill="#ef6a8d" stroke="${ink}" stroke-width="1.4"/><circle cx="45" cy="34" r="24.5" fill="${hair}"/>`
+        : `<circle cx="23.5" cy="39" r="4.2" fill="${skin}" stroke="${ink}" stroke-width="1.6"/><circle cx="66.5" cy="39" r="4.2" fill="${skin}" stroke="${ink}" stroke-width="1.6"/>`;
+    const front = girl
+        ? `<path d="M24.5 36 Q26 14 45 14 Q64 14 65.5 36 Q57 23 45 25 Q33 23 24.5 36Z" fill="${hair}"/>`
+        : `<path d="M24.5 33 Q22 13 37 15 L41 7 L47 14 L54 8 L57 16 Q69 17 65.5 33 Q58 23 45 24.5 Q32 23 24.5 33Z" fill="${hair}" stroke="${ink}" stroke-width="1.4" stroke-linejoin="round"/>`;
+    const detail = girl
+        ? `<path d="M37 70 Q45 78 53 70" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>`
+        : `<path d="M41 70v11M49 70v11" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M33 96h24v16H33z" fill="#d9813f" stroke="${ink}" stroke-width="1.4"/>`;
+    return `${open}${back}<path d="M22 112 Q21 72 45 68 Q69 72 68 112 Z" fill="${top}" stroke="${ink}" stroke-width="2" stroke-linejoin="round"/>${detail}
+<path d="M40 56h10v13q-5 4-10 0z" fill="${skin}" stroke="${ink}" stroke-width="1.6"/><circle cx="45" cy="37" r="21" fill="${skin}" stroke="${ink}" stroke-width="2"/>${front}
+<circle cx="32" cy="45" r="3.4" fill="#f4a08c" fill-opacity=".55"/><circle cx="58" cy="45" r="3.4" fill="#f4a08c" fill-opacity=".55"/>${f.eyes}${f.mouth}</svg>`
+}
+
+// Небольшие предметы в центре кадра. Все нарисованы в поле 70×70.
+const SP_CX_PROPS = {
+    dice: i => `<rect x="12" y="20" width="38" height="38" rx="8" fill="#fff" stroke="${i}" stroke-width="2.4"/><circle cx="22" cy="30" r="3.2" fill="${i}"/><circle cx="40" cy="30" r="3.2" fill="${i}"/><circle cx="31" cy="39" r="3.2" fill="${i}"/><circle cx="22" cy="48" r="3.2" fill="${i}"/><circle cx="40" cy="48" r="3.2" fill="${i}"/><rect x="40" y="8" width="22" height="22" rx="5" fill="#ffe9a8" stroke="${i}" stroke-width="2.2" transform="rotate(14 51 19)"/><circle cx="51" cy="19" r="2.8" fill="${i}"/>`,
+    coin: i => `<ellipse cx="35" cy="40" rx="22" ry="22" fill="#f2c14e" stroke="${i}" stroke-width="2.4"/><ellipse cx="35" cy="40" rx="15.5" ry="15.5" fill="none" stroke="${i}" stroke-width="1.4" stroke-dasharray="3 3"/><text x="35" y="47" text-anchor="middle" font-size="19" font-weight="800" fill="${i}">₸</text><path d="M10 14q5-8 12-6M60 12q-3-6-9-6" fill="none" stroke="${i}" stroke-width="1.8" stroke-linecap="round"/>`,
+    chart: i => `<path d="M8 8v54h56" fill="none" stroke="${i}" stroke-width="2.4" stroke-linecap="round"/><rect x="15" y="40" width="10" height="22" fill="#8dc9af" stroke="${i}" stroke-width="1.8"/><rect x="29" y="22" width="10" height="40" fill="#17a08c" stroke="${i}" stroke-width="1.8"/><rect x="43" y="31" width="10" height="31" fill="#8dc9af" stroke="${i}" stroke-width="1.8"/>`,
+    trick: i => `<path d="M8 8v54h56" fill="none" stroke="${i}" stroke-width="2.4" stroke-linecap="round"/><rect x="17" y="46" width="14" height="16" fill="#8dc9af" stroke="${i}" stroke-width="1.8"/><rect x="39" y="14" width="14" height="48" fill="#ee9a5d" stroke="${i}" stroke-width="1.8"/><path d="M3 54l5-3 -5-3 5-3" fill="none" stroke="#b74c46" stroke-width="1.8"/><text x="24" y="42" text-anchor="middle" font-size="9" font-weight="700" fill="${i}">96</text><text x="46" y="11" text-anchor="middle" font-size="9" font-weight="700" fill="${i}">98</text>`,
+    line: i => `<path d="M8 8v54h56" fill="none" stroke="${i}" stroke-width="2.4" stroke-linecap="round"/><path d="M8 35h56" stroke="#b74c46" stroke-width="1.6" stroke-dasharray="4 3"/><path d="M11 14l5 34 5-22 6 14 6-9 6 6 7-4 7 2 8-1" fill="none" stroke="#17a08c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`,
+    pot: i => `<path d="M12 30h46v18q0 14-14 14H26q-14 0-14-14z" fill="#c9d6dc" stroke="${i}" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 36H5M58 36h7" stroke="${i}" stroke-width="3" stroke-linecap="round"/><ellipse cx="35" cy="30" rx="23" ry="5.5" fill="#f2c14e" stroke="${i}" stroke-width="2"/><path d="M26 20q-4-5 0-9M36 18q-4-5 0-9M46 20q-4-5 0-9" fill="none" stroke="${i}" stroke-width="1.8" stroke-linecap="round"/>`,
+    rows: i => [[10, 44, '2'], [22, 44, '2'], [34, 38, '3'], [46, 30, '4'], [58, 22, '5']].map(([x, y, t]) => `<rect x="${x - 5}" y="${y}" width="10" height="${62 - y}" rx="3" fill="#8dc9af" stroke="${i}" stroke-width="1.6"/><text x="${x}" y="${y - 3}" text-anchor="middle" font-size="10" font-weight="700" fill="${i}">${t}</text>`).join('') + `<path d="M3 62h64" stroke="${i}" stroke-width="2.2" stroke-linecap="round"/>`,
+    robot: i => `<rect x="17" y="24" width="36" height="28" rx="7" fill="#c9d6dc" stroke="${i}" stroke-width="2.4"/><circle cx="28" cy="37" r="4.5" fill="#17a08c" stroke="${i}" stroke-width="1.6"/><circle cx="42" cy="37" r="4.5" fill="#17a08c" stroke="${i}" stroke-width="1.6"/><path d="M29 46h12M35 24V13" stroke="${i}" stroke-width="2.2" stroke-linecap="round"/><circle cx="35" cy="11" r="3.6" fill="#ef6a8d" stroke="${i}" stroke-width="1.6"/><path d="M17 38h-7M53 38h7M26 52v10M44 52v10" stroke="${i}" stroke-width="2.6" stroke-linecap="round"/>`,
+    bus: i => `<rect x="5" y="18" width="60" height="34" rx="7" fill="#f2c14e" stroke="${i}" stroke-width="2.4"/><path d="M11 25h13v12H11zM28 25h13v12H28zM45 25h14v12H45z" fill="#dff1f6" stroke="${i}" stroke-width="1.6"/><path d="M5 43h60" stroke="${i}" stroke-width="1.6"/><circle cx="19" cy="54" r="6" fill="#4a5a63" stroke="${i}" stroke-width="2"/><circle cx="51" cy="54" r="6" fill="#4a5a63" stroke="${i}" stroke-width="2"/>`,
+    ticket: i => `<path d="M6 22h58v10a5 5 0 000 10v10H6V42a5 5 0 000-10z" fill="#ffe9a8" stroke="${i}" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 24v26" stroke="${i}" stroke-width="1.4" stroke-dasharray="3 3"/><text x="43" y="42" text-anchor="middle" font-size="10.5" font-weight="800" fill="${i}">10 000</text><path d="${spCxStar(13, 14, 8)}" fill="#f2c14e" stroke="${i}" stroke-width="1.2"/>`,
+    scale: i => `<path d="M35 14v44M20 58h30" stroke="${i}" stroke-width="2.6" stroke-linecap="round"/><path d="M10 22l50-6" stroke="${i}" stroke-width="2.6" stroke-linecap="round"/><path d="M10 22l-7 16h14zM60 16l-7 20h14z" fill="#8dc9af" stroke="${i}" stroke-width="1.8" stroke-linejoin="round"/><circle cx="35" cy="14" r="3.6" fill="#f2c14e" stroke="${i}" stroke-width="1.6"/>`,
+    target: i => `<circle cx="35" cy="36" r="27" fill="#fff" stroke="${i}" stroke-width="2.4"/><circle cx="35" cy="36" r="18" fill="#f8c9c4" stroke="${i}" stroke-width="1.6"/><circle cx="35" cy="36" r="9" fill="#e06a61" stroke="${i}" stroke-width="1.6"/>${[[33, 34], [38, 37], [35, 40], [31, 38], [37, 32]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="${i}"/>`).join('')}`,
+    scatter: i => `<circle cx="35" cy="36" r="27" fill="#fff" stroke="${i}" stroke-width="2.4"/><circle cx="35" cy="36" r="18" fill="#f8c9c4" stroke="${i}" stroke-width="1.6"/><circle cx="35" cy="36" r="9" fill="#e06a61" stroke="${i}" stroke-width="1.6"/>${[[14, 22], [55, 50], [36, 35], [20, 54], [52, 16]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="${i}"/>`).join('')}`,
+    ball: i => `<path d="M40 8h24v22H40z" fill="#fff" stroke="${i}" stroke-width="2"/><path d="M45 30q0 12 7 16 7-4 7-16" fill="none" stroke="${i}" stroke-width="1.6" stroke-dasharray="3 2"/><path d="M45 30h14" stroke="#e06a61" stroke-width="3"/><circle cx="20" cy="46" r="14" fill="#ee9a5d" stroke="${i}" stroke-width="2.4"/><path d="M6 46h28M20 32v28M9 37q11 9 22 0M9 55q11-9 22 0" fill="none" stroke="${i}" stroke-width="1.4"/>`,
+    box: i => `<path d="M8 28h54v32H8z" fill="#f3a6b4" stroke="${i}" stroke-width="2.4" stroke-linejoin="round"/><path d="M8 28l8-12h38l8 12" fill="#f8c9c4" stroke="${i}" stroke-width="2.2" stroke-linejoin="round"/>${[[20, 40, '#6b4226'], [34, 40, '#f2c14e'], [48, 40, '#6b4226'], [27, 51, '#f2c14e'], [41, 51, '#f2c14e']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="5" fill="${c}" stroke="${i}" stroke-width="1.4"/>`).join('')}`,
+    phone: i => `<rect x="20" y="6" width="30" height="56" rx="6" fill="#fff" stroke="${i}" stroke-width="2.4"/><rect x="25" y="14" width="15" height="8" rx="4" fill="#8dc9af"/><rect x="30" y="26" width="15" height="8" rx="4" fill="#c9d6dc"/><rect x="25" y="38" width="12" height="8" rx="4" fill="#8dc9af"/><path d="M31 56h8" stroke="${i}" stroke-width="2" stroke-linecap="round"/>`,
+    bell: i => `<path d="M5 60h60" stroke="${i}" stroke-width="2.4" stroke-linecap="round"/><path d="M6 59 C22 59 24 14 35 14 C46 14 48 59 64 59Z" fill="#dff1ea" stroke="${i}" stroke-width="2.2" stroke-linejoin="round"/><path d="M27 59V31.5C30 20 33 14 35 14c3 0 7 8 9.5 21V59z" fill="#17a08c" fill-opacity=".75"/>`,
+    stop: i => `<path d="M5 60h60" stroke="${i}" stroke-width="2.4" stroke-linecap="round"/><rect x="12" y="28" width="46" height="18" fill="#dff1ea" stroke="${i}" stroke-width="2"/><rect x="21" y="28" width="14" height="18" fill="#17a08c" fill-opacity=".8"/><path d="M12 46v14M58 46v14" stroke="${i}" stroke-width="1.6"/><text x="12" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="${i}">0</text><text x="58" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="${i}">10</text>`,
+    stars: i => `<rect x="5" y="14" width="60" height="42" rx="8" fill="#fff" stroke="${i}" stroke-width="2.4"/>${[15, 28, 41, 54].map(x => `<path d="${spCxStar(x, 28, 6)}" fill="#f2c14e" stroke="${i}" stroke-width="1"/>`).join('')}<path d="M13 43h36M13 49h24" stroke="#9aa7b4" stroke-width="2.4" stroke-linecap="round"/>`,
+    clip: i => `<rect x="12" y="10" width="46" height="54" rx="5" fill="#fff" stroke="${i}" stroke-width="2.4"/><rect x="25" y="5" width="20" height="10" rx="3" fill="#9aa7b4" stroke="${i}" stroke-width="1.8"/><path d="M19 27l3 3 5-6M19 40l3 3 5-6M19 53l3 3 5-6" fill="none" stroke="#17a08c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 28h19M32 41h19M32 54h13" stroke="#9aa7b4" stroke-width="2.4" stroke-linecap="round"/>`,
+    doors: i => [[4, '1'], [26, '2'], [48, '3']].map(([x, t]) => `<rect x="${x}" y="14" width="18" height="46" rx="3" fill="${t === '3' ? '#edf1f4' : '#ee9a5d'}" stroke="${i}" stroke-width="2"/><text x="${x + 9}" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="${i}">${t}</text><circle cx="${x + 14}" cy="40" r="1.6" fill="${i}"/>`).join(''),
+    hist: i => `<path d="M5 62h62" stroke="${i}" stroke-width="2.4" stroke-linecap="round"/>${[[8, 12], [18, 26], [28, 44], [38, 36], [48, 20], [58, 9]].map(([x, h]) => `<rect x="${x}" y="${62 - h}" width="10" height="${h}" fill="#8dc9af" stroke="${i}" stroke-width="1.6"/>`).join('')}`,
+    ask: i => `<circle cx="35" cy="36" r="27" fill="#ffe9a8" stroke="${i}" stroke-width="2.4"/><text x="35" y="51" text-anchor="middle" font-size="42" font-weight="800" fill="${i}">?</text>`
+};
+
+function spCxStar(cx, cy, r) {
+    let d = '';
+    for (let k = 0; k < 10; k++) {
+        const a = Math.PI * (k / 5 - .5), q = k % 2 ? r * .45 : r;
+        d += (k ? 'L' : 'M') + (cx + q * Math.cos(a)).toFixed(1) + ' ' + (cy + q * Math.sin(a)).toFixed(1)
+    }
+    return d + 'Z'
+}
+
+function spCxProp(name) {
+    const draw = SP_CX_PROPS[name];
+    return draw ? `<svg class="cx-prop" viewBox="0 0 70 70" aria-hidden="true">${draw(SP_CX_INK)}</svg>` : '<span class="cx-prop"></span>'
+}
+
+function spCxPanel(p, n) {
+    const side = spec => { if (!spec) return '<span class="cx-actor"></span>'; const [who, mood] = spec.split(':'); return spCxActor(who, mood || 'ok') };
+    const whoAt = at => { const spec = p[at]; return spec ? spec.split(':')[0] : '' };
+    const bubbles = (p.say || []).map(([at, text]) => `<p class="cx-b cx-${at} cx-by-${whoAt(at)}"><b class="cx-who">${esc(ui(SP_CX_CAST[whoAt(at)] || ''))}</b><span>${esc(text)}</span></p>`).join('');
+    return `<figure class="cx-panel cx-bg${(n % 4) + 1}"><span class="cx-n" aria-hidden="true">${n + 1}</span>${p.cap ? `<figcaption class="cx-cap">${esc(p.cap)}</figcaption>` : ''}<div class="cx-bubbles">${bubbles}</div><div class="cx-stage">${side(p.l)}${spCxProp(p.prop)}${side(p.r)}</div></figure>`
+}
+
+function spComicHtml(story) {
+    const c = story && story.comic;
+    if (!c) return '';
+    return `<section class="cx-comic" aria-label="${esc(ui('Комикс'))}"><div class="story-head"><span class="story-kind cx-kind-comic">${ui('Комикс')}</span><h3>${esc(c.title)}</h3></div><div class="cx-strip">${c.panels.map(spCxPanel).join('')}</div></section>`
+}
+
+function spHistoryHtml(story, link) {
+    const h = story && story.history;
+    if (!h) return '';
+    return `<section class="story-history"><div class="story-year"><strong>${esc(h.year)}</strong><span>${esc(h.who)}</span></div><div><div class="story-head"><span class="story-kind cx-kind-history">${ui('Как это было')}</span><h3>${esc(h.title)}</h3></div>${h.text.map(t => `<p>${esc(t)}</p>`).join('')}<p class="story-moral"><b>${ui('Вывод для нас:')}</b> ${esc(h.moral)}</p>${link || ''}</div></section>`
+}
+
+function spMemoHtml(story, title) {
+    const m = story && story.memo;
+    if (!m || !m.length) return '';
+    return `<section class="story-memo"><div class="story-head"><span class="story-kind cx-kind-memo">${ui('Запоминалки')}</span><h3>${title ? esc(title) : ui('Чтобы не забыть')}</h3></div><div class="memo-grid">${m.map(([phrase, hint], i) => `<div class="memo-note memo-tilt${i % 3}"><strong>${esc(phrase)}</strong><span>${esc(hint)}</span></div>`).join('')}</div></section>`
+}
+
+// Блок под теорией урока: комикс → история → запоминалки.
+function spStoryBlock(s) {
+    const story = SP_STORIES[s.id];
+    if (!story) return '';
+    return `<article class="card story-card" id="story-block"><div class="between story-top"><div><span class="eyebrow">${ui('ЧТОБЫ ЗАПОМНИЛОСЬ')}</span><h2>${ui('Комикс, история и запоминалки')}</h2></div><a class="btn sm" href="#stories">${ico('book')} ${ui('Все истории')}</a></div>${spComicHtml(story)}${spHistoryHtml(story)}${spMemoHtml(story)}</article>`
+}
+
+// Число из подписи года: «1920-е», «около 1620» и «1713–1738» сортируются по первому году.
+function spStoryYear(story) {
+    const m = String(story.history.year).match(/\d{4}/);
+    return m ? Number(m[0]) : 0
+}
+
+function spStoryList() {
+    return SECTIONS.filter(s => SP_STORIES[s.id]).map(s => ({s, story: SP_STORIES[s.id]}))
+}
+
+let spStoriesTab = 'time';
+
+function spStoriesSet(tab) {
+    spStoriesTab = tab;
+    spRenderStories()
+}
+
+function spRenderStories() {
+    const all = spStoryList(), tab = ['time', 'comics', 'memo'].includes(spStoriesTab) ? spStoriesTab : 'time';
+    const topic = s => `<a class="story-topic" href="#${s.id}">${ui('Тема')} ${sectionNumber(s)} · ${esc(s.title)} ${ico('arrow')}</a>`;
+    let body;
+    if (tab === 'time') body = `<div class="story-timeline">${[...all].sort((a, b) => spStoryYear(a.story) - spStoryYear(b.story)).map(({s, story}) => spHistoryHtml(story, topic(s))).join('')}</div>`;
+    else if (tab === 'comics') body = `<div class="stack">${all.map(({s, story}) => `<article class="card story-card">${spComicHtml(story)}${topic(s)}</article>`).join('')}</div>`;
+    else body = `<div class="stack">${all.map(({s, story}) => `<article class="card story-card">${spMemoHtml(story, s.title)}${topic(s)}</article>`).join('')}</div>`;
+    const tabs = [['time', 'Лента времени', all.length], ['comics', 'Комиксы', all.length], ['memo', 'Запоминалки', all.reduce((n, x) => n + x.story.memo.length, 0)]];
+    $('main-content').innerHTML = `<div class="page stories-page">${pageTop('Истории и запоминалки')}<p class="eyebrow">${ui('КОМИКСЫ · ИСТОРИЯ · ЗАПОМИНАЛКИ')}</p><h1>${ui('Истории и запоминалки')}</h1><p class="page-description">${ui('К каждой теме — короткий комикс с Айшой, Тимуром и котом Сигмой, настоящий сюжет из истории науки и фразы, которые помогают удержать главное в памяти.')}</p>
+    <div class="cx-cast card"><div class="cx-cast-item">${spCxActor('aisha', 'ok')}<div><strong>${ui('Айша')}</strong><span>${ui('Сначала спрашивает «а откуда данные?», потом считает.')}</span></div></div><div class="cx-cast-item">${spCxActor('timur', 'lol')}<div><strong>${ui('Тимур')}</strong><span>${ui('Спешит с выводами — и поэтому находит все ловушки первым.')}</span></div></div><div class="cx-cast-item">${spCxActor('cat', 'ok')}<div><strong>${ui('Кот Сигма')}</strong><span>${ui('Носит на ошейнике букву σ и знает, чем закончится спор.')}</span></div></div></div>
+    <nav class="tabs" role="tablist" aria-label="${ui('Истории и запоминалки')}">${tabs.map(([id, title, n]) => `<button class="tab ${tab === id ? 'active' : ''}" role="tab" aria-selected="${tab === id}" onclick="spStoriesSet('${id}')">${ui(title)}<span class="tab-count">${n}</span></button>`).join('')}</nav>
+    ${body}
+    <section class="card story-books"><h3>${ico('book')} ${ui('Что почитать дальше: математика в картинках')}</h3><p class="small muted">${ui('Комиксы курса нарисованы специально для него. А эти книги продолжают тему — их стоит поискать в библиотеке.')}</p><ul>${SP_STORY_BOOKS.map(([title, note]) => `<li><strong>${esc(title)}</strong><span>${esc(note)}</span></li>`).join('')}</ul></section>${footer()}</div>`
+}
+
+// Карточка на главной странице.
+function spStoriesTeaser() {
+    const all = spStoryList();
+    if (!all.length) return '';
+    return `<section class="card story-teaser"><div class="story-teaser-cast">${spCxActor('aisha', 'ok')}${spCxActor('cat', 'lol')}${spCxActor('timur', 'wow')}</div><div><span class="eyebrow">${ui('НОВОЕ В КУРСЕ')}</span><h2>${ui('Комиксы, истории и запоминалки')}</h2><p>${ui('Почему десять миллионов анкет ошиблись, как кот объясняет дисперсию и какая фраза помогает не перепутать моду с медианой.')}</p></div><a href="#stories" class="btn primary">${ui('Открыть истории')} ${ico('arrow')}</a></section>`
+}
+
+Object.assign(DICTS.en, {
+    'Комикс': 'Comic', 'Как это было': 'How it happened', 'Вывод для нас:': 'What it means for us:', 'Запоминалки': 'Memory hooks', 'Чтобы не забыть': 'So you do not forget',
+    'ЧТОБЫ ЗАПОМНИЛОСЬ': 'TO MAKE IT STICK', 'Комикс, история и запоминалки': 'Comic, history and memory hooks', 'Все истории': 'All stories', 'Тема': 'Topic',
+    'Истории и запоминалки': 'Stories and memory hooks', 'КОМИКСЫ · ИСТОРИЯ · ЗАПОМИНАЛКИ': 'COMICS · HISTORY · MEMORY HOOKS',
+    'К каждой теме — короткий комикс с Айшой, Тимуром и котом Сигмой, настоящий сюжет из истории науки и фразы, которые помогают удержать главное в памяти.': 'Each topic has a short comic with Aisha, Timur and Sigma the cat, a true episode from the history of science and phrases that help you remember the key idea. The stories themselves are in Russian for now.',
+    'Айша': 'Aisha', 'Тимур': 'Timur', 'Кот Сигма': 'Sigma the cat', 'кот Сигма': 'Sigma the cat',
+    'Сначала спрашивает «а откуда данные?», потом считает.': 'Asks “where do the data come from?” first, and calculates second.',
+    'Спешит с выводами — и поэтому находит все ловушки первым.': 'Jumps to conclusions — and so finds every trap first.',
+    'Носит на ошейнике букву σ и знает, чем закончится спор.': 'Wears the letter σ on the collar and knows how the argument will end.',
+    'Лента времени': 'Timeline', 'Комиксы': 'Comics', 'Что почитать дальше: математика в картинках': 'Further reading: mathematics in pictures',
+    'Комиксы курса нарисованы специально для него. А эти книги продолжают тему — их стоит поискать в библиотеке.': 'The comics in this course were drawn for it. These books continue the theme — look for them in a library.',
+    'НОВОЕ В КУРСЕ': 'NEW IN THE COURSE', 'Комиксы, истории и запоминалки': 'Comics, stories and memory hooks',
+    'Почему десять миллионов анкет ошиблись, как кот объясняет дисперсию и какая фраза помогает не перепутать моду с медианой.': 'Why ten million ballots got it wrong, how a cat explains variance, and which phrase keeps the mode and the median apart.',
+    'Открыть истории': 'Open the stories'
+});
+Object.assign(DICTS.kk, {
+    'Комикс': 'Комикс', 'Как это было': 'Бұл қалай болды', 'Вывод для нас:': 'Біз үшін қорытынды:', 'Запоминалки': 'Есте сақтау тәсілдері', 'Чтобы не забыть': 'Ұмытпау үшін',
+    'ЧТОБЫ ЗАПОМНИЛОСЬ': 'ЕСТЕ ҚАЛУЫ ҮШІН', 'Комикс, история и запоминалки': 'Комикс, тарих және есте сақтау тәсілдері', 'Все истории': 'Барлық оқиғалар', 'Тема': 'Тақырып',
+    'Истории и запоминалки': 'Оқиғалар мен есте сақтау тәсілдері', 'КОМИКСЫ · ИСТОРИЯ · ЗАПОМИНАЛКИ': 'КОМИКСТЕР · ТАРИХ · ЕСТЕ САҚТАУ',
+    'К каждой теме — короткий комикс с Айшой, Тимуром и котом Сигмой, настоящий сюжет из истории науки и фразы, которые помогают удержать главное в памяти.': 'Әр тақырыпқа — Айша, Тимур және Сигма мысық қатысатын қысқа комикс, ғылым тарихынан шынайы оқиға және негізгі ойды есте сақтауға көмектесетін сөйлемдер. Оқиғалардың мәтіні әзірге орыс тілінде.',
+    'Айша': 'Айша', 'Тимур': 'Тимур', 'Кот Сигма': 'Сигма мысық', 'кот Сигма': 'Сигма мысық',
+    'Сначала спрашивает «а откуда данные?», потом считает.': 'Алдымен «деректер қайдан алынды?» деп сұрайды, содан кейін есептейді.',
+    'Спешит с выводами — и поэтому находит все ловушки первым.': 'Қорытындыға асығады — сондықтан барлық тұзақты бірінші болып табады.',
+    'Носит на ошейнике букву σ и знает, чем закончится спор.': 'Қарғыбауында σ әрпін тағып жүреді және даудың немен аяқталатынын біледі.',
+    'Лента времени': 'Уақыт таспасы', 'Комиксы': 'Комикстер', 'Что почитать дальше: математика в картинках': 'Әрі қарай не оқуға болады: суреттегі математика',
+    'Комиксы курса нарисованы специально для него. А эти книги продолжают тему — их стоит поискать в библиотеке.': 'Курс комикстері арнайы осы курс үшін салынған. Ал мына кітаптар тақырыпты жалғастырады — оларды кітапханадан іздеп көріңіз.',
+    'НОВОЕ В КУРСЕ': 'КУРСТАҒЫ ЖАҢАЛЫҚ', 'Комиксы, истории и запоминалки': 'Комикстер, оқиғалар және есте сақтау тәсілдері',
+    'Почему десять миллионов анкет ошиблись, как кот объясняет дисперсию и какая фраза помогает не перепутать моду с медианой.': 'Он миллион сауалнама неге қателесті, мысық дисперсияны қалай түсіндіреді және моданы медианамен шатастырмауға қандай сөйлем көмектеседі.',
+    'Открыть истории': 'Оқиғаларды ашу'
+});
 
 /* ---- Локальный генератор: те же задачи курса, но с другими числами ---- */
 /* Без ключа провайдера генератор берёт задание курса и пересчитывает его с
