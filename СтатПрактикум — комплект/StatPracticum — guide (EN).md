@@ -191,3 +191,7 @@ The **For teachers** page holds a 45-minute lesson plan per topic, source tables
 - Automatic grading is a formal check (criterion words, sample numbers and coverage), not an assessment of meaning: it never marks an answer wrong, and the threshold can be lowered in the teacher profile.
 - Published data snapshots are dated and are not forecasts.
 - The labs are teaching models: a simulation does not prove a real-world claim on its own.
+
+## Comics, history and memory hooks
+
+Under the theory of every topic there is a block with a three-panel picture comic (no text in the picture, three numbered captions below it), a true episode from the history of science and a few mnemonic phrases. The **“Stories and memory hooks”** page in the side menu gathers them into a timeline, a comics list and a mnemonics list. Captions, stories and mnemonics are available in Russian, Kazakh and English and follow the interface language. The pictures are built into the page and work offline. The comics are drawn in the manner of Ben Orlin’s “Math with Bad Drawings”; under each one you can see which book chapters cover the topic, and links to the books are in the course library.
