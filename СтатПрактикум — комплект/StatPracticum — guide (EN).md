@@ -194,4 +194,4 @@ The **For teachers** page holds a 45-minute lesson plan per topic, source tables
 
 ## Comics, history and memory hooks
 
-Under the theory of every topic there is a block with a three-panel comic (Aisha, Timur and Sigma the cat), a true episode from the history of science and a few mnemonic phrases. The **“Stories and memory hooks”** page in the side menu gathers them into a timeline, a comics list and a mnemonics list. The drawings are built into the page and work offline. The story texts are in Russian for now; interface captions are translated.
+Under the theory of every topic there is a block with a three-panel picture comic (no text in the picture, three numbered captions below it), a true episode from the history of science and a few mnemonic phrases. The **“Stories and memory hooks”** page in the side menu gathers them into a timeline, a comics list and a mnemonics list. Captions, stories and mnemonics are available in Russian, Kazakh and English and follow the interface language. The pictures are built into the page and work offline.
