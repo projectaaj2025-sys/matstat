@@ -14,7 +14,7 @@ Results, notes and settings are stored in the browser of the device you work on,
 
 ## Course contents
 
-- **19 topics** — 18 core grade 10 topics plus one supplementary grade 11 topic on discrete and interval frequency series.
+- **21 topics** in one continuous order, numbered 01–21: 20 core grade 10 topics plus one supplementary grade 11 topic on discrete and interval frequency series, which comes fourth, right after frequencies.
 - **610 graded sub-tasks**: 464 in the topics and 146 in the problem bank. 8 answer formats: number, single choice, multiple choice, matching, ordering, table completion, chart reading and open response.
 - **75 bank problems** with full statements, source data and solutions.
 - **18 interactive labs**, 13 distribution models, 6 presentations (140 slides) and 10 embedded PDFs.
@@ -27,17 +27,17 @@ The switch in the top bar offers **Рус / Eng / Қаз**. Your choice is kept 
 **The translation of the content was completed on 3 October 2026.** Everything students read is available in English and Kazakh:
 
 - the whole shell, navigation, tabs, bank, progress, library, teacher panel, trainer, test paper, task search and lesson summaries — **1342 phrases in English and 1343 in Kazakh** (version 3.7 added 35 phrases: the teacher profile and the solution mode; version 4.0 adds **105 more**: automatic grading against the criteria, the mistake trainer, the test paper, task search and the lesson summaries; 43 lines of the old work-transfer flow were removed at the same time);
-- **all 19 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
+- **all 21 topics and the whole problem bank**: theory articles, task statements, hints, worked solutions, answer options, rubrics, and the captions of tables, charts and labs — **2 781 content units** and **3 295 lines per language**;
 - **37 slide notes**, the ones behind the “Slide note” button next to a presentation;
 - numbers inside labels are kept: “Task 7” → “TASK 7” / “7-ТАПСЫРМА”, “Source · p. 23”, “18 slides · 1.8 MB” — **119 number-aware patterns**.
 
 A walk through every screen, both printable sheets and all ten presentations in the English version finds no Russian text left. The Kazakh version coincides with Russian only where the words really are the same: “Дисперсия”, “Медиана”, the units “тг” and “мин”, and formula-only solutions.
 
-The screens that the page draws itself are covered as well: chart labels, laboratory tables, input fields, the teacher panel (uploading materials, notes, results, answer review) and the slide notes. Only numbers, units, formulas, task identifiers, the language names in the switch and the supplementary-module code `Д1` stay as they are.
+The screens that the page draws itself are covered as well: chart labels, laboratory tables, input fields, the teacher panel (uploading materials, notes, results, answer review) and the slide notes. Only numbers, units, formulas, task identifiers, the language names in the switch stay as they are.
 
 **The printed and downloaded files follow the chosen language too.** A topic worksheet, a bank worksheet (the teacher key and the answer version included), the downloadable summary and the results CSV are built in the language selected in the switch: the downloaded page carries the matching `lang` attribute and the file name is translated (“StatPracticum — worksheet.html”, “…нәтижелер.csv”). If you switch the language while a worksheet is open, the sheet is rebuilt at once and no Russian text is left on the screen.
 
-Numbers, units, formulas, task identifiers, the language names in the switch (“Рус”, “Қаз”) and the supplementary-module code `Д1` are deliberately left as they are. The **embedded PDFs stay in their original Russian**: their 179 pages are stored byte for byte, and the captions inside the slides are part of those PDFs.
+Numbers, units, formulas, task identifiers, the language names in the switch (“Рус”, “Қаз”) are deliberately left as they are. The **embedded PDFs stay in their original Russian**: their 179 pages are stored byte for byte, and the captions inside the slides are part of those PDFs.
 
 ## Working through a topic
 

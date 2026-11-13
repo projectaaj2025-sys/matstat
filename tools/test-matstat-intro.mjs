@@ -6,6 +6,10 @@ const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!String(e.message).inclu
 const dom=new JSDOM(readFileSync(process.argv[2]||'index.html','utf8'),{runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,url:'https://example.org/#mathematical-statistics-introduction',beforeParse(w){w.scrollTo=()=>{}}});
 const w=dom.window;await new Promise(r=>setTimeout(r,1000));const ev=x=>w.eval(x);
 assert.equal(ev("SECTIONS.findIndex(s=>s.id==='mathematical-statistics-introduction')+1"),ev("SECTIONS.findIndex(s=>s.id==='random-variables')"));
+// One continuous order: numbers run 1…21, the interval-series lesson follows frequencies inside the basics block.
+assert.deepEqual(JSON.parse(ev("JSON.stringify(SECTIONS.map(s=>s.number))")),Array.from({length:21},(_,i)=>i+1));
+assert.deepEqual(JSON.parse(ev("JSON.stringify(SECTIONS.slice(0,7).map(s=>s.id))")),['intro-stats','variation-series','frequency','advanced-variation-series','central-tendency','probability-foundations','mathematical-statistics-introduction']);
+assert.equal(ev("SECTIONS[3].group"),ev("SECTIONS[2].group"));assert.equal(ev("sectionNumber(SECTIONS[3])"),'04');
 assert(w.document.querySelector('.ms-directions'));assert(w.document.querySelector('.theory-card table'));assert(w.document.body.textContent.includes('Этапы статистического исследования'));
 const panel=w.document.getElementById('topic-panel');const lesson=ev("SECTIONS.find(s=>s.id==='mathematical-statistics-introduction')");
 ev('renderPractice')(lesson,panel);assert(panel.querySelector('.live-activity'));assert.equal(panel.querySelectorAll('[data-task]').length,6);
