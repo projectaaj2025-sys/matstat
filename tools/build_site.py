@@ -65,6 +65,7 @@ JS_PARTS = (
     ("src/js/23-ai-task-numbers.js", "\n"),
     ("src/js/24-ai-assistant.js", "\n"),
     ("src/js/25-ai-studio.js", "\n"),
+    ("src/js/25-lesson-methods.js", "\n"),
     ("src/js/26-boot.js", ""),
 )
 
