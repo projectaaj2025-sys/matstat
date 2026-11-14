@@ -64,7 +64,8 @@ def validate(archive_path: Path, run_tests: bool) -> int:
         if not node:
             raise RuntimeError("Node.js is required to run the archived app test")
         result = subprocess.run(
-            [node, str(TEST_SCRIPT), str(extracted_app)],
+            [node, "--max-old-space-size=3456", str(TEST_SCRIPT),
+             str(extracted_app)],
             cwd=APP.parent,
             check=False,
         )
