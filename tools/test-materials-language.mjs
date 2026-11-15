@@ -20,6 +20,26 @@ assert(ev("materials.filter(m=>/-en$/.test(m.id)).length>=7"),'нет англи
 assert(ev("materials.filter(m=>/-kk$/.test(m.id)).length>=7"),'нет казахских презентаций');
 const uniqueDecks=ev("materialsInLanguage(materials.filter(m=>m.kind==='slides')).length");
 
+// --- 0. Каждый вложенный файл декодируется в точности до своего размера -------
+// У переводов рабочих листов остался флаг encoding:'base91', хотя данные записаны
+// обычным base64: просмотрщик падал с «Неверный размер встроенного материала»,
+// и рабочие листы на английском и казахском не открывались.
+for(const m of ev("materials")){
+    const info=ev(`(()=>{const m=materials.find(x=>x.id==='${m.id}');
+        try{const b=materialBytes(m);const head=String.fromCharCode(...b.slice(0,5));
+            return {ok:true,len:b.length,size:m.size,head}}
+        catch(e){return {ok:false,err:e.message,size:m.size}}})()`);
+    assert(info.ok,`файл ${m.id} не декодируется: ${info.err}`);
+    if(m.mime==='application/pdf'){
+        assert.equal(info.len,m.size,`размер ${m.id} совпадает с полем size`);
+        assert.equal(info.head,'%PDF-',`${m.id} начинается с заголовка PDF`);
+    }
+}
+// Переведённые рабочие листы и практикумы открываются байтами, а не ошибкой.
+for(const id of ['practice-rows-en','practice-rows-kk','practice-homework-en','practice-homework-kk','practice-expectation-en','practice-expectation-kk']){
+    assert.equal(ev(`materialBytes(materials.find(m=>m.id==='${id}')).length`),ev(`materials.find(m=>m.id==='${id}').size`),`${id} декодируется целиком`);
+}
+
 // --- 1. Английский интерфейс: одна карточка на презентацию, английский файл ---
 ev("setLanguage('en')");await wait(300);
 ev("location.hash='#materials'");await wait(150);
