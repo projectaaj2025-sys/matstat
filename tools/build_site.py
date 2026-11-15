@@ -34,6 +34,7 @@ JS_PARTS = (
     ("src/js/01-worked-examples.js", "\n"),
     ("src/js/01-course-navigation.js", ""),
     ("src/js/02-practice-and-checking.js", ""),
+    ("src/js/03-materials-language.js", "\n"),
     ("src/js/03-progress-and-library.js", ""),
     ("src/js/04-localization.js", "\n"),
     ("src/js/05-statistics-labs.js", "\n"),

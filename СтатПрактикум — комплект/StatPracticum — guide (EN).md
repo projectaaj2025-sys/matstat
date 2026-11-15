@@ -17,7 +17,7 @@ Results, notes and settings are stored in the browser of the device you work on,
 - **21 topics** in one continuous order, numbered 01–21: 20 core grade 10 topics plus one supplementary grade 11 topic on discrete and interval frequency series, which comes fourth, right after frequencies.
 - **610 graded sub-tasks**: 464 in the topics and 146 in the problem bank. 8 answer formats: number, single choice, multiple choice, matching, ordering, table completion, chart reading and open response.
 - **75 bank problems** with full statements, source data and solutions.
-- **18 interactive labs**, 13 distribution models, 6 presentations (140 slides) and 10 embedded PDFs.
+- **18 interactive labs**, 13 distribution models, 7 presentations (169 slides, each in three languages) and 10 embedded PDFs.
 - **PISA-style section**: 90 questions in 15 situations, 12 of them built on real published data (10 from Kazakhstan). Six new situations use published World Bank series: the urban population share (2019–2024), total population and annual growth (2016–2024) and consumer price inflation (2019–2024); and three calculation sets with five questions each — the internet in every home (2016–2024), pupils per teacher (2015–2019) and work and unemployment (2019–2024). The calculation sets are multi-step: the share is first turned into a head count (share × population or share × labour force) and only then are years compared, averages taken, or a staffing decision checked.
 
 ## Interface language
@@ -37,7 +37,11 @@ The screens that the page draws itself are covered as well: chart labels, labora
 
 **The printed and downloaded files follow the chosen language too.** A topic worksheet, a bank worksheet (the teacher key and the answer version included), the downloadable summary and the results CSV are built in the language selected in the switch: the downloaded page carries the matching `lang` attribute and the file name is translated (“StatPracticum — worksheet.html”, “…нәтижелер.csv”). If you switch the language while a worksheet is open, the sheet is rebuilt at once and no Russian text is left on the screen.
 
-Numbers, units, formulas, task identifiers, the language names in the switch (“Рус”, “Қаз”) are deliberately left as they are. The **embedded PDFs stay in their original Russian**: their 179 pages are stored byte for byte, and the captions inside the slides are part of those PDFs.
+Numbers, units, formulas, task identifiers and the language names in the switch (“Рус”, “Қаз”) are deliberately left as they are.
+
+**Presentations open in the interface language.** Every embedded deck ships three PDFs — the Russian original plus English and Kazakh translations (`-en`, `-kk`). The library, a topic's **Materials** tab and the viewer show **one file per deck**: switching the language changes the title, the slide count and the PDF itself, and an open presentation switches over keeping the slide number. Russian pages are stored byte for byte, and the captions inside the slides are part of those PDFs.
+
+To check: open **Materials** and change the language. The English version shows `Lesson 1. Random Variables` with 18 English slides, the Kazakh one shows `Сабақ 1. Кездейсоқ шамалар`, the Russian one `Урок 1. Случайные величины`. No deck is listed twice: 11 library rows instead of 31 files. In the teacher panel each row has **Рус / Eng / Қаз** buttons for opening a specific version.
 
 ## Working through a topic
 
