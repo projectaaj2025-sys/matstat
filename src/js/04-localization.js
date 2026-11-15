@@ -103,6 +103,8 @@ function setLanguage(id){
  // Static chrome keeps its Russian source, so a re-render plus restore covers the whole page.
  if(typeof applyContentLanguage==='function')applyContentLanguage(id);
  renderRoute();translateDocument();
+ // An open presentation switches to the deck of the new language, keeping the slide number.
+ try{if(typeof syncMaterialLanguage==='function')syncMaterialLanguage()}catch(e){}
  // A worksheet dialog holds data rendered at open time, so it is rebuilt in the new language.
  try{if(typeof wsRefresh==='function')wsRefresh()}catch(e){}
  const picker=$('lang-select');if(picker)picker.value=id;
